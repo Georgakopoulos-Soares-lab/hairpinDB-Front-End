@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+
+<head>
+    <title>hairpinDBs</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+    <style>
+        
+        .homepage-container {
+            font-size: xx-large;
+            font-family: monospace;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: "center";
+            padding-left: 3%;
+            padding-right: 3%;
+            padding-top: 3%
+        }
+   
+        .domain-name-div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #4682B4;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .genomic-container {
+            color: #f0f0f0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .genomic-title {
+            font-size: 3.5rem;
+            background: linear-gradient(to bottom, #1C2A41, #212529);
+
+            padding: 1rem
+        }
+
+        .genomic-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .genomic-column {
+            width: 48%;
+            /* Slightly less than 50% to account for spacing */
+        }
+
+        .genomic-result {
+            text-align: center;
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .genomic-result h2 {
+            color: #4682B4;
+            margin-top: 0;
+        }
+
+        .genomic-result p {
+            margin: 0.5rem 0;
+        }
+
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .genomic-columns {
+                flex-direction: column;
+            }
+
+            .genomic-column {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .bar {
+            fill: steelblue;
+        }
+
+        .bar:hover {
+            fill: brown;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+
+        .aggregated-analysis-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 70%;
+            margin: 0 auto;
+        }
+
+        .column {
+            width: 48%;
+        }
+
+        .metadata-item {
+            margin-bottom: 15px;
+        }
+
+        .metadata-label {
+            font-weight: bold;
+        }
+
+        #download-histogram {
+            cursor: pointer;
+        }
+
+        #download-histogram:hover {
+            opacity: 75%;
+        }
+
+        #genomic-ncbi-genome-browser {
+            color: white;
+        }
+
+        #genomic-ena-browser {
+            color: white;
+        }
+
+        .dt-container {
+            font-size: large;
+        }
+
+      
+
+        .main-container {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .hiddenviz {
+            display: none;
+        }
+
+        .chain-viz-container {
+            margin-bottom: 5%;
+        }
+
+        #composition-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        .stat-cell {
+            text-align: center;
+        }
+
+        .stat-header {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .stat-value {
+            font-size: 1em;
+            color: white;
+
+        }
+
+        .organisms-table-wrapper {
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+       
+    </style>
+
+    </style>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="main-container">
+        <div class="genomic-container">
+            <h1 class="genomic-title" id="domain-name-title"><b>Domain Name</b></h1>
+            <div class="domain-name-div">
+                <br>
+                <div class="loader" id="loader"></div>
+            </div>
+            <br>
+            <div class="genomic-columns">
+                <div class="genomic-column left">
+                    <div class="genomic-result">
+                        <div class="table-like">
+                            <h2><label id="genomic-organism-name"></label>Domain Metadata</h2>
+                            <hr>
+                            <p><strong>Average Count of Tandem Repeats:</strong> <label id="genomic-tandem-count"></label></p>
+                            <p><strong>Average Length of Tandem Repeats</strong> <label id="genomic-tandem-length"></label></p>
+                            <p><strong>Average Density of Tandem Repeats</strong> <label id="genomic-tandem-density"></label></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="genomic-column right">
+                    <div class="genomic-result">
+                        <h2>Additional Metadata</h2>
+                        <hr>
+                        <p><strong>Average Genome Size:</strong> <label id="genomic-genome-size"></label></p>
+                        <p><strong>Average GC Content:</strong> <label id="genomic-gc-content"></label></p>
+                        <hr>
+
+                        <h2>Cross References</h2>
+                        <hr>
+
+                        <p><strong>NCBI Genome Browser</strong> <a id="genomic-ncbi-genome-browser"></a></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-2 justify-content-md-center organisms-table-wrapper">
+                <div class="col-12 ">
+                    <table id="organisms-table" class="display table table-striped table-hover dataTable"
+                        style="table-layout: auto; " aria-describedby="example_info">
+                        <thead>
+                            <tr role="row" id="organisms-table-header">
+                                <th>Organism Name</th>
+                                <th>Domain</th>
+                                <th>Distinct Assemblies</th>
+                                <th>Avg Count of STRs</th>
+                                <th>Avg Length of STRs</th>
+                                <th>Avg STR Density</th>
+                                <th>Avg GC Percent per assembly</th>
+                                <th>Avg Genome Size per assembly</th>
+                            </tr>
+                        </thead>
+                        <tbody id="organisms-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+
+        </div>
+    </div>
+
+<div id="footer-container"></div>
+</body>
+
+<script src="js/components.js"></script>
+
+<script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const domain = urlParams.get('domain');
+    let organisms_table;
+
+    function populateDomainMetada(data){
+        console.log(data)
+        
+        data = data[0]
+        $("#genomic-tandem-count").html(data[0].toFixed(2));
+        $("#genomic-tandem-length").html(data[1].toFixed(2));
+        $("#genomic-tandem-density").html(denistyToMegabasePairs(data[2]) + " / Mb");
+        $("#genomic-genome-size").html(data[3].toFixed(2) + " bp")
+        $("#genomic-gc-content").html(data[4].toFixed(2) + " %")
+    }
+
+
+    function processOrganismsTable(data){
+        let res = []
+        for (let d of data){
+            res.push([d[0],d[1],d[2],d[3].toFixed(2),d[4].toFixed(2), denistyToMegabasePairs(d[5])+" / Mb", d[6].toFixed(2), d[7].toFixed(2)])
+        }
+        return res
+    }
+
+    $.ajax({
+        url: `${backend_url}/statistics/domains/${domain}`,
+        method: 'GET',
+        success: function (data) {
+            populateDomainMetada(data)
+            $("#loader").hide()
+        },
+        error: function (xhr, status, error) {
+            console.log(error)
+            console.error('Error:', error);
+        }
+    });
+
+
+    $.ajax({
+        url: `${backend_url}/statistics/domains/${domain}/organisms`,
+        method: 'GET',
+        success: function (data) {
+            
+            console.log(data)
+            data = processOrganismsTable(data);
+            organisms_table = new DataTable('#organisms-table',
+            {
+                data: data,
+            });
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+
+    $("#domain-name-title").html(domain != 'Virus' ? domain : "Viruses" )
+    $("#genomic-ncbi-genome-browser").html(domain);
+    $("#genomic-ncbi-genome-browser").attr("href", ncbi_domain_references[domain])
+
+    
+</script>
+
+</html>

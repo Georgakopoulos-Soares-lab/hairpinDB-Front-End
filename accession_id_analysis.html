@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+    <title>Accessions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+
+    <style>
+        .boxed-span {
+            border: 2px solid black;
+            background-color: #343a40;
+            padding: 15px;
+            display: inline-block;
+            border-radius: 5px;
+            padding: 2px;
+        }
+
+
+        .accession-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .accession-div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        .chromosome-container {
+            padding: 2%;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7%;
+        }
+
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #4682B4;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .genomic-container {
+            color: #f0f0f0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .genomic-title {
+            font-size: 3.5rem;
+            background: linear-gradient(to bottom, #1C2A41, #212529);
+
+            padding: 1rem
+        }
+
+        .genomic-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .genomic-column {
+            width: 48%;
+            /* Slightly less than 50% to account for spacing */
+        }
+
+        .genomic-result {
+            text-align: center;
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .genomic-result h2 {
+            color: #4682B4;
+            margin-top: 0;
+        }
+
+        .genomic-result p {
+            margin: 0.5rem 0;
+        }
+
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .genomic-columns {
+                flex-direction: column;
+            }
+
+            .genomic-column {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .bar {
+            fill: steelblue;
+        }
+
+        .bar:hover {
+            fill: brown;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+
+        .aggregated-analysis-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 85%;
+            margin: 0 auto;
+        }
+
+        .column {
+            width: 48%;
+            padding: 5%;
+        }
+
+        .metadata-item {
+            margin-bottom: 15px;
+        }
+
+        .metadata-label {
+            font-weight: bold;
+        }
+
+        #download-histogram {
+            cursor: pointer;
+        }
+
+        #download-histogram:hover {
+            opacity: 75%;
+        }
+
+        #genomic-ncbi-genome-browser {
+            color: white;
+        }
+
+        #genomic-ena-browser {
+            color: white;
+        }
+
+        .dt-container {
+            font-size: 1.4rem;
+        }
+
+
+        .hiddenviz {
+            display: none;
+        }
+
+        .chain-viz-container {
+            margin-bottom: 5%;
+        }
+
+        #composition-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+            padding: 10px;
+        }
+
+        .stat-cell {
+            text-align: center;
+        }
+
+        .stat-header {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .stat-value {
+            font-size: 1em;
+            color: white;
+
+        }
+
+        .main-container {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .statistic h2 {
+            display: flex;
+            justify-content: center;
+        }
+
+        .composition-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        #hairpin-ratio-visualization {
+            display: flex;
+            width: 100%;
+            height: 75px;
+            padding: 20px;
+            padding-left: 35%;
+            padding-right: 35%;
+        }
+
+        #left,
+        #middle,
+        #right {
+            height: 75px;
+        }
+
+        #viz-left {
+            background-color: #03c3c3;
+        }
+
+        #viz-middle {
+            background-color: #90ee90;
+        }
+
+        #viz-right {
+            background-color: #FFCE56;
+        }
+
+        .three-column-chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 20px;
+        }
+
+        .chart-container {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #hairpin-file-table-wrapper {
+            font-size: 15px;
+        }
+
+        #hairpin-file-table-wrapper table {
+            font-size: 15px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+
+    <div class="main-container">
+        <div class="genomic-container">
+            <h1 class="genomic-title" id="accession_id"><b>Accession Metadata</b></h1>
+            <div class="accession-div">
+                <br>
+                <div class="loader" id="loader"></div>
+            </div>
+            <br>
+            <div class="genomic-columns">
+                <div class="genomic-column left">
+                    <div class="genomic-result">
+                        <div class="table-like">
+                            <h2><label id="genomic-organism-name"></label></h2>
+                            <hr>
+                            <p><strong>Taxonomy ID:</strong> <label id="genomic-taxid"></label></p>
+                            <p><strong>Chromosome Count:</strong> <label id="genomic-scaffold-count"></label></p>
+                            <p><strong>Species Domain:</strong> <a href=""><label id="genomic-domain"></label></a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="genomic-column right">
+                    <div class="genomic-result">
+                        <h2>Additional Metadata</h2>
+                        <hr>
+                        <p><strong>Genome Size:</strong> <label id="genomic-genome-size"></label></p>
+                        <p><strong>GC Content:</strong> <label id="genomic-gc-content"></label></p>
+                        <hr>
+
+                        <h2>Cross References</h2>
+                        <hr>
+
+                        <p><strong>ENA Browser:</strong> <a id="genomic-ena-browser"></a></p>
+                        <p><strong>NCBI Genome Browser</strong> <a id="genomic-ncbi-genome-browser"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="genomic-container">
+            <div class="genomic-result">
+                <h2>Hairpin Metadata</h2>
+                <hr>
+                <p><strong>Hairpin Count</strong> <label id="genomic-hairpin-count"></label></p>
+                <p><strong>Hairpin Total Sequence Length</strong> <label id="genomic-sequence-length"></label></p>
+                <p><strong>Hairpin Total Arm Length (single)</strong> <label id="genomic-arm-length"></label></p>
+                <p><strong>Hairpin Total Spacer Length</strong> <label id="genomic-spacer-length"></label></p>
+                <p><strong>Hairpin Avg Sequence Length</strong> <label id="genomic-avg-sequence-length"></label></p>
+                <p><strong>Hairpin Avg Arm Length</strong> <label id="genomic-avg-arm-length"></label></p>
+                <p><strong>Hairpin Avg Spacer Length</strong> <label id="genomic-avg-spacer-length"></label></p>
+                <p><strong>Hairpin GC Percent</strong> <label id="genomic-hairpin-gc"></label></p>
+
+                <hr>
+                <h2>Average Hairpin Approx. Visualization</h2>
+
+                <hr>
+
+                <div id="hairpin-ratio-visualization">
+                    <div id="viz-left"></div>
+                    <div id="viz-middle"></div>
+                    <div id="viz-right"></div>
+                </div>
+
+
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <!-- Container for aggregated analysis -->
+        <!-- <div class="aggregated-analysis-container">
+            <div class="column">
+                <div id="histogram"></div>
+                <div class="form-check form-switch">
+                    <label class="form-check-label" for="change-histogram-mode">Percentage / Count</label>
+                    <input class="form-check-input showviz" type="checkbox" role="switch" id="change-histogram-mode">
+                </div>
+                <br>
+            </div>
+        </div> -->
+
+        <div class="statistic">
+            <h2>Hairpin Length Diagrams</h2>
+            <hr>
+            <br>
+            <div class="three-column-chart-container">
+                <div class="chart-container">
+                    <canvas id="arm-length-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="spacer-length-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sequence-length-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <div class="statistic">
+            <h2>Hairpin Composition</h2>
+            <hr>
+            <br>
+            <div class="three-column-chart-container">
+                <div class="chart-container">
+                    <h3>Arm</h3>
+                    <canvas id="arm-comp-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Spacer</h3>
+                    <canvas id="spacer-comp-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Sequence</h3>
+                    <canvas id="sequence-comp-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table container -->
+        <div id="hairpin-file-table-wrapper" class="dt-container dt-bootstrap5" style="margin-right: 20px; margin-left: 20px;">
+            <div class="row mt-2 justify-content-md-center">
+                <div class="col-12 ">
+                    <table id="hairpin-file-table" class="display table table-striped table-hover dataTable"
+                        style="table-layout: auto; width: 100%;">
+                        <thead>
+                            <tr role="row" id="hairpin-file-table-header"></tr>
+                        </thead>
+                        <tbody id="hairpin-file-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+        <div id="footer-container"></div>
+</body>
+
+<script src="js/components.js"></script>
+<script>
+
+
+    function adjustHairpinVisualizationSizesRatio(ratio) {
+
+        const container = document.getElementById('hairpin-ratio-visualization');
+        const left = document.getElementById('viz-left');
+        const middle = document.getElementById('viz-middle');
+        const right = document.getElementById('viz-right');
+
+        // Calculate total width of the container
+        const containerWidth = container.clientWidth;
+
+        // Calculate width of the left and right parts based on the ratio
+        const leftRightWidth = containerWidth / (2 + ratio);
+        const middleWidth = ratio * leftRightWidth;
+
+        // Apply the calculated widths to the elements
+        left.style.width = `${leftRightWidth}px`;
+        right.style.width = `${leftRightWidth}px`;
+        middle.style.width = `${middleWidth}px`;
+    }
+
+    function renderHistogramPercentage() {
+
+        let histogram_data = structuredClone(aggregated_metadata['per_length_analysis']);
+
+        for (let i = 1; i <= 9; i++) {
+            histogram_data[i] = divideToPercent(histogram_data[i], aggregated_metadata['hairpin_repeats_count']);
+        }
+
+
+
+        const chartData = Object.entries(histogram_data).map(([length, percentage]) => ({
+            length: parseInt(length),
+            percentage: percentage
+        }));
+
+        // Set up chart dimensions
+        const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+        const width = 600 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        // Create SVG element
+        const svg = d3.select("#histogram")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+
+        // Create tooltip
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        // X axis
+        const x = d3.scaleBand()
+            .range([0, width])
+            .domain(chartData.map(d => d.length))
+            .padding(0.2);
+        svg.append("g")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-45)")
+            .style("text-anchor", "end");
+
+        // Y axis
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(chartData, d => d.percentage)])
+            .range([height, 0]);
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        // Bars
+        svg.selectAll("mybar")
+            .data(chartData)
+            .join("rect")
+            .attr("x", d => x(d.length))
+            .attr("y", d => y(d.percentage))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.percentage))
+            .attr("class", "bar")
+            .on("mouseover", function (event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`Percentage: ${d.percentage}%`)
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function (d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        // X axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 10)
+            .text("Length");
+
+        // Y axis label
+        svg.append("text")
+            .attr("class", "axis-label")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -margin.left + 20)
+            .attr("x", -height / 2)
+            .text("Percentage");
+
+        // Title
+        svg.append("text")
+            .attr("x", width / 2)
+            .attr("y", -margin.top / 2)
+            .attr("text-anchor", "middle")
+            .style("font-weight", "bold")
+            .html(`Short hairpin Repeat Length Distribution`)
+
+        svg.append("foreignObject")
+            .attr("x", 20) // Adjust to align with the text
+            .attr("y", 0) // Adjust to align with the text
+            .attr("width", 30)
+            .attr("height", 30)
+            .append("xhtml:div")
+            .html('<i id="download-histogram" class="fa-solid fa-file-arrow-down"></i>');
+
+
+        $('#download-histogram').on('click', function () {
+
+            downloadSVG();
+        });
+
+        svg.selectAll("text")
+            .style("fill", "white");
+    }
+
+    function renderHairpinMetadata() {
+        $('#genomic-hairpin-count').html(accession_row_data[40]);
+        $('#genomic-sequence-length').html(accession_row_data[43] + " bp");
+        $('#genomic-arm-length').html(accession_row_data[41] + " bp");
+        $('#genomic-spacer-length').html(accession_row_data[42] + " bp");
+        $('#genomic-avg-sequence-length').html(accession_row_data[50].toFixed(2) + " bp");
+        $('#genomic-avg-arm-length').html(accession_row_data[48].toFixed(2) + " bp");
+        $('#genomic-avg-spacer-length').html(accession_row_data[49].toFixed(2) + " bp");
+        const ratio = accession_row_data[49].toFixed(2) / accession_row_data[48].toFixed(2);
+        adjustHairpinVisualizationSizesRatio(ratio);
+    }
+
+
+    function createChart(ctx, labels, values, chart_color, title) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: title,
+                    data: values,
+                    fill: true,
+                    borderColor: chart_color,
+
+                    tension: 0.1,
+                    pointBackgroundColor: chart_color,
+                    pointBorderColor: chart_color,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Length',
+                            color: 'white',
+                            font: { size: 14 }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count',
+                            color: 'white',
+                            font: { size: 14 }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: 'white',
+                            font: { size: 18 }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderLengthStatistics() {
+        $.ajax({
+            url: `${backend_url}/hairpin/statistics/length/${filename}`,
+            method: 'GET',
+            success: function (resp_obj) {
+                console.log(resp_obj)
+                let arm_data = resp_obj.arms;
+                let spacer_data = resp_obj.spacers;
+                let sequence_data = resp_obj.sequences;
+
+
+                let labels_arms = arm_data.map(item => item[0]); // X-axis: lengths
+                let values_arms = arm_data.map(item => item[1]); // Y-axis: counts
+                let labels_spacers = spacer_data.map(item => item[0]); // X-axis: lengths
+                let values_spacers = spacer_data.map(item => item[1]); // Y-axis: counts
+                let labels_sequences = sequence_data.map(item => item[0]); // X-axis: lengths
+                let values_sequences = sequence_data.map(item => item[1]); // Y-axis: counts
+
+
+
+                // Create three charts
+                createChart(document.getElementById('arm-length-chart').getContext('2d'), labels_arms, values_arms, 'rgba(75, 192, 192, 1)', 'Count per IR Arm Length\n\n');
+                createChart(document.getElementById('spacer-length-chart').getContext('2d'), labels_spacers, values_spacers, 'rgba(144, 238, 144, 1)', 'Count per IR Spacer Length\n\n');
+                createChart(document.getElementById('sequence-length-chart').getContext('2d'), labels_sequences, values_sequences, 'rgba(75, 192, 192, 1)', 'Count per IR Sequence Length\n\n');
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+    }
+
+
+
+    function createCompositionDonutChart(ctx, counts, colors, labels) {
+            const total = counts.reduce((a, b) => a + b, 0);
+            const percentages = counts.map(count => ((count / total) * 100).toFixed(2));
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Composition',
+                        data: percentages,
+                        backgroundColor: colors,
+                        borderColor: '#1D2124',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#FFFFFF', // White color for labels
+                                font: {
+                                    size: 16 // Increase font size
+                                },
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+    function renderComposition() {
+        $.ajax({
+            url: `${backend_url}/hairpin/statistics/composition/${filename}`,
+            method: 'GET',
+            success: function (resp_obj) {
+                let arm_data = resp_obj.arms[0];
+                let spacer_data = resp_obj.spacers[0];
+                let sequence_data = resp_obj.sequences[0];
+
+                const ctx_arm = document.getElementById('arm-comp-chart').getContext('2d');
+                const ctx_spacer = document.getElementById('spacer-comp-chart').getContext('2d');
+                const ctx_sequence = document.getElementById('sequence-comp-chart').getContext('2d');
+                const colors = ['#555D63', '#90ee90', '#FFCE56', '#03c3c3'];
+                const labels = ['A', 'T', 'G', 'C'];
+
+                let gc_percent_hairpin = ((sequence_data[2]+sequence_data[3]) / (sequence_data.reduce((partialSum, a) => partialSum + a, 0)) * 100).toFixed(2);
+                $('#genomic-hairpin-gc').html(gc_percent_hairpin + "%");
+
+                createCompositionDonutChart(ctx_arm, arm_data, colors, labels);
+                createCompositionDonutChart(ctx_spacer, spacer_data, colors, labels);
+                createCompositionDonutChart(ctx_sequence, sequence_data, colors, labels);
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+
+    }
+
+
+
+    // Construct header
+    const urlParams = new URLSearchParams(window.location.search);
+    const accession_id = urlParams.get('accession_id');
+    let merged_sequences;
+    let table_data;
+    let table_columns;
+    let hairpin_file_table;
+    let accession_row_data = JSON.parse(localStorage.getItem("accession_row_data"))["full_table_data"]
+    let filename = accession_row_data[38];
+
+
+
+    let chromosomes = {}
+    let per_chromosome_metadata = {}
+    let aggregated_metadata = {
+        "hairpin_repeats_count": 0,
+        "hairpin_repeats_length": 0,
+        "per_length_analysis": Object.fromEntries(Array.from({ length: 9 }, (_, i) => [i + 1, 0])),
+        "hairpin_repeats_density": 0,
+        "composition": { "a": 0, "t": 0, "g": 0, "c": 0 }
+    }
+
+    function populateAccessionMetadata() {
+        let organims_name = accession_row_data[7];
+        let taxid = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${accession_row_data[5]}'>` + accession_row_data[5] + "</a>";
+        let scaffold_count = accession_row_data[29];
+        let domain = accession_row_data[39];
+        let genome_size = accession_row_data[25];
+        let gc_percent = accession_row_data[27];
+
+        $("#genomic-organism-name").html(`<em>${capitalizeFirstLetter(organims_name)}</em>`);
+        $("#genomic-taxid").html(taxid);
+        $("#genomic-scaffold-count").html(scaffold_count);
+        $("#genomic-domain").html(capitalizeFirstLetter(domain));
+        $("#genomic-domain").parent().attr("href", `/stats_per_domain.html?domain=${domain}`);
+
+        $("#genomic-genome-size").html(genome_size);
+        $("#genomic-gc-content").html(gc_percent + "%");
+        $("#genomic-ena-browser").attr("href", `https://www.ebi.ac.uk/ena/browser/view/${accession_id}`)
+        $("#genomic-ena-browser").html(accession_id)
+        $("#genomic-ncbi-genome-browser").attr("href", `https://www.ncbi.nlm.nih.gov/data-hub/genome/${accession_id}`)
+        $("#genomic-ncbi-genome-browser").html(accession_id)
+    }
+
+
+
+    function populateTable() {
+
+
+        let columns_option = []
+        for (let header of table_columns) {
+            const original_column_name = header;
+            // if (header == 'length') header = 'Total Length'
+            header = header.split('_').join(' ');
+            header = capitalizeFirstLetter(header)
+            let search_bar = `<input type="text" class="form-control search-boxes" id="${original_column_name}">`
+            header += search_bar
+
+            columns_option.push({
+                "title": header
+            })
+
+        }
+
+
+
+        // Initialize table properties, headers and data
+        hairpin_file_table = new DataTable('#hairpin-file-table',
+            {
+                columns: columns_option,
+                data: table_data,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                columnDefs: [{ searchable: true }]
+            });
+
+
+        // Code to prevent sorting when click on searchbox
+        $('.search-boxes').on('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        });
+
+    }
+
+    $('#hairpin-file-table thead').on('keyup', 'input', function () {
+        var columnIndex = $(this).closest('th').index();
+        hairpin_file_table
+            .column(columnIndex)
+            .search(this.value)
+            .draw();
+    });
+
+
+    // Attach event listener to a specific parent element (e.g., #chromosomes-container)
+    $('#chromosomes-container').on('change', '.showviz', function () {
+        console.log("ASD")
+        const id = this.id.replace('showviz-', '');
+        const viz_element = $('#viz-' + id);
+        if ($(this).is(':checked')) {
+            viz_element.removeClass('hiddenviz');
+        } else {
+            viz_element.addClass('hiddenviz');
+        }
+    });
+
+    // Attach event listener to a specific parent element (e.g., #chromosomes-container)
+    $('#change-histogram-mode').on('change', function () {
+        d3.select("svg").remove();
+        if ($(this).is(':checked')) {
+            renderHistogramCount();
+        } else {
+            renderHistogramPercentage();
+        }
+    });
+
+    $(document).ready(function () {
+
+        // Render accession id
+        $("#accession_id").html(accession_id)
+
+        // Fetch hairpin file
+        $.ajax({
+            url: `${backend_url}/hairpin/${filename}`,
+            method: 'GET',
+            success: function (res) {
+
+                table_data = res.data;
+                table_columns = res.headers;
+
+                $("#loader").hide();
+                
+
+                populateAccessionMetadata();
+
+                // Render table
+                populateTable();
+
+                // Render hairpin metadata
+                renderHairpinMetadata();
+
+                renderLengthStatistics();
+
+                // renderHistogramPercentage()
+                // Render Composition stats
+                renderComposition();
+                // Render Chromosomes
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+
+
+        // function renderTopFive(topfive) {
+        //     const table_body = $('#topfive-unit-table-body');
+        //     table_body.empty(); // Clear existing rows
+
+        //     $.each(topfive, function (index, item) {
+        //         const row = $('<tr>');
+        //         row.html(`
+        //             <td><b>${item.unit_sequence.toUpperCase()}</b></td>
+        //             <td style="color: white;">${item.frequency}</td>
+        //         `);
+        //         table_body.append(row);
+        //     });
+
+        // }
+
+        // function fetchTopFiveAndRender() {
+        //     $.ajax({
+        //         url: `${backend_url}/statistics/top_n_unit_sequences/${accession_id}?n=5`,
+        //         type: 'GET',
+        //         success: function (response) {
+        //             renderTopFive(response);
+        //         },
+        //         error: function (xhr, status, error) {
+        //             console.error('Error:', error);
+        //         }
+        //     });
+        // }
+
+        // if ($('#topfive-unit-table-body').length) {
+        //     fetchTopFiveAndRender()
+        // } else {
+        //     $(document).ajaxStop(function () {
+        //         if ($('#topfive-unit-table-body').length) {
+        //             fetchTopFiveAndRender()
+        //             $(document).off('ajaxStop');
+        //         }
+        //     });
+        // }
+    });
+
+</script>
+
+</html>

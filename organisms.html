@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+
+<head>
+    <title>hairpinDB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/components.js"></script>
+
+
+    <style>
+        body {
+            font-family: monospace;
+        }
+
+        .accession-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+        }
+
+
+        .accession-div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 230px;
+            max-height: 200px;
+            /* Set a max height to make it scrollable */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            top: 100%;
+            /* Make the dropdown expand below the button */
+            left: 0;
+        }
+
+        .dropdown-content label {
+            display: block;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .dropdown-content label:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown-content input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+
+
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        .dt-empty {
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+
+        .filter-bar {
+            background-color: #343A40;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            width: 90%;
+
+            margin: 10px;
+        }
+
+        .add-filter-btn {
+            border: none;
+
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+
+
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .filter {
+            background-color: #212529;
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 10px 20px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter span {
+            margin-right: 10px;
+        }
+
+        .remove-filter-btn {
+            background-color: #b00020;
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-filter-btn:hover {
+            background-color: #ff5252;
+        }
+
+        .remove-filter-btn:focus {
+            outline: none;
+            /* Remove outline on focus */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #212529;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            color: #ffffff;
+        }
+
+        .close-button {
+            color: #aaaaaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .form-check-input {
+            margin-top: 10px;
+        }
+
+        .dropdown-item:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Container for the Navbar -->
+    <div id="navbar-container"></div>
+    <br>
+
+
+    <div class="main-container">
+        <div class="accession-div">
+            <div class="loader" id="loader"></div>
+            <br>
+            <br>
+        </div>
+
+
+        <br>
+        <!-- Table container -->
+        <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
+            <br>
+            <div class="input-group">
+                <input type="search" class="form-control rounded" id="search-input"
+                    placeholder="Quick Search on Organism Name" aria-label="Search" aria-describedby="search-addon" />
+                <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
+            </div>
+
+
+            <div class="row mt-2 justify-content-md-center">
+                <div class="col-12 ">
+                    <table id="organisms-table" class="display table table-striped table-hover dataTable"
+                        style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+                        <thead>
+                            <tr role="row" id="tandem-table-header">
+                                <th>Organism</th>
+                                <th>Domain</th>
+                                <th>Assemblies</th>
+                                <th>Average #STR</th>
+                                <th>Average STR Length</th>
+                                <th>Average Density</th>
+                                <th>Average GC Percent (genome)</th>
+                                <th>Average Genome size</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tandem-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mt-2 justify-content-between">
+
+            </div>
+        </div>
+        <div id="footer-container"></div>
+</body>
+
+
+<script>
+
+
+    let organisms_table;
+    let organism_data;
+
+    function processOrganismsTable(data) {
+    let new_data = [];
+
+        for (let d of data) {
+            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(d[0])}')"><em>${d[0]}</em></button>`;
+
+            new_data.push([button, d[1], d[2], d[3].toFixed(2), d[4].toFixed(2), denistyToMegabasePairs(d[5]), d[6].toFixed(2) + '%', d[7].toFixed(2)])
+        }
+        return new_data;
+    }
+
+
+    function fetchDataAndPopulateOrganismsTable() {
+
+        $.ajax({
+            url: `${backend_url}/statistics/organisms`,
+            method: 'GET',
+            success: function (data) {
+                $("#loader").hide();
+                organism_data = data;
+                data = processOrganismsTable(data)
+                organisms_table = new DataTable('#organisms-table', {
+                    data: data,
+                    paging: true,
+                    pageLength: 100,
+                    lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
+                    columnDefs: [{ searchable: true }]
+                });
+
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+    }
+
+
+    $(document).ready(function () {
+
+        $('#search-input').on('keydown', function (event) {
+            if (event.key === 'Enter') {
+                const search_term = $('#search-input').val();
+                quickSearchDatabase(search_term);
+            }
+        });
+
+        $('#search-button').on('click', function () {
+            const search_term = $('#search-input').val();
+            quickSearchDatabase(search_term);
+        });
+
+        fetchDataAndPopulateOrganismsTable()
+
+    })
+
+
+    function goToOrganism(organisms_name) {
+        for (let row of organism_data) {
+
+            if (row[0] == atob(organisms_name)) {
+                localStorage.setItem('organism_row_data', JSON.stringify({ "organism_row": row }));
+            }
+        }
+        location.href = `/organism_analysis.html`;
+    }
+
+    function clearTable() {
+        organisms_table.destroy();
+    }
+
+
+    function quickSearchDatabase(search_term) {
+        $("#loader").show();
+        const post_data = {
+            value: search_term
+        }
+        $.ajax({
+            url: `${backend_url}/organisms/quick_search`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(post_data),
+            success: function (data) {
+                $("#loader").hide();
+                clearTable()
+                organisms_table = new DataTable('#organisms-table', {
+                    data: processOrganismsTable(data),
+                    paging: true,
+                    pageLength: 100,
+                    lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
+                    columnDefs: [{ searchable: true }]
+                });
+            },
+            error: function (xhr, status, error) {
+                $("#loader").hide();
+                console.error('Error:', error);
+            }
+        });
+    }
+
+
+
+</script>
+
+</html>

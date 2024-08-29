@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+
+<head>
+    <title>hairpinDB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+    <style>
+        .about-container {
+            font-size: xx-large;
+            font-family: monospace;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: "center";
+            padding-left: 5%;
+            padding-right: 5%;
+            padding-top: 3%
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Container for the Navbar -->
+    <div id="navbar-container"></div>
+
+
+    <div class="main-container">
+        <div class="about-container">
+            <h1>
+                Download Datasets
+            </h1>
+        </div>
+        <br>
+        <br>
+        <br>
+        
+        <div class="about-container">
+            <h2>
+               Hairpin Dataset
+            </h2>
+        </div>
+        <hr>
+        <div class="about-container">
+            <div>
+                <button class="btn btn-primary" onclick="downloadZipFile('parquet')">Download as Parquet ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('csv')">Download as CSV ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('json')">Download as JSON ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('bed')">Download as BED ⇓</button>
+
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+
+      
+
+<br>
+<br>
+<br>
+<br>
+
+<div id="footer-container"></div>
+</body>
+
+<script src="js/components.js"></script>
+<script>
+
+    const bucket_name = 'accession_files'; 
+    
+    function downloadZipFile(format){
+        
+        const file_name = `ncbi_${format}_accessions.zip`;
+        const url = `https://storage.googleapis.com/${bucket_name}/${file_name}`;
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = file_name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+    }
+    
+</script>
+
+
+</html>

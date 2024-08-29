@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+
+<head>
+    <title>hairpinDB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+    <style>
+        .about-container {
+            font-size: xx-large;
+            font-family: monospace;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: "center";
+            padding-left: 5%;
+            padding-right: 5%;
+            padding-top: 5%
+        }
+
+        
+    </style>
+</head>
+
+<body>
+
+    <!-- Container for the Navbar -->
+    <div id="navbar-container"></div>
+
+
+    <div class="main-container">
+        <div class="about-container">
+            <h1>
+                What is hairpinDB?
+            </h1>
+        </div>
+        <div class="about-container">
+            Microsatellites Explorer is a comprehensive, user-friendly database of hairpin loops or inverted repeats across
+            organismal genomes in the tree of life. An inverted repeat (or IR) is a single stranded sequence of nucleotides followed downstream by its reverse complement.
+             The intervening sequence of nucleotides between the initial sequence and the reverse complement can be any length including zero
+            . For example, the left arm sequence TTACG of length 5 is followed downstream by its reverse complement , right arm sequence CGTAA whereas the intervening sequence TAAT is called spacer and cannot be merged into the arms as the left T is 
+            not the reverse complement of the right end T and the same holds for the As in between: <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+        <div class="about-container">
+            <b style="color: #FFC107;">TTACG</b>TAAT<b style="color: #17A2B8;">CGTAA</b>
+        </div>
+
+        <div class="about-container">
+
+            The database currently hosts X inverted repeats from Y genomes originating from the NCBI dataset     
+            The database can be searched based on species name, ID or taxonomic domain. The
+            hairpinDB website contains interactive bar plots, tables and drop-down menus that enable the
+            selection of IRs across organisms. The selected data can be downloaded for further
+            processing by the user. The format of the download is a zipped folder with CSV files
+            containing the annotated IRs loci with their genomic coordinates. The database
+            incorporates programmatic access for custom applications.
+            Contact us for feature requests, bugs or collaborations:
+
+
+        </div>
+
+        <div class="about-container">
+            <h1 style="font-size: 25px;">
+                <b>Ilias Georgakopoulos-Soares: &nbsp&nbsp</b>izg5139<em>@</em>psu.edu
+                <br>
+                <b>Kimonas Provatas:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp </b> kap6605<em>@</em>psu.edu
+                <br>
+                <b>Nikol Chantzi:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp </b> nmc6088<em>@</em>psu.edu
+                <br>
+                <b>Ioannis Mouratidis:&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp </b> ioannis.mouratidis<em>@</em>psu.edu
+            </h1>
+        </div>
+    </div>  
+    <br>
+    <br>
+
+
+
+    <div id="navbar-container"></div>
+    <div id="footer-container"></div>
+</body>
+
+<script src="js/components.js"></script>
+
+
+
+
+</html>

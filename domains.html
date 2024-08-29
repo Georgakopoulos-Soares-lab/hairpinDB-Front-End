@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+
+<head>
+    <title>hairpinDB</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+    <style>
+        body {
+            background-color: #212529;
+            display: block;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 60px;
+            margin-left: 4%;
+            margin-right: 4%;
+
+        }
+        .grid-item {
+            aspect-ratio: 1.5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            font-size: 30px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .grid-item:hover {
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .main-container {
+            font-family: monospace;
+        }
+        .icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        .eukaryota-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        #archaea { background-color: #1e88e5; }
+        #eukaryota { background-color: #d32f2f; }
+        #viruses { background-color: #757575; }
+        #bacteria { background-color: #43a047; }
+
+        .about-container{
+            display: flex;
+            justify-content: center;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Container for the Navbar -->
+    <div id="navbar-container"></div>
+
+
+    <div class="main-container">
+        <br>
+        <br>
+
+        <div class="about-container">
+            <h1>
+                Select Domain
+            </h1>
+        </div>
+        <br>
+        <br>
+
+        <div class="grid-container">
+            <div id="archaea" class="grid-item">
+                <i class="fa-solid fa-bacteria icon"></i>
+                Archaea
+            </div>
+            <div id="eukaryota" class="grid-item">
+                <img class="eukaryota-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFBUlEQVR4nO2ZbWhWZRjHH62lM+cqWxA1c1JE04pqYflBsEKUiKxAHX2Jco1FZRBSERJZFlFGfQo1shZRZB+kFxbZG1qNbEVlRa+SU5+0N8vVzMr94mL/Azdn5+U+5zzPGPT8YYzz3Nd9vZzr9b5PqVRDDTXUUA0ApwN3A68BO4Eh4DegD3gYOKM0lgFcDLxLOoaAZ4ATSmMJwHl6+wF+BzYAlwEtwHigCbgIWAsMim4fcOFYMGAi8CDwrxSz8LkTODpl3wzgDe0xoxaMntYjlTkf+FzKmCGPAFMz7D8SWKf9fwBt1dV4pALjgOXAISnxHTC3AK8nxGcH0FB5jaMFTwVedhL2UaA+htaSfqsHzwnAJ+L5UFUUDwmcA/RL4C+WyCn0W4Etnrzb9GIOAidXTOkI968A/pER9qan5eR1n/JhdcTaRvEfsVaNUHrAkrQAvwHxOhCxNldre6xcF1Y+JpR+BBZWgOdqGXNvjOcDeW3VCKUtwEmFGfvJXieZK4oyOi4USvfHhRJwLHAN8DTwmWL/zYLyr5PsZ4swOQ34Sox+igsl4FTNSUEfceFVpVLC2dBbygPgHOBnMfkQaI7pxLc7c9KQxozl6vJTcgkfOTUbvixlBTBLfcHwYtScZLVdI7jhMLDePJhBRiPwnPrETqArhq4pKC55yquNGIYXgLoImpnAbtHsBy5wOvIS4HmF5J9xIaE8CuPWCLo6rf2d1ZAntfE9Uyxi3UbwvY5wC7tJQCdQjlDu7Rg5Qdi2AtcqLM2z80N0k0U3kMWIs8RsMKpT6wzxkTOeB6O67Qlg6zcBZyaN7noBhpV6XqnnvogQNuzOYsgabVoTs25u/kHKNuqcgdMgl2SQNV8vwDzRAZwblQuauQwfZzEkmDhnJ9BMUrUa55wAv7aQc7zWriJRVkku63mpO2pYTkSE4lMheVfr941ZDLHjqKHRg/YGxxMtTv4EIROHvoBee7pUtUx2d7hk2+iSeXB0+sFEj25vOWJY5Bhh523Dt8AyxXed/nc41dCKxXRPnd7SnquyGLJLm1pS6O4S3WYnnAJPvBKX5KpAPaL7IG2iZfj8f1B51JTFkJckJDFpnTc7T8/tjifSLhkadIT1kbNAdNu9jdDG27SxO4VuM/COJbyeLZENyzzlXC/6TSl0G0S3KqshM+TGgbQ3G9oXNEKvI6n1KNHvSamO+0U301cXl4GdNQw3Z9gTTL1HhX6/VKPMLndyNjrR/5XAs0s02zIbIQaXi8H3YcU8PNIcUzwM/b4eAY5QbzIszWuINbrtYnKHz5WOkyMdnoZ0JuUIw6UaFYXc9wHGaJ5yxabXs9OudNSxUTWb7Py+UMb0B1egqlrmbcPiCNkNzlDantsIh+F6J8ROTKEd75xNeuJuB6Xkq0HsR/UR4HGt9wZVsaghE8TM8A1wSgq9O97vUIltVmJPUzgFntgbxQ+4UuuDuSpVgnLHOx3bxo9LUuinq2MnYVvUeMLw9HtANDdWzAhHwDHA6xJwWHe7U1LCzE6Jm3Sxdkj/7XlxTDi16niAmmDxkEooh/c4B6myLhjqK8D7Cmfq7ok6Wlcccv/7Tpjs00edWTl4zdaAGaA7bequKNRnFjlVCifB1yrJ5yjRrWDUa+xv1Wc3uyv+1NlntzWdo2ZAwlt9LHQZ4Yuy7n29v2iNlpfs4+ctuoXp1anvV+fvC/WQVfrSm79j11BDDf8//AcQarQLbYhyTAAAAABJRU5ErkJggg==">
+                Eukaryota
+            </div>
+            <div id="viruses" class="grid-item">
+                <i class="fa-solid fa-virus icon"></i>
+                Viruses
+            </div>
+            <div id="bacteria" class="grid-item">
+                <i class="fa-solid fa-bacterium icon"></i>
+                Bacteria
+            </div>
+        </div>
+
+
+    </div>  
+    <br>
+    <br>
+
+
+
+    <div id="navbar-container"></div>
+    <div id="footer-container"></div>
+</body>
+
+<script src="js/components.js"></script>
+
+<script>
+     $(document).ready(function() {
+        $('.grid-item').click(function() {
+            var id = $(this).attr('id');
+            var domain = id.charAt(0).toUpperCase() + id.slice(1);
+            
+            // Special case for "viruses"
+            if (domain === "Viruses") {
+                domain = "Virus";
+            }
+            
+            window.location.href = '/stats_per_domain.html?domain=' + domain;
+        });
+    });
+</script>
+
+
+</html>

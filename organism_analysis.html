@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+    <title>Organism Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
+
+
+    <style>
+        .accession-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+
+        .accession-div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #4682B4;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .genomic-container {
+            color: #f0f0f0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .genomic-title {
+            font-size: 3.5rem;
+            background: linear-gradient(to bottom, #1C2A41, #212529);
+
+            padding: 1rem
+        }
+
+        .genomic-columns {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .genomic-column {
+            width: 48%;
+            /* Slightly less than 50% to account for spacing */
+        }
+
+        .genomic-result {
+            text-align: center;
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .genomic-result h2 {
+            color: #4682B4;
+            margin-top: 0;
+        }
+
+        .genomic-result p {
+            margin: 0.5rem 0;
+        }
+
+        .statistics-container {
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .genomic-columns {
+                flex-direction: column;
+            }
+
+            .genomic-column {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+
+        .bar {
+            fill: steelblue;
+        }
+
+        .bar:hover {
+            fill: brown;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+
+        .aggregated-analysis-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 85%;
+            margin: 0 auto;
+        }
+
+        .column {
+            width: 48%;
+            padding: 5%;
+        }
+
+
+        .main-container {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .tandem-file-table td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+            /* Adjust the width as needed */
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .axis-label {
+            font-size: 6px;
+        }
+
+        #organism-tandem-table {
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        #organism-tandem-table td {
+            text-align: center;
+        }
+
+        .assemblies-wrapper{
+            margin-left: 80px;
+            margin-right: 80px;
+            /* display: flex; */
+        }
+
+        .btns-wrapper {
+            margin-left: 80px;
+            margin-right: 80px;
+            display: flex;
+        }
+
+        .dropdown-item:hover{
+            cursor:pointer;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+
+    <div class="main-container">
+        <div class="genomic-container">
+            <h1 class="genomic-title" id="organism-name-title"><b> </b></h1>
+            <div class="accession-div">
+                <br>
+                <div class="loader" id="loader"></div>
+            </div>
+            <br>
+            <div class="genomic-columns">
+                <div class="genomic-column left">
+                    <div class="genomic-result">
+                        <div class="table-like">
+                            <h2><label id="t2t-organism-name"></label>Aggregated analysis</h2>
+                            <hr>
+                            <p><strong>Assemblies: </strong><label id="genomic-assemblies"></label></p>
+
+                            <p><strong>Taxonomy ID: </strong><label id="genomic-taxid"></label></p>
+                            <p><strong>Species domain: </strong><label id="genomic-domain"></label></p>
+                            <p><strong>GC Percent: </strong><label id="genomic-gc-percent"></label></p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="genomic-column left">
+                    <div class="genomic-result">
+                        <div class="table-like">
+                            <h2><label id="genomic-tandem-metadataa"></label>STRs Metadata per Organism</h2>
+                            <hr>
+                            <p><strong>Average number of STRs</strong> <label id="genomic-tandem-count"></label></p>
+                            <p><strong>Average STR Length</strong> <label id="genomic-avg-tandem-length"></label></p>
+                            <p><strong>Average STR Density </strong> <label id="genomic-tandem-density"></label></p>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+
+        <!-- Container for aggregated analysis -->
+        <!-- <div class="aggregated-analysis-container">
+            <div class="column">
+
+                <div id="histogram"></div>
+                <div class="form-check form-switch">
+                    <label class="form-check-label" for="change-histogram-mode">Percentage / Count</label>
+                    <input class="form-check-input showviz" type="checkbox" role="switch" id="change-histogram-mode">
+                </div>
+                <br>
+            </div>
+            <div class="column" id="metadata">
+              
+            </div>
+        </div> -->
+        <div class="statistics-container">
+            <br>
+            <br>
+
+            <h2><label style=" color: #4682B4;">Statistics per STR</label>
+                <hr>
+            </h2>
+            <br>
+        </div>
+
+        <div class="statistics-container">
+            <div class="statistic">
+                <h2>Tandem Repeats Composition</h2>
+                <hr>
+                <div class="composition-container">
+                    <svg id="chart-comp" width="400" height="300"></svg>
+                </div>
+            </div>
+
+            <div class="statistic">
+                <h2>Unit Sequence Length Distribution</h2>
+                <hr>
+
+                <div class="composition-container">
+                    <div class="sru-container">
+                        <svg id="chart-sru" width="400" height="300"></svg>
+
+                    </div>
+                </div>
+            </div>
+            <div class="statistic">
+                <h2>Top 5 Unit Sequences</h2>
+                <hr>
+                <table id="top5-table">
+                    <thead>
+                        <tr>
+                            <th>Unit Sequence&nbsp&nbsp</th>
+                            <th>Count&nbsp</th>
+                        </tr>
+                    </thead>
+                    <br>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <br>
+        <br>
+
+        
+        <div class="btns-wrapper">
+            <button id="select-all-button" class="btn btn-outline-primary" style="margin-right: 10px;" >Select/Deselect All Visible Rows</button>
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Download Selected Rows
+                </button>   
+                <ul class="dropdown-menu" aria-labelledby="download-rows-btn">
+                    <li><a class="dropdown-item download-dropdown-item" id="download-csv-btn">Download as CSV</a></li>
+                    <li><a class="dropdown-item download-dropdown-item" id="download-json-btn">Download as JSON</a></li>
+                    <li><a class="dropdown-item download-dropdown-item" id="download-parquet-btn">Download as
+                            Parquet</a>
+                    </li>
+                    <li><a class="dropdown-item download-dropdown-item" id="download-bed-btn">Download as BED</a></li>
+
+                </ul>
+            </div>
+        </div>
+
+        <div class="assemblies-wrapper">
+            <table id="organism-assemblies-table" class="display table table-striped table-hover dataTable "  
+            style="table-layout: auto; " aria-describedby="example_info">
+            <thead>
+                <tr role="row" id="organism-assemblies-table-header">
+                    <th>Assembly accession</th>
+                    <th>Taxid</th>
+                    <th>Organism name</th>
+                    <th>Chromosome count</th>
+                    <th>Number of Tandem Repeats</th>
+                    <th>Tandem Repeats Density</th>
+                    <th>Domain</th>
+                </tr>
+            </thead>
+            <tbody id="organism-assemblies-table-body"></tbody>
+            
+            </table>
+
+        </div>
+        <div id="footer-container"></div>
+</body>
+
+
+
+
+<script src="js/components.js"></script>
+<script>
+
+
+    let organism_row_data = JSON.parse(localStorage.getItem("organism_row_data"))["organism_row"];
+    let organism_name = organism_row_data[0];
+    let single_metadata;
+    let all_metadata;
+    let accession_ids = []
+
+    function preprocessAssembliesTable(data){
+        let new_data = []
+        for (const d of data){
+            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${d[0]}')">${d[0]}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${d[0]}">`
+            let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
+            let organisms_name = `<em>${d[7]}</em>`;
+            let scaffolds = d[29];
+            let tandem = d[38];
+            let density = denistyToMegabasePairs(d[40]);
+            let domain = d[41];
+
+            
+            new_data.push([button,taxid_link,organisms_name,scaffolds,tandem,density,domain])
+        }
+        return new_data;
+    }
+
+
+    function storeAccessionRow(accession_id) {
+
+        for (let row of all_metadata) {
+            if (row[0] == (accession_id)) {
+                localStorage.setItem('accession_row_data', JSON.stringify({ "full_table_data": row }));
+            }
+        }
+        location.href = `/accession_id_analysis.html?accession_id=${accession_id}`
+    }
+
+    function renderMetadata() {
+
+        let metadata = single_metadata
+        console.log(metadata)
+        // T2T organism Metadata
+        let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${metadata[5]}'>` + metadata[5] + "</a>";
+        $("#genomic-assemblies").html(`${organism_row_data[2]}`);
+
+        $("#genomic-taxid").html(taxid_link);
+        $("#genomic-scaffolds").html(`NULL`);
+        $("#genomic-domain").html(`${organism_row_data[1]}`);
+        $("#genomic-gc-percent").html(`${organism_row_data[6].toFixed(1)}% (genome)`);
+
+        // Tandem Metadata
+        $("#genomic-tandem-count").html(`${organism_row_data[3].toFixed(2)}`);
+        $("#genomic-avg-tandem-length").html(`${organism_row_data[4].toFixed(3)} bp`);
+        $("#genomic-tandem-density").html(`${denistyToMegabasePairs(organism_row_data[5])} / Mb`);
+
+    }
+
+
+    $(document).ready(function () {
+        console.log(organism_name);
+        $("#organism-name-title").html(organism_name)
+        $("#loader").hide();
+    });
+
+        $('#select-all-button').click(function () {
+                let checkboxes = $('.selected-rows');
+                let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
+
+                checkboxes.prop('checked', !isAllChecked);
+        });
+
+    function renderComposition(base_percentages) {
+        const data = base_percentages;
+        const margin = { top: 20, right: 30, bottom: 40, left: 40 },
+            width = 400 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart-comp")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.base))
+            .range([0, width])
+            .padding(0.1);
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.percent)])
+            .nice()
+            .range([height, 0]);
+
+        // Color scale for consistent coloring
+        const color = d3.scaleOrdinal()
+        .domain(data.map(d => d.base))
+        .range(["#FFC107", "#17A2B8", "#6C757D", "#E83E8C"]);
+
+        // Tooltip div
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        svg.append("g")
+            .selectAll("rect")
+            .data(data)
+            .enter().append("rect")
+            .attr("x", d => x(d.base))
+            .attr("y", d => y(d.percent))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.percent))
+            .attr("fill", d => color(d.base)) // Apply the color based on the base
+            .on("mouseover", function (event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html((d.percent * 100).toFixed(2) + "%")
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function () {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x));
+
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y).ticks(5, "~%"));
+    }
+
+
+    function renderSruGraph(raw_data) {
+        // Calculate total sum
+        const total = raw_data.reduce((sum, d) => sum + d[1], 0);
+
+        // Convert to percentages
+        const data = raw_data.map(([key, value]) => ({
+            key,
+            percent: value / total
+        }));
+
+        const margin = { top: 20, right: 30, bottom: 40, left: 40 },
+            svgWidth = 400, // Set this to match your <svg> element width
+            svgHeight = 300, // Set this to match your <svg> element height
+            width = svgWidth - margin.left - margin.right,
+            height = svgHeight - margin.top - margin.bottom;
+
+        const svg = d3.select("#chart-sru")
+            .append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const x = d3.scaleBand()
+            .domain(data.map(d => d.key))
+            .range([0, width])
+            .padding(0.1); // Add some padding between the bars
+
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.percent)])
+            .nice()
+            .range([height, 0]);
+
+        // Tooltip div
+        const tooltip = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0);
+
+        svg.append("g")
+            .selectAll("rect")
+            .data(data)
+            .enter().append("rect")
+            .attr("x", d => x(d.key))
+            .attr("y", d => y(d.percent))
+            .attr("width", x.bandwidth())
+            .attr("height", d => height - y(d.percent))
+            .attr("fill", "steelblue")
+            .on("mouseover", function (event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html((d.percent * 100).toFixed(2) + "%")
+                    .style("left", (event.pageX + 5) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function () {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(x).ticks(data.length));
+
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(y).ticks(5, "~%"));
+
+    }
+
+
+    function renderTopUnitSeq(data) {
+        const tbody = document.querySelector("#top5-table tbody");
+        data.forEach(([unitSequence, count]) => {
+            const tr = document.createElement("tr");
+            const tdUnitSequence = document.createElement("td");
+            const tdCount = document.createElement("td");
+            tdUnitSequence.textContent = unitSequence.toUpperCase();
+            tdCount.textContent = count;
+            tr.appendChild(tdUnitSequence);
+            tr.appendChild(tdCount);
+            tbody.appendChild(tr);
+        });
+    }
+
+
+    function fetchStatistics() {
+        $.ajax({
+                url: `${backend_url}/statistics/organisms/composition`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({'accession_ids_list' : accession_ids}),
+                success: function (data) {
+                    console.log(data)
+                    let composition_array = data[0]
+                    let sum = composition_array.reduce((a, b) => a + b, 0)
+                    let composition_new = []
+                    let index = 0;
+                    for (let c of composition_array) {
+                        composition_new.push(c / sum);
+                    }
+                    composition_new = composition_new.map((percent, index) => { return { base: ['A', 'T', 'G', 'C'][index], percent: percent }; });
+                    renderComposition(composition_new)
+
+                },
+                error: function (xhr, status, error) {
+                    $("#loader").hide();
+                    console.error('Error:', error);
+                }
+            });
+        $.ajax({
+            url: `${backend_url}/statistics/organisms/sru_distribution`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({'accession_ids_list' : accession_ids}),
+            success: function (data) {
+                renderSruGraph(data)
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+
+        $.ajax({
+            url: `${backend_url}/statistics/organisms/top_n_unit_sequences`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({'accession_ids_list' : accession_ids}),
+            success: function (data) {
+                renderTopUnitSeq(data)
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+
+        // $.ajax({
+        //     url: `${backend_url}/statistics/human_pangenome/top_overlapping_tandem_organisms/${tandem_genome_id}`,
+        //     method: 'GET',
+        //     success: function (data) {
+        //         console.log(data)
+        //         for (let i = 0; i < data.length; i += 1) {
+        //             console.log(data[i])
+        //             data[i][0] = data[i][0].replace('organism:', '');
+        //         }
+        //         renderorganismStats(data)
+        //     },
+        //     error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        // });
+    }
+
+
+    $('.download-dropdown-item').click(function (event) {
+            let button_id = event.target.id;
+            let format = button_id.split('-')[1];
+            let selected_rows = [];
+            $('.selected-rows').each(function () {
+                if ($(this).is(':checked')) {
+                    selected_rows.push(this.id);
+                }
+            });
+            $("#loader").removeAttr('hidden').css('display', '').removeClass('hidden');
+            $.ajax({
+                url: `${backend_url}/download`,
+                type: 'POST',
+                contentType: 'application/json',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                data: JSON.stringify({
+                    format: format,
+                    selected_rows: selected_rows,
+                    dataset: 'ncbi'
+                }),
+                success: function (data) {
+                    $("#loader").hide();
+                    // Start Download File
+                    var link = document.createElement('a');
+                    var url = window.URL.createObjectURL(data);
+                    link.href = url;
+                    link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    // End Download File
+                },
+                error: function (xhr, status, error) {
+                    $("#loader").hide();
+                    console.error('Error:', error);
+                }
+            });
+        });
+
+
+    $.ajax({
+        url: `${backend_url}/organisms/metadata/${btoa(organism_name)}`,
+        method: 'GET',
+        success: function (data) {
+            single_metadata = data[0]
+            all_metadata = data
+            for (const d of data) {
+                accession_ids.push(d[0]);
+            }
+            renderMetadata();
+            fetchStatistics();
+            let table_assemblies = preprocessAssembliesTable(all_metadata);
+            let organism_tandem_table = new DataTable('#organism-assemblies-table',
+            {
+                data: table_assemblies,
+                paging: true,
+                pageLength: 25,
+                lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
+            });
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+    });
+
+
+
+
+</script>
+
+</html>
