@@ -2,13 +2,14 @@
 <html data-bs-theme="dark">
 
 <head>
-    <title>hairpinDB</title>
+    <title>invertiaDB</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
@@ -41,7 +42,7 @@
             margin-top: 20px;
         }
 
-       
+
 
         #legend {
             display: flex;
@@ -125,6 +126,32 @@
         .main-container {
             font-family: monospace;
         }
+
+
+        .statistic h2 {
+            display: flex;
+            justify-content: center;
+        }
+
+        .statistic {
+            margin-left: 3%;
+            margin-right: 3%;
+
+        }
+
+        .three-column-chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 20px;
+        }
+
+        .chart-container {
+            flex: 1;
+            padding: 10px;
+            height: 550px;
+            width: 100%;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -135,20 +162,19 @@
         <!-- <div class="homepage-container">
             <img class='penn-logo' src="img/penn_logo.png"></img>
         </div> -->
-        
-        <div class="homepage-container">
-            
 
-            <h1>hairpinDB</h1>
-        </div>
         <div class="homepage-container">
-            <img class='penn-logo' src="img/hairpin_loop_cropped.png"></img>
+
+            <h1>invertiaDB</h1>
         </div>
+        <!-- <div class="homepage-container">
+            <img class='penn-logo' src="img/hairpin_loop_cropped.png"></img>
+        </div> -->
 
         <div class="homepage-container">
             <h1><b>118,072 </b>genomes analyzed.</h1>
         </div>
-        
+
         <div class="homepage-container">
             <h1><b>31,449,295 Inverted Repeats in total across organisms</b></h1>
         </div>
@@ -162,342 +188,389 @@
 
         <div class="homepage-container">
             <h1>
-                <div class="chart chart-title" style="font-size: 2rem;">Distribution of Inverted Repeats <b>Density</b> per domain:</div>
-
+                <div class="chart chart-title" style="font-size: 2rem;">Distribution of Inverted Repeats <b>Density</b>
+                    (Mbp) per domain</div>
+                <br>
+                <canvas id="densities-chart" height="100"></canvas>
             </h1>
-        </div>
-        <br>
-        <div class="homepage-container">
-            <div id="chart1" class="chart"></div>
-        </div>
-        <br>
-        <br>
-        <div id="legend"></div>
 
-        <br>
-        <br>
-        <br>
-
-        <div class="container">
-            <div class="column">
-                <div class="homepage-container">
-                    <h1>Top 10 most frequent Unit Sequences:</h1>
-                </div>
-                <div class="homepage-container">
-                    <table id="topten-unit-table" class="display table table-striped table-hover dataTable"
-                        style="table-layout: auto; width: 90%;" aria-describedby="example_info">
-                        <thead>
-                            <tr role="row" id="topten-unit-table-header">
-                                <th>Unit Sequence</th>
-                                <th>Occurences</th>
-                            </tr>
-                        </thead>
-                        <tbody id="topten-unit-table-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="column">
-                <h1>Distribution of Tandem Repeats Length</h1>
-                <div id="histogram"></div>
-            </div>
         </div>
 
-
         <br>
+        <div class="statistic">
+            <h2>Inverted Repeat Length Diagrams</h2>
             <br>
-
-            <div class="homepage-container" style="margin-bottom: 1%;">
-                <h1>Top 10 Organisms by Tandem Repeat Density</h1>
+            <div class="three-column-chart-container">
+                <div class="chart-container">
+                    <canvas width="600" height="380" id="arm-length-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas width="600" height="400" id="spacer-length-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas width="600" height="400" id="sequence-length-chart"></canvas>
+                </div>
             </div>
-            <div class="homepage-container">
-                <table id="topten-organisms-table" class="display table table-striped table-hover dataTable"
-                    style="table-layout: auto; width: 90%;" aria-describedby="example_info">
-                    <thead>
-                        <tr role="row" id="topten-organisms-table-header">
-                            <th>Organism Name</th>
-                            <th>Organism Domain</th>
-                            <th>Short Tandem Repeats count</th>
+        </div>
+        <br>
 
-                        </tr>
-                    </thead>
-                    <tbody id="topten-organisms-table-body">
-                    </tbody>
-                </table>
-            </div>
+        <br>
+
+
+        <div class="homepage-container" style="margin-bottom: 1%;">
+            <h1>Top 10 Organisms by Inverted Repeat Density</h1>
+        </div>
+        <div class="homepage-container">
+            <canvas id="donutChart" width="800" height="700"></canvas>
+        </div>
     </div>
 
     <br>
     <br>
 
-<div id="footer-container"></div>
+    <div id="footer-container"></div>
 </body>
 
 <script src="js/components.js"></script>
 
 <script>
 
-    let group_avg_count = {};
-    let group_avg_length = {}
+
     let group_avg_density = {}
-
- 
-
-    function transformData(res) {
-        for (let lst of res) {
-            group_avg_count[prettifyGroupName(lst[0])] = lst[1];
-            group_avg_length[prettifyGroupName(lst[0])] = lst[2];
-            group_avg_density[prettifyGroupName(lst[0])] = lst[3];
-        }
-    }
+    let densities_resp;
+    let global_lengths_resp;
+    let top_dense_organisms;
 
 
-
-    function renderPies() {
-        // Combine data into one array for easier iteration
-        const datasets = [ group_avg_density];
-        // Calculate total for each dataset
-        const totals = datasets.map(data => Object.values(data).reduce((acc, val) => acc + val, 0));
-
-        // SVG dimensions
-        const width = 400;
-        const height = 400;
-        const radius = Math.min(width, height) / 2;
-
-       // Define custom color scheme with four specified colors
-        const customColorScale = d3.scaleOrdinal()
-            .domain(Object.keys(group_avg_count))
-            .range(["#FFC107", "#17A2B8", "#6C757D", "#E83E8C"]);
-
-
-        // Function to create pie charts
-        datasets.forEach((data, i) => {
-            const svg = d3.select(`#chart${i + 1}`)
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", `translate(${width / 2}, ${height / 2})`);
-
-            // Create arcs for slices
-            const pie = d3.pie()
-                .sort(null)
-                .value(d => d.value);
-
-            const arc = d3.arc()
-                .outerRadius(radius - 10)
-                .innerRadius(0);
-
-            const arcs = pie(Object.entries(data).map(([key, value]) => ({ key, value })));
-
-            // Draw slices
-            const paths = svg.selectAll("path")
-                .data(arcs)
-                .enter().append("path")
-                .attr("fill", d => customColorScale(d.data.key))
-                .attr("d", arc);
-
-
-            paths.append("title")
-                .text(d => `${d.data.key}: ${(d.data.value / totals[i] * 100).toFixed(1)}%`);
-
-            paths.on("mouseover", function (d) {
-                d3.select(this)
-                    .transition()
-                    .duration(100)
-                    .attr("opacity", 0.7);
-
-                const percent = (d.data.value / totals[i] * 100).toFixed(1);
-                const tooltipText = `${d.data.key}: ${percent}%`;
-
-                // Show tooltip
-                tooltip.transition()
-                    .duration(100)
-                    .style("opacity", 0.9);
-
-                tooltip.html(tooltipText)
-                    .style("left", (d3.event.pageX + 10) + "px")
-                    .style("top", (d3.event.pageY - 15) + "px");
-            })
-                .on("mouseout", function (d) {
-                    d3.select(this)
-                        .transition()
-                        .duration(200)
-                        .attr("opacity", 1);
-
-                    // Hide tooltip
-                    tooltip.transition()
-                        .duration(500)
-                        .style("opacity", 0);
-                });
-
-            // Legend data
-            const legendData = Object.entries(data).map(([key, value]) => ({
-                key,
-                value: (value / totals[i] * 100).toFixed(1)
-            }));
-
-            
-
-            // Add legend
-            const legend = d3.select("#legend")
-                .selectAll(".legend-item")
-                .data(legendData)
-                .enter().append("div")
-                .attr("class", "legend-item")
-                .on("click", function (event, d) {
-                    const htmlContent = this.innerHTML;
-                    let selected_organism = ''
-                    domains.forEach(org => {
-                        if (htmlContent.includes(prettifyGroupName(org))) location.href = `/stats_per_domain.html?domain=${org != "Viruses" ? org : "Virus"}`
-                    })
-                });
-
-
-            legend.append("div")
-                .style("width", "20px")
-                .style("height", "20px")
-                .style("background-color", d => customColorScale(d.key))
-                .style("margin-top", "5px");
-
-            legend.append("span")
-                .text(d => `${d.key}`);
+    function convertToChartData(jsonData, colors) {
+        const labels = ['Domain'];
+        jsonData.data.sort((a, b) => b[1] - a[1]);
+        const datasets = jsonData.data.map((item, index) => {
+            return {
+                label: item[0],
+                data: [denistyToMegabasePairs(item[1])],
+                backgroundColor: colors[index % colors.length],
+                barThickness: 50
+            };
         });
 
-        // Tooltip
-        const tooltip = d3.select("body")
-            .append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
+        return {
+            labels: labels,
+            datasets: datasets
+        };
     }
 
+    function renderStackedChartDensities() {
 
+        const ctx = document.getElementById('densities-chart').getContext('2d');
+        const colors = ['#555D63', '#90ee90', '#FFCE56', '#03c3c3'];
 
-    function renderHistogramPercentage(data) {
-        let total_count = 0;
-        data.forEach(lst => total_count += lst[1]);
-        let histogram_data = {}
-        data.forEach(lst => { histogram_data[lst[0]] = lst[1]; })
-        for (let i = 1; i <= 9; i++) {
+        let data = convertToChartData(densities_resp, colors);
 
-            histogram_data[i] = divideToPercent(histogram_data[i], total_count);
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                indexAxis: 'y',
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    x: {
+                        stacked: false,
+                        title: {
+                            display: true,
+                            text: 'Values'
+                        }
+                    },
+                    y: {
+                        stacked: false
+                    }
+                }
+            }
+        };
+
+        const densities_chart = new Chart(ctx, config);
+    }
+
+    function createLineChart(ctx, dataset, label, color) {
+        const chartData = {
+            labels: dataset.map(item => item[0]),
+            datasets: [{
+                label: label,
+                data: dataset.map(item => ({ x: item[0], y: item[1] })),
+                borderColor: color,
+                backgroundColor: color + '33', // Adding transparency for area under the line
+                fill: true,
+                tension: 0.4, // Smooth curves
+                pointRadius: 4,
+                pointBackgroundColor: color,
+                pointBorderColor: color,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: color,
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: chartData,
+            options: {
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: {
+                            display: true,
+                            text: 'Length'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Count'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `${tooltipItem.dataset.label}: Length ${tooltipItem.parsed.x}, Count ${tooltipItem.parsed.y}`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function renderLineChartLengths() {
+        const data = global_lengths_resp;
+
+        const colors = ['#90ee90', '#FFCE56', '#03c3c3'];
+
+        function createChart(ctx, dataset, label, color) {
+            const chartData = {
+                datasets: [{
+                    label: label,
+                    data: dataset.map(item => ({ x: item[0], y: item[1] })),
+                    borderColor: color,
+                    borderWidth: 0.5,
+                    backgroundColor: color + '33', // Adding transparency for area under the line
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 1,
+                    pointBackgroundColor: color,
+                    pointBorderColor: color,
+                    pointHoverRadius: 4,
+                    pointHoverBackgroundColor: color,
+                    pointHoverBorderColor: color,
+                }]
+            };
+
+            const config = {
+                type: 'line',
+                data: chartData,
+                options: {
+                    scales: {
+                        x: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Length (Log Scale)'
+                            },
+                            ticks: {
+                                min: 1,
+                                max: 100000000,
+
+                                callback: function (value) {
+
+                                    const logTicks = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
+                                    if (logTicks.includes(value)) {
+                                        return value;
+                                    }
+                                    return null;
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: 'Count (Log Scale)'
+                            },
+                            ticks: {
+                                min: 1,
+                                max: 100000000,
+
+                                callback: function (value) {
+                                    // Return only specific values for the logarithmic scale (1, 10, 100, etc.)
+                                    const logTicks = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
+                                    if (logTicks.includes(value)) {
+                                        return value;
+                                    }
+                                    return null;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return `${tooltipItem.dataset.label}: Length ${tooltipItem.parsed.x}, Count ${tooltipItem.parsed.y}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            };
+
+            return new Chart(ctx, config);
         }
 
-        
-        const chartData = Object.entries(histogram_data).map(([length, percentage]) => ({
-            length: parseInt(length),
-            percentage: percentage
-        }));
+        createChart(
+            document.getElementById('arm-length-chart').getContext('2d'),
+            data.arms,
+            'Arms',
+            colors[0]
+        );
 
-        // Set up chart dimensions
-        const margin = { top: 30, right: 30, bottom: 70, left: 60 };
-        const width = 600 - margin.left - margin.right;
-        const height = 400 - margin.top - margin.bottom;
+        createChart(
+            document.getElementById('spacer-length-chart').getContext('2d'),
+            data.spacers,
+            'Spacers',
+            colors[1]
+        );
 
-        // Create SVG element
-        const svg = d3.select("#histogram")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-
-
-        // Create tooltip
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "histogram-tooltip")
-            .style("opacity", 0);
-
-        // X axis
-        const x = d3.scaleBand()
-            .range([0, width])
-            .domain(chartData.map(d => d.length))
-            .padding(0.2);
-        svg.append("g")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x))
-            .selectAll("text")
-            .attr("transform", "translate(-10,0)rotate(-45)")
-            .style("text-anchor", "end");
-
-        // Y axis
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(chartData, d => d.percentage)])
-            .range([height, 0]);
-        svg.append("g")
-            .call(d3.axisLeft(y));
-
-        // Bars
-        svg.selectAll("mybar")
-            .data(chartData)
-            .join("rect")
-            .attr("x", d => x(d.length))
-            .attr("y", d => y(d.percentage))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.percentage))
-            .attr("class", "bar")
-            .on("mouseover", function (event, d) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html(`Percentage: ${d.percentage}%`)
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseout", function (d) {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-        // X axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("x", width / 2)
-            .attr("y", height + margin.bottom - 10)
-            .text("Length");
-
-        // Y axis label
-        svg.append("text")
-            .attr("class", "axis-label")
-            .attr("text-anchor", "middle")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -margin.left + 20)
-            .attr("x", -height / 2)
-            .text("Percentage");
-
-        // Title
-        svg.append("text")
-            .attr("x", width / 2)
-            .attr("y", -margin.top / 2)
-            .attr("text-anchor", "middle")
-            .style("font-weight", "bold")
-            .html(`Short Tandem Repeat Length Distribution`)
-
-        svg.append("foreignObject")
-            .attr("x", 20) // Adjust to align with the text
-            .attr("y", 0) // Adjust to align with the text
-            .attr("width", 30)
-            .attr("height", 30)
-            .append("xhtml:div")
-            .html('<i id="download-histogram" class="fa-solid fa-file-arrow-down"></i>');
-
-        svg.selectAll("text")
-            .style("fill", "white");
+        createChart(
+            document.getElementById('sequence-length-chart').getContext('2d'),
+            data.sequences,
+            'Sequences',
+            colors[2]
+        );
     }
 
 
-    // Fetch calls
+    function renderTopOrganismsDensityDonutChart() {
+
+        const data = top_dense_organisms;
+
+        const labels = data.data.map(item => item[0] + ` ( ${item[1]} )`);
+        const values = data.data.map(item => denistyToMegabasePairs(item[2]));
+
+        const ctx = document.getElementById('donutChart').getContext('2d');
+        const colors = [
+            '#555D63', // Cool Gray
+            '#90ee90', // Light Green
+            '#FFCE56', // Bright Yellow
+            '#03c3c3', // Teal
+            '#FF6F61', // Coral
+            '#6A1B9A', // Deep Purple
+            '#F57C00', // Orange
+            '#4CAF50', // Medium Green
+            '#2196F3', // Blue
+            '#B39DDB'  // Lavender - Optional additional color
+        ];
+
+        const donutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average Density',
+                    data: values,
+                    backgroundColor: colors,
+                    borderColor: '#333', // Color of the border
+                    borderWidth: 2 // Border widths
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                            }
+                        },
+                        bodyColor: 'white', // Tooltip text color
+                        titleColor: 'white', // Tooltip title color
+                        backgroundColor: '#444', // Tooltip background color
+                    },
+                    legend: {
+                        position: 'right', // Position the legend below the chart
+                        labels: {
+                            color: 'white' // Legend text color
+                        }
+                    },
+                    datalabels: {
+                        color: '#fff', // Label text color
+                        font: {
+                            size: 10 // Font size for the data labels
+                        },
+                        formatter: (value, context) => {
+                            return `${context.chart.data.labels[context.dataIndex]}: ${value}`;
+                        },
+                        anchor: 'end', // Position labels outside the chart
+                        align: 'end', // Align the labels outside
+                        offset: 15, // Adjust the distance from the chart
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false, // Allow resizing of the chart
+                layout: {
+                    padding: {
+                        top: 100 ,// Adjust the spacing between the legend and the chart
+                        bottom: 100 ,// Adjust the spacing between the legend and the chart
+
+                    }
+                },
+                elements: {
+                    arc: {
+                        borderWidth: 3 // Border width of segments
+                    }
+                }
+            },
+            plugins: [ChartDataLabels] // Register the datalabels plugin
+        });
+    }
 
     $.ajax({
-        url: `${backend_url}/statistics/domains`,
+        url: `${backend_url}/hairpin/statistics/density/domains`,
         method: 'GET',
         success: function (data) {
-            data[3][0]="Viruses";
-            transformData(data);
-            renderPies();
+            densities_resp = data
+            renderStackedChartDensities()
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', error);
+        }
+    });
+
+
+    $.ajax({
+        url: `${backend_url}/hairpin/statistics/global/length`,
+        method: 'GET',
+        success: function (data) {
+            global_lengths_resp = sortDataByFirstIndex(data)
+            renderLineChartLengths()
         },
         error: function (xhr, status, error) {
             console.error('Error:', error);
@@ -505,60 +578,53 @@
     });
 
     $.ajax({
-        url: `${backend_url}/statistics/global/top_n_unit_sequences`,
-        type: 'GET',
-        success: function (response) {
-            for (let i=0; i<response.length; i++){
-                response[i][0]=response[i][0].toUpperCase()
-            }
-            topten_unit_table = new DataTable('#topten-unit-table',
-                {
-                    data: response,
-                    paging: false,
-                    searching: false,
-                    ordering: false,
-                    "bInfo": false
-                });
+        url: `${backend_url}/hairpin/statistics/density/organisms`,
+        method: 'GET',
+        success: function (data) {
+            console.log(data)
+            top_dense_organisms = data
+
+            renderTopOrganismsDensityDonutChart()
         },
         error: function (xhr, status, error) {
             console.error('Error:', error);
         }
     });
 
-    $.ajax({
-        url: `${backend_url}/statistics/global/top_n_organisms_by_tandem_repeats_density`,
-        type: 'GET',
-        success: function (response) {
-            let top_ten_organisms_rows = [];
-            response.forEach(row => {
-                const taxid = row[3];
-                top_ten_organisms_rows.push([`<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${taxid}'>${row[0]}<a>`, prettifyGroupName(row[1]), denistyToMegabasePairs(row[2]) + " / Mb"])
-            })
-            topten_organisms_table = new DataTable('#topten-organisms-table',
-                {
-                    data: top_ten_organisms_rows,
-                    paging: false,
-                    searching: false,
-                    ordering: false,
-                    "bInfo": false
-                });
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
+    // $.ajax({
+    //     url: `${backend_url}/statistics/global/top_n_organisms_by_tandem_repeats_density`,
+    //     type: 'GET',
+    //     success: function (response) {
+    //         let top_ten_organisms_rows = [];
+    //         response.forEach(row => {
+    //             const taxid = row[3];
+    //             top_ten_organisms_rows.push([`<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${taxid}'>${row[0]}<a>`, prettifyGroupName(row[1]), denistyToMegabasePairs(row[2]) + " / Mb"])
+    //         })
+    //         topten_organisms_table = new DataTable('#topten-organisms-table',
+    //             {
+    //                 data: top_ten_organisms_rows,
+    //                 paging: false,
+    //                 searching: false,
+    //                 ordering: false,
+    //                 "bInfo": false
+    //             });
+    //     },
+    //     error: function (xhr, status, error) {
+    //         console.error('Error:', error);
+    //     }
+    // });
 
-    $.ajax({
-        url: `${backend_url}/statistics/global/sru_distribution`,
-        type: 'GET',
-        success: function (response) {
-            renderHistogramPercentage(response)
+    // $.ajax({
+    //     url: `${backend_url}/statistics/global/sru_distribution`,
+    //     type: 'GET',
+    //     success: function (response) {
+    //         renderHistogramPercentage(response)
 
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
+    //     },
+    //     error: function (xhr, status, error) {
+    //         console.error('Error:', error);
+    //     }
+    // });
 
 
 

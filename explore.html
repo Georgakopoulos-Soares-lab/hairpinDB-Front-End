@@ -2,7 +2,7 @@
 <html data-bs-theme="dark">
 
 <head>
-    <title>hairpinDB</title>
+    <title>invertiaDB</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
@@ -336,7 +336,7 @@
 <script>
 
     // Constant data
-    let selected_headers = ["assembly_accession", "taxid", "organism_name", "scaffold_count", "hairpin_count", "domain" , "hairpin_density"]
+    let selected_headers = ["assembly_accession", "taxid", "organism_name", "scaffold_count", "inverted_repeat_count", "domain" , "inverted_repeat_density"]
     let filters = {}
     let full_table_data;
     let full_table_headers;
@@ -379,7 +379,7 @@
                     if (header_name == "assembly_accession") cell = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${cell}')">${cell}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${cell}">`;
                     if (header_name == "taxid") cell = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${cell}'>` + cell + "</a>";
                     if (header_name == "organism_name") cell = `<em>${cell}</em>`
-                    if (header_name == "hairpin_density") cell = `${denistyToMegabasePairs(cell)} / Mb`
+                    if (header_name == "inverted_repeat_density") cell = `${denistyToMegabasePairs(cell)} / Mb`
                     if (header_name.startsWith("avg")) cell = `${cell.toFixed(2)}`
                    
                     filtered_row.push(cell)

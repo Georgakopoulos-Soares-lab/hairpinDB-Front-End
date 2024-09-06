@@ -2,7 +2,7 @@
 <html data-bs-theme="dark">
 
 <head>
-    <title>hairpinDB</title>
+    <title>invertiaDB</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
@@ -257,9 +257,11 @@
                                 <th>Organism</th>
                                 <th>Domain</th>
                                 <th>Assemblies</th>
-                                <th>Average #STR</th>
-                                <th>Average STR Length</th>
-                                <th>Average Density</th>
+                                <th>Average #IRs</th>
+                                <th>Average IR Arm</th>
+                                <th>Average IR Spacer</th>
+                                <th>Average IR Sequence</th>
+                                <th>Average IR Density</th>
                                 <th>Average GC Percent (genome)</th>
                                 <th>Average Genome size</th>
                             </tr>
@@ -282,6 +284,7 @@
 
     let organisms_table;
     let organism_data;
+    let organism_columns;
 
     function processOrganismsTable(data) {
     let new_data = [];
@@ -289,7 +292,7 @@
         for (let d of data) {
             let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(d[0])}')"><em>${d[0]}</em></button>`;
 
-            new_data.push([button, d[1], d[2], d[3].toFixed(2), d[4].toFixed(2), denistyToMegabasePairs(d[5]), d[6].toFixed(2) + '%', d[7].toFixed(2)])
+            new_data.push([button, d[9], d[1], formatNumberWithCommas(d[2].toFixed(2)), d[3].toFixed(2), d[4].toFixed(2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2) + '%', formatNumberWithCommas(d[8].toFixed(2))])
         }
         return new_data;
     }
@@ -298,14 +301,16 @@
     function fetchDataAndPopulateOrganismsTable() {
 
         $.ajax({
-            url: `${backend_url}/statistics/organisms`,
+            url: `${backend_url}/hairpin/statistics/organisms`,
             method: 'GET',
             success: function (data) {
+                organism_data = data.data
+                organism_columns = data.columns;
+                let table_data = processOrganismsTable(data.data)
                 $("#loader").hide();
-                organism_data = data;
-                data = processOrganismsTable(data)
+
                 organisms_table = new DataTable('#organisms-table', {
-                    data: data,
+                    data: table_data,
                     paging: true,
                     pageLength: 100,
                     lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
@@ -358,7 +363,7 @@
             value: search_term
         }
         $.ajax({
-            url: `${backend_url}/organisms/quick_search`,
+            url: `${backend_url}/hairpin/organisms/quick_search`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(post_data),

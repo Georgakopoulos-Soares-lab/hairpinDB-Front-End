@@ -39,4 +39,13 @@ function prettifyGroupName(group_name) {
     return capitalizeFirstLetter(group_name.split('_').join(' '));
 }
 
+function sortDataByFirstIndex(data) {
+    Object.keys(data).forEach(key => {
+        data[key].sort((a, b) => a[0] - b[0]);
+    });
+    return data;
+}
 
+function formatNumberWithCommas(number) {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

@@ -152,7 +152,7 @@
             font-size: 1.2rem;
         }
 
-        .tandem-file-table td {
+        .hairpin-file-table td {
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 300px;
@@ -172,16 +172,16 @@
             font-size: 6px;
         }
 
-        #organism-tandem-table {
+        #organism-hairpin-table {
             text-align: center;
             font-size: 1rem;
         }
 
-        #organism-tandem-table td {
+        #organism-hairpin-table td {
             text-align: center;
         }
 
-        .assemblies-wrapper{
+        .assemblies-wrapper {
             margin-left: 80px;
             margin-right: 80px;
             /* display: flex; */
@@ -193,10 +193,9 @@
             display: flex;
         }
 
-        .dropdown-item:hover{
-            cursor:pointer;
+        .dropdown-item:hover {
+            cursor: pointer;
         }
-
     </style>
 </head>
 
@@ -231,11 +230,16 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h2><label id="genomic-tandem-metadataa"></label>STRs Metadata per Organism</h2>
+                            <h2><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h2>
                             <hr>
-                            <p><strong>Average number of STRs</strong> <label id="genomic-tandem-count"></label></p>
-                            <p><strong>Average STR Length</strong> <label id="genomic-avg-tandem-length"></label></p>
-                            <p><strong>Average STR Density </strong> <label id="genomic-tandem-density"></label></p>
+                            <p><strong>Average IR Count</strong> <label id="genomic-hairpin-count"></label></p>
+                            <p><strong>Average IR Arm</strong> <label id="genomic-avg-arm-length"></label></p>
+                            <p><strong>Average IR Spacer</strong> <label id="genomic-avg-spacer-length"></label>
+                            </p>
+                            <p><strong>Average IR Sequence</strong> <label
+                                    id="genomic-avg-sequence-length"></label></p>
+                            <p><strong>Average IR Density </strong> <label id="genomic-hairpin-density"></label>
+                            </p>
 
 
 
@@ -262,64 +266,20 @@
               
             </div>
         </div> -->
-        <div class="statistics-container">
-            <br>
-            <br>
 
-            <h2><label style=" color: #4682B4;">Statistics per STR</label>
-                <hr>
-            </h2>
-            <br>
-        </div>
-
-        <div class="statistics-container">
-            <div class="statistic">
-                <h2>Tandem Repeats Composition</h2>
-                <hr>
-                <div class="composition-container">
-                    <svg id="chart-comp" width="400" height="300"></svg>
-                </div>
-            </div>
-
-            <div class="statistic">
-                <h2>Unit Sequence Length Distribution</h2>
-                <hr>
-
-                <div class="composition-container">
-                    <div class="sru-container">
-                        <svg id="chart-sru" width="400" height="300"></svg>
-
-                    </div>
-                </div>
-            </div>
-            <div class="statistic">
-                <h2>Top 5 Unit Sequences</h2>
-                <hr>
-                <table id="top5-table">
-                    <thead>
-                        <tr>
-                            <th>Unit Sequence&nbsp&nbsp</th>
-                            <th>Count&nbsp</th>
-                        </tr>
-                    </thead>
-                    <br>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
         <br>
         <br>
 
-        
+
         <div class="btns-wrapper">
-            <button id="select-all-button" class="btn btn-outline-primary" style="margin-right: 10px;" >Select/Deselect All Visible Rows</button>
+            <button id="select-all-button" class="btn btn-outline-primary" style="margin-right: 10px;">Select/Deselect
+                All Visible Rows</button>
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn"
                     data-bs-toggle="dropdown" aria-expanded="false">
                     Download Selected Rows
-                </button>   
+                </button>
                 <ul class="dropdown-menu" aria-labelledby="download-rows-btn">
                     <li><a class="dropdown-item download-dropdown-item" id="download-csv-btn">Download as CSV</a></li>
                     <li><a class="dropdown-item download-dropdown-item" id="download-json-btn">Download as JSON</a></li>
@@ -333,21 +293,21 @@
         </div>
 
         <div class="assemblies-wrapper">
-            <table id="organism-assemblies-table" class="display table table-striped table-hover dataTable "  
-            style="table-layout: auto; " aria-describedby="example_info">
-            <thead>
-                <tr role="row" id="organism-assemblies-table-header">
-                    <th>Assembly accession</th>
-                    <th>Taxid</th>
-                    <th>Organism name</th>
-                    <th>Chromosome count</th>
-                    <th>Number of Tandem Repeats</th>
-                    <th>Tandem Repeats Density</th>
-                    <th>Domain</th>
-                </tr>
-            </thead>
-            <tbody id="organism-assemblies-table-body"></tbody>
-            
+            <table id="organism-assemblies-table" class="display table table-striped table-hover dataTable "
+                style="table-layout: auto; " aria-describedby="example_info">
+                <thead>
+                    <tr role="row" id="organism-assemblies-table-header">
+                        <th>Assembly accession</th>
+                        <th>Taxid</th>
+                        <th>Organism name</th>
+                        <th>Chromosome count</th>
+                        <th>IR Count</th>
+                        <th>IR Density</th>
+                        <th>Domain</th>
+                    </tr>
+                </thead>
+                <tbody id="organism-assemblies-table-body"></tbody>
+
             </table>
 
         </div>
@@ -367,19 +327,19 @@
     let all_metadata;
     let accession_ids = []
 
-    function preprocessAssembliesTable(data){
+    function preprocessAssembliesTable(data) {
         let new_data = []
-        for (const d of data){
-            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${d[0]}')">${d[0]}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${d[0]}">`
+        for (const d of data) {
+            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${d[0]}')">${d[0]}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${d[38]}">`
             let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
             let organisms_name = `<em>${d[7]}</em>`;
             let scaffolds = d[29];
-            let tandem = d[38];
-            let density = denistyToMegabasePairs(d[40]);
-            let domain = d[41];
+            let hairpin = d[40];
+            let density = denistyToMegabasePairs(d[51]);
+            let domain = d[39];
 
-            
-            new_data.push([button,taxid_link,organisms_name,scaffolds,tandem,density,domain])
+
+            new_data.push([button, taxid_link, organisms_name, scaffolds, hairpin, density, domain])
         }
         return new_data;
     }
@@ -399,19 +359,21 @@
 
         let metadata = single_metadata
         console.log(metadata)
+        console.log(organism_row_data);
         // T2T organism Metadata
         let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${metadata[5]}'>` + metadata[5] + "</a>";
-        $("#genomic-assemblies").html(`${organism_row_data[2]}`);
+        $("#genomic-assemblies").html(`${organism_row_data[1]}`);
 
         $("#genomic-taxid").html(taxid_link);
-        $("#genomic-scaffolds").html(`NULL`);
-        $("#genomic-domain").html(`${organism_row_data[1]}`);
-        $("#genomic-gc-percent").html(`${organism_row_data[6].toFixed(1)}% (genome)`);
+        $("#genomic-domain").html(`${metadata[39]}`);
+        $("#genomic-gc-percent").html(`${organism_row_data[7].toFixed(1)}% (genome)`);
 
-        // Tandem Metadata
-        $("#genomic-tandem-count").html(`${organism_row_data[3].toFixed(2)}`);
-        $("#genomic-avg-tandem-length").html(`${organism_row_data[4].toFixed(3)} bp`);
-        $("#genomic-tandem-density").html(`${denistyToMegabasePairs(organism_row_data[5])} / Mb`);
+        // hairpin Metadata
+        $("#genomic-hairpin-count").html(`${organism_row_data[2].toFixed(2)}`);
+        $("#genomic-avg-arm-length").html(`${organism_row_data[3].toFixed(2)}`);
+        $("#genomic-avg-spacer-length").html(`${organism_row_data[4].toFixed(2)}`);
+        $("#genomic-avg-sequence-length").html(`${organism_row_data[5].toFixed(2)}`);
+        $("#genomic-hairpin-density").html(`${denistyToMegabasePairs(organism_row_data[6])} / Mb`);
 
     }
 
@@ -422,292 +384,98 @@
         $("#loader").hide();
     });
 
-        $('#select-all-button').click(function () {
-                let checkboxes = $('.selected-rows');
-                let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
+    $('#select-all-button').click(function () {
+        let checkboxes = $('.selected-rows');
+        let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
 
-                checkboxes.prop('checked', !isAllChecked);
-        });
-
-    function renderComposition(base_percentages) {
-        const data = base_percentages;
-        const margin = { top: 20, right: 30, bottom: 40, left: 40 },
-            width = 400 - margin.left - margin.right,
-            height = 200 - margin.top - margin.bottom;
-
-        const svg = d3.select("#chart-comp")
-            .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.base))
-            .range([0, width])
-            .padding(0.1);
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.percent)])
-            .nice()
-            .range([height, 0]);
-
-        // Color scale for consistent coloring
-        const color = d3.scaleOrdinal()
-        .domain(data.map(d => d.base))
-        .range(["#FFC107", "#17A2B8", "#6C757D", "#E83E8C"]);
-
-        // Tooltip div
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        svg.append("g")
-            .selectAll("rect")
-            .data(data)
-            .enter().append("rect")
-            .attr("x", d => x(d.base))
-            .attr("y", d => y(d.percent))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.percent))
-            .attr("fill", d => color(d.base)) // Apply the color based on the base
-            .on("mouseover", function (event, d) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html((d.percent * 100).toFixed(2) + "%")
-                    .style("left", (event.pageX + 5) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseout", function () {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-        svg.append("g")
-            .attr("class", "x-axis")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x));
-
-        svg.append("g")
-            .attr("class", "y-axis")
-            .call(d3.axisLeft(y).ticks(5, "~%"));
-    }
+        checkboxes.prop('checked', !isAllChecked);
+    });
 
 
-    function renderSruGraph(raw_data) {
-        // Calculate total sum
-        const total = raw_data.reduce((sum, d) => sum + d[1], 0);
-
-        // Convert to percentages
-        const data = raw_data.map(([key, value]) => ({
-            key,
-            percent: value / total
-        }));
-
-        const margin = { top: 20, right: 30, bottom: 40, left: 40 },
-            svgWidth = 400, // Set this to match your <svg> element width
-            svgHeight = 300, // Set this to match your <svg> element height
-            width = svgWidth - margin.left - margin.right,
-            height = svgHeight - margin.top - margin.bottom;
-
-        const svg = d3.select("#chart-sru")
-            .append("svg")
-            .attr("width", svgWidth)
-            .attr("height", svgHeight)
-            .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        const x = d3.scaleBand()
-            .domain(data.map(d => d.key))
-            .range([0, width])
-            .padding(0.1); // Add some padding between the bars
-
-        const y = d3.scaleLinear()
-            .domain([0, d3.max(data, d => d.percent)])
-            .nice()
-            .range([height, 0]);
-
-        // Tooltip div
-        const tooltip = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        svg.append("g")
-            .selectAll("rect")
-            .data(data)
-            .enter().append("rect")
-            .attr("x", d => x(d.key))
-            .attr("y", d => y(d.percent))
-            .attr("width", x.bandwidth())
-            .attr("height", d => height - y(d.percent))
-            .attr("fill", "steelblue")
-            .on("mouseover", function (event, d) {
-                tooltip.transition()
-                    .duration(200)
-                    .style("opacity", .9);
-                tooltip.html((d.percent * 100).toFixed(2) + "%")
-                    .style("left", (event.pageX + 5) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-            })
-            .on("mouseout", function () {
-                tooltip.transition()
-                    .duration(500)
-                    .style("opacity", 0);
-            });
-
-        svg.append("g")
-            .attr("class", "x-axis")
-            .attr("transform", `translate(0,${height})`)
-            .call(d3.axisBottom(x).ticks(data.length));
-
-        svg.append("g")
-            .attr("class", "y-axis")
-            .call(d3.axisLeft(y).ticks(5, "~%"));
-
-    }
-
-
-    function renderTopUnitSeq(data) {
-        const tbody = document.querySelector("#top5-table tbody");
-        data.forEach(([unitSequence, count]) => {
-            const tr = document.createElement("tr");
-            const tdUnitSequence = document.createElement("td");
-            const tdCount = document.createElement("td");
-            tdUnitSequence.textContent = unitSequence.toUpperCase();
-            tdCount.textContent = count;
-            tr.appendChild(tdUnitSequence);
-            tr.appendChild(tdCount);
-            tbody.appendChild(tr);
-        });
-    }
-
-
-    function fetchStatistics() {
-        $.ajax({
-                url: `${backend_url}/statistics/organisms/composition`,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({'accession_ids_list' : accession_ids}),
-                success: function (data) {
-                    console.log(data)
-                    let composition_array = data[0]
-                    let sum = composition_array.reduce((a, b) => a + b, 0)
-                    let composition_new = []
-                    let index = 0;
-                    for (let c of composition_array) {
-                        composition_new.push(c / sum);
-                    }
-                    composition_new = composition_new.map((percent, index) => { return { base: ['A', 'T', 'G', 'C'][index], percent: percent }; });
-                    renderComposition(composition_new)
-
-                },
-                error: function (xhr, status, error) {
-                    $("#loader").hide();
-                    console.error('Error:', error);
-                }
-            });
-        $.ajax({
-            url: `${backend_url}/statistics/organisms/sru_distribution`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({'accession_ids_list' : accession_ids}),
-            success: function (data) {
-                renderSruGraph(data)
-            },
-            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
-        });
-
-        $.ajax({
-            url: `${backend_url}/statistics/organisms/top_n_unit_sequences`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({'accession_ids_list' : accession_ids}),
-            success: function (data) {
-                renderTopUnitSeq(data)
-            },
-            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
-        });
-
-        // $.ajax({
-        //     url: `${backend_url}/statistics/human_pangenome/top_overlapping_tandem_organisms/${tandem_genome_id}`,
-        //     method: 'GET',
-        //     success: function (data) {
-        //         console.log(data)
-        //         for (let i = 0; i < data.length; i += 1) {
-        //             console.log(data[i])
-        //             data[i][0] = data[i][0].replace('organism:', '');
-        //         }
-        //         renderorganismStats(data)
-        //     },
-        //     error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
-        // });
-    }
 
 
     $('.download-dropdown-item').click(function (event) {
-            let button_id = event.target.id;
-            let format = button_id.split('-')[1];
-            let selected_rows = [];
-            $('.selected-rows').each(function () {
-                if ($(this).is(':checked')) {
-                    selected_rows.push(this.id);
-                }
-            });
-            $("#loader").removeAttr('hidden').css('display', '').removeClass('hidden');
-            $.ajax({
-                url: `${backend_url}/download`,
-                type: 'POST',
-                contentType: 'application/json',
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                data: JSON.stringify({
-                    format: format,
-                    selected_rows: selected_rows,
-                    dataset: 'ncbi'
-                }),
-                success: function (data) {
-                    $("#loader").hide();
-                    // Start Download File
-                    var link = document.createElement('a');
-                    var url = window.URL.createObjectURL(data);
-                    link.href = url;
-                    link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    // End Download File
-                },
-                error: function (xhr, status, error) {
-                    $("#loader").hide();
-                    console.error('Error:', error);
-                }
-            });
+        let button_id = event.target.id;
+        let format = button_id.split('-')[1];
+        let selected_rows = [];
+        $('.selected-rows').each(function () {
+            if ($(this).is(':checked')) {
+                selected_rows.push(this.id);
+            }
         });
+        $("#loader").removeAttr('hidden').css('display', '').removeClass('hidden');
+        $.ajax({
+            url: `${backend_url}/hairpin/download`,
+            type: 'POST',
+            contentType: 'application/json',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            data: JSON.stringify({
+                format: format,
+                selected_files: selected_rows,
+            }),
+            success: function (data) {
+                $("#loader").hide();
+                // Start Download File
+                var link = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                link.href = url;
+                link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                // End Download File
+            },
+            error: function (xhr, status, error) {
+                $("#loader").hide();
+                console.error('Error:', error);
+            }
+        });
+    });
+
+    function renderGraphs() {
+        let filenames = [];
+        for (const row of all_metadata) {
+            filenames.push(row[38])
+        }
+        $.ajax({
+            url: `${backend_url}/hairpin/statistics/multiple_files/length`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                filenames: filenames,
+            }),
+            success: function (data) {
+                console.log(data)
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+
+    }
 
 
     $.ajax({
-        url: `${backend_url}/organisms/metadata/${btoa(organism_name)}`,
+        url: `${backend_url}/hairpin/organisms/metadata/${btoa(organism_name)}`,
         method: 'GET',
         success: function (data) {
             single_metadata = data[0]
             all_metadata = data
+
             for (const d of data) {
                 accession_ids.push(d[0]);
+
             }
             renderMetadata();
-            fetchStatistics();
             let table_assemblies = preprocessAssembliesTable(all_metadata);
-            let organism_tandem_table = new DataTable('#organism-assemblies-table',
-            {
-                data: table_assemblies,
-                paging: true,
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
-            });
-
+            let organism_hairpin_table = new DataTable('#organism-assemblies-table',
+                {
+                    data: table_assemblies,
+                    paging: true,
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                });
+            renderGraphs()
         },
         error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
     });

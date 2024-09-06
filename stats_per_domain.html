@@ -2,7 +2,7 @@
 <html data-bs-theme="dark">
 
 <head>
-    <title>hairpinDBs</title>
+    <title>invertiaDBs</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
@@ -231,19 +231,21 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h2><label id="genomic-organism-name"></label>Domain Metadata</h2>
+                            <h2><label id="genomic-organism-name"></label>Domain Hairpin Metadata</h2>
                             <hr>
-                            <p><strong>Average Count of Tandem Repeats:</strong> <label id="genomic-tandem-count"></label></p>
-                            <p><strong>Average Length of Tandem Repeats</strong> <label id="genomic-tandem-length"></label></p>
-                            <p><strong>Average Density of Tandem Repeats</strong> <label id="genomic-tandem-density"></label></p>
+                            <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label></p>
+                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label></p>
+                            <p><strong>Average Length of Spacer IR</strong> <label id="genomic-invert-spacer-length"></label></p>
+                            <p><strong>Average Length of Sequence IR</strong> <label id="genomic-invert-sequence-length"></label></p>
+                            <p><strong>Average Density of IR</strong> <label id="genomic-invert-density"></label></p>
                         </div>
                     </div>
                 </div>
                 <div class="genomic-column right">
                     <div class="genomic-result">
-                        <h2>Additional Metadata</h2>
+                        <h2>Genomes Metadata</h2>
                         <hr>
-                        <p><strong>Average Genome Size:</strong> <label id="genomic-genome-size"></label></p>
+                        <p><strong>Average Size:</strong> <label id="genomic-genome-size"></label></p>
                         <p><strong>Average GC Content:</strong> <label id="genomic-gc-content"></label></p>
                         <hr>
 
@@ -262,13 +264,14 @@
                         <thead>
                             <tr role="row" id="organisms-table-header">
                                 <th>Organism Name</th>
-                                <th>Domain</th>
                                 <th>Distinct Assemblies</th>
-                                <th>Avg Count of STRs</th>
-                                <th>Avg Length of STRs</th>
-                                <th>Avg STR Density</th>
-                                <th>Avg GC Percent per assembly</th>
-                                <th>Avg Genome Size per assembly</th>
+                                <th>Avg Count of IR</th>
+                                <th>Avg Length of IR Arms</th>
+                                <th>Avg Length of IR Spacers</th>
+                                <th>Avg Length of IR Sequences</th>
+                                <th>Avg Hairpin Density ( Mbp )</th>
+                                <th>Avg GC Percent</th>
+                                <th>Avg Genome Size</th>
                             </tr>
                         </thead>
                         <tbody id="organisms-table-body">
@@ -292,31 +295,37 @@
     const domain = urlParams.get('domain');
     let organisms_table;
 
-    function populateDomainMetada(data){
-        console.log(data)
-        
-        data = data[0]
-        $("#genomic-tandem-count").html(data[0].toFixed(2));
-        $("#genomic-tandem-length").html(data[1].toFixed(2));
-        $("#genomic-tandem-density").html(denistyToMegabasePairs(data[2]) + " / Mb");
-        $("#genomic-genome-size").html(data[3].toFixed(2) + " bp")
-        $("#genomic-gc-content").html(data[4].toFixed(2) + " %")
-    }
+    let domain_data;
+    let organismal_data;
 
 
-    function processOrganismsTable(data){
-        let res = []
-        for (let d of data){
-            res.push([d[0],d[1],d[2],d[3].toFixed(2),d[4].toFixed(2), denistyToMegabasePairs(d[5])+" / Mb", d[6].toFixed(2), d[7].toFixed(2)])
+    function processOrganismalData(data){
+        let processed = [];
+        for (const d of data){
+            processed.push([d[0],d[1],d[2].toFixed(2),d[3].toFixed(2),d[4].toFixed(2),d[5].toFixed(2),denistyToMegabasePairs(d[6]),d[7].toFixed(2),formatNumberWithCommas(d[8].toFixed(2))])
         }
-        return res
+        return processed;
     }
+
+    function populateDomainMetada(){
+        console.log(domain_data)
+        let data = domain_data.data[0]
+        $("#genomic-invert-count").html(data[1].toFixed(2));
+        $("#genomic-invert-arm-length").html(data[2].toFixed(2));
+        $("#genomic-invert-spacer-length").html(data[3].toFixed(2));
+        $("#genomic-invert-sequence-length").html(data[4].toFixed(2));
+        $("#genomic-invert-density").html(denistyToMegabasePairs(data[5]) + " / Mb");
+        $("#genomic-genome-size").html(formatNumberWithCommas(data[6].toFixed(2)) + " bp");
+        $("#genomic-gc-content").html(data[7].toFixed(2) + " %");
+    }
+
 
     $.ajax({
-        url: `${backend_url}/statistics/domains/${domain}`,
+        url: `${backend_url}/hairpin/statistics/domains/${domain}`,
         method: 'GET',
         success: function (data) {
-            populateDomainMetada(data)
+            domain_data = data
+            populateDomainMetada()
             $("#loader").hide()
         },
         error: function (xhr, status, error) {
@@ -326,16 +335,16 @@
     });
 
 
+
     $.ajax({
-        url: `${backend_url}/statistics/domains/${domain}/organisms`,
+        url: `${backend_url}/hairpin/statistics/domains/${domain}/organisms`,
         method: 'GET',
         success: function (data) {
-            
             console.log(data)
-            data = processOrganismsTable(data);
+            let table_data = processOrganismalData(data.data)
             organisms_table = new DataTable('#organisms-table',
             {
-                data: data,
+                data: table_data,
             });
         },
         error: function (xhr, status, error) {
