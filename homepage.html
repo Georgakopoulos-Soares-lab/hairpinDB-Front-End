@@ -35,14 +35,6 @@
 
         }
 
-        .charts-container {
-            margin-left: 5%;
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-        }
-
-
 
         #legend {
             display: flex;
@@ -141,16 +133,17 @@
 
         .three-column-chart-container {
             display: flex;
-            justify-content: center;
-            margin: 20px 20px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
         }
 
         .chart-container {
             flex: 1;
-            padding: 10px;
-            height: 550px;
-            width: 100%;
-            text-align: center;
+            max-width: 30%;
+            min-width: 280px;
+            margin: 0 10px;
         }
     </style>
 </head>
@@ -171,7 +164,7 @@
             <img class='penn-logo' src="img/hairpin_loop_cropped.png"></img>
         </div> -->
 
-        <div class="homepage-container">
+        <!-- <div class="homepage-container">
             <h1><b>118,072 </b>genomes analyzed.</h1>
         </div>
 
@@ -182,8 +175,8 @@
         <br>
         <br>
         <br>
-        <br>
-        <br>
+        <br> -->
+        
 
 
         <div class="homepage-container">
@@ -201,6 +194,12 @@
             <h2>Inverted Repeat Length Diagrams</h2>
             <br>
             <div class="three-column-chart-container">
+                <h2 style="margin-left: 8%">Arm</h2>
+                <h2>Spacer</h2>
+                <h2 style="margin-right: 8%">Sequence</h2>
+            </div>
+
+            <div class="three-column-chart-container">
                 <div class="chart-container">
                     <canvas width="600" height="380" id="arm-length-chart"></canvas>
                 </div>
@@ -213,9 +212,6 @@
             </div>
         </div>
         <br>
-
-        <br>
-
 
         <div class="homepage-container" style="margin-bottom: 1%;">
             <h1>Top 10 Organisms by Inverted Repeat Density</h1>
@@ -234,6 +230,10 @@
 <script src="js/components.js"></script>
 
 <script>
+
+    Chart.defaults.color = '#adb5bd';
+    Chart.defaults.font.size = '15';
+    Chart.defaults.font.family = 'monospace';
 
 
     let group_avg_density = {}
@@ -386,6 +386,8 @@
                 type: 'line',
                 data: chartData,
                 options: {
+                    responsive: true,  // Makes the chart responsive
+                    maintainAspectRatio: false, // Allows the chart to scale without locking aspect ratio
                     scales: {
                         x: {
                             type: 'logarithmic',
@@ -437,7 +439,7 @@
                             }
                         },
                         legend: {
-                            display: true
+                            display: false
                         }
                     }
                 }
@@ -510,23 +512,54 @@
                                 return `${tooltipItem.label}: ${tooltipItem.raw}`;
                             }
                         },
-                        bodyColor: 'white', // Tooltip text color
-                        titleColor: 'white', // Tooltip title color
                         backgroundColor: '#444', // Tooltip background color
                     },
                     legend: {
                         position: 'right', // Position the legend below the chart
-                        labels: {
-                            color: 'white' // Legend text color
-                        }
+                        labels : {
+                            color: '#adb5bd',
+
+                            font : {
+                                size: 15 ,
+                            }
+                            
+                        },
+         
                     },
                     datalabels: {
-                        color: '#fff', // Label text color
                         font: {
-                            size: 10 // Font size for the data labels
+                            
+                            size: 15 ,
+                            color: '#adb5bd'
                         },
                         formatter: (value, context) => {
-                            return `${context.chart.data.labels[context.dataIndex]}: ${value}`;
+                            const label = context.chart.data.labels[context.dataIndex];
+
+                            // Function to split the text by word and wrap it if it exceeds a certain number of characters
+                            const wrapText = (text, maxCharsPerLine) => {
+                                const words = text.split(' ');
+                                let line = '';
+                                let result = [];
+                                let currentLineLength = 0;
+
+                                words.forEach((word) => {
+                                    if (currentLineLength + word.length + 1 > maxCharsPerLine) {
+                                        result.push(line.trim());
+                                        line = word + ' ';
+                                        currentLineLength = word.length;
+                                    } else {
+                                        line += word + ' ';
+                                        currentLineLength += word.length + 1;
+                                    }
+                                });
+
+                                result.push(line.trim()); // Push the last line
+                                return result.slice(0, 3).join('\n'); // Limit to 3 lines
+                            };
+
+                            // Adjust max characters per line for a three-line split
+                            const wrappedLabel = wrapText(label, 10); // 10 characters per line for 3 lines
+                            return `${wrappedLabel}: ${value}`;
                         },
                         anchor: 'end', // Position labels outside the chart
                         align: 'end', // Align the labels outside

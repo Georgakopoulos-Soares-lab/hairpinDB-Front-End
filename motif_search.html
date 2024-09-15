@@ -16,7 +16,6 @@
     <script src="js/components.js"></script>
 
     <style>
-
         body {
             font-family: monospace;
         }
@@ -104,16 +103,30 @@
 
 
 
-        .filter-bar {
+        .filter-bar,
+        .filters-container {
             background-color: #343A40;
-            padding: 10px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             width: 90%;
 
             margin: 10px;
+            padding: 10px;
+
         }
+
+        /* 
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: #343A40;
+            border-radius: 10px;
+            width: 90%;
+            align-items: center;
+            margin: 10px;
+            padding: 10px;
+        } */
 
         .add-filter-btn {
             border: none;
@@ -124,10 +137,7 @@
 
 
 
-        .filters-container {
-            display: flex;
-            flex-wrap: wrap;
-        }
+
 
         .filter {
             background-color: #212529;
@@ -220,7 +230,28 @@
             cursor: pointer;
         }
 
+        .form-check-label {
+            white-space: nowrap;
 
+        }
+
+        .filter-checkbox,
+        .filter-checkbox-label {
+            flex-shrink: 0;
+        }
+
+
+        .genomic-container {
+            color: #f0f0f0;
+            text-align: center;
+        }
+
+        .genomic-result {
+            text-align: center;
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -230,27 +261,40 @@
     <div id="navbar-container"></div>
     <br>
     <br>
-    <br>
-    <br>
 
     <div class="main-container">
+
         <div class="accession-div">
+            <h2>Motif search</h2>
             <div class="loader" id="loader"></div>
+
             <br>
             <br>
             <div class="filter-bar">
-                <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Advanced Filters</button>
-                <div id="filters-container" class="filters-container"></div>
-                <button type="button" class="btn btn-success" onclick="searchDatabase()">Search database</button>
+                <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Motif Filters</button>
+                <div class="form-check d-flex align-items-center" style="margin-left: 10px; margin-right: 10px">
+                    <input class="form-check-input filter-checkbox" type="checkbox" id="limit-results-checkbox"
+                        checked=''>
+                    <label class="form-check-label ms-2 filter-checkbox-label" for="limit-results-checkbox"
+                        style="margin-right: 10x;"> Limit Results</label>
+                    <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number"
+                        id="result_limit_input" value="1000" min="1">
+                </div>
+
+
+                <button type="button" class="btn btn-success" style="margin-left: 20px;"
+                    onclick="searchDatabase()">Search database</button>
 
             </div>
+
+            <div id="filters-container" class="filters-container">No Filters Applied</div>
 
         </div>
 
         <div id="modal" class="modal">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
-                <h2>Add Filter</h2>
+                <h2>Add Motif Filter</h2>
                 <form id="filter-form">
                     <br>
                     <label for="filter-name">Filter Name:</label>
@@ -260,14 +304,15 @@
                     <br><br>
                     <label for="operator">Operator:</label>
                     <select id="operator" name="form_filter_operator">
-                        <option value="starts with">starts with</option>
                         <option value="contains">contains</option>
+                        <option value="starts with">starts with</option>
                         <option value="ends with">ends with</option>
                         <option value="equals">equals</option>
-                        <option value="greater than">greater than</option>
-                        <option value="less than">less than</option>
-                        <option value="greater or equal">greater or equal</option>
-                        <option value="less or equal">less or equal</option>
+                        <option value="length equals">length equals</option>
+                        <option value="length greater than">length greater than</option>
+                        <option value="length less than">length less than</option>
+                        <option value="length greater or equal">length greater or equal</option>
+                        <option value="length less or equal">length less or equal</option>
                     </select>
                     <br><br>
                     <label for="value">Value:</label>
@@ -277,12 +322,12 @@
                 </form>
             </div>
         </div>
-        
+
         <br>
         <!-- Table container -->
         <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
 
-            <button id="select-all-button" class="btn btn-outline-primary">Select/Deselect All Visible Rows</button>
+            <!-- <button id="select-all-button" class="btn btn-outline-primary">Select/Deselect All Visible Rows</button>
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -298,105 +343,99 @@
                         BED</a>
                 </li>
                 </ul>
-            </div>
-            <div class="dropdown">
-                <button class="dropdown-btn btn btn-dark" id="column-selection">Project Columns ↓</button>
-                <div class="dropdown-content" id="dropdown-content"></div>
-            </div>
-            <br>
-            <br>
-            <div class="input-group">
-                <input type="search" class="form-control rounded" id="search-input"
-                    placeholder="Quick Search on Accession ID, Organism Name , Domain or Taxonomy ID"
-                    aria-label="Search" aria-describedby="search-addon" />
-                <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
-            </div>
-
+            </div> -->
 
             <div class="row mt-2 justify-content-md-center">
                 <div class="col-12 ">
-                    <table id="summary-table" class="display table table-striped table-hover dataTable"
+                    <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive "
                         style="table-layout: auto; width: 100%;" aria-describedby="example_info">
                         <thead>
-                            <tr role="row" id="tandem-table-header"></tr>
+                            <tr role="row" id="hairpin-table-header"></tr>
                         </thead>
-                        <tbody id="tandem-table-body">
+                        <tbody id="hairpin-table-body">
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="row mt-2 justify-content-between">
 
-            </div>
         </div>
-<div id="footer-container"></div>
+        <b>
+        <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
+            <div class="genomic-result">
+                <h2>Motif Metadata Analysis</h2>
+                <hr>
+                <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
+                <div class="row mt-2 justify-content-md-center">
+                    <div class="col-12 ">
+                        <table id="motif-metadata-table"
+                            class="display table table-striped table-hover dataTable table-responsive "
+                            style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+                            <thead>
+                                <tr role="row" id="motif-metadata-table-header"></tr>
+                            </thead>
+                            <tbody id="motif-metadata-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div id="footer-container"></div>
 </body>
 
 
 <script>
 
     // Constant data
-    let selected_headers = ["assembly_accession", "taxid", "organism_name", "scaffold_count", "inverted_repeat_count", "domain" , "inverted_repeat_density"]
     let filters = {}
+
+    // Res Table 
     let full_table_data;
     let full_table_headers;
-    let selected_table_data;
+    let motif_table;
 
     let summary_columns_dict = {};
-    let summary_table;
 
-    function headerListToDict(){
-        let index = 0;
-        for (const header of full_table_headers){
-            summary_columns_dict[index] = header;
-            index+=1;
-        }
-        console.log(summary_columns_dict);
-        renderProjectColumnsButton()
-    }
-
-    // Function declarations
-    const sortSelectedHeaders = () => {
-        // Create a reverse lookup dictionary to map header names to their keys
-        const reverseLookup = Object.entries(summary_columns_dict).reduce((acc, [key, value]) => {
-            acc[value] = parseInt(key);
-            return acc;
-        }, {});
-
-        // Sort the selected_headers array based on the keys in reverseLookup
-        return selected_headers.sort((a, b) => reverseLookup[a] - reverseLookup[b]);
-    }
+    // Metadata Table 
+    let full_metadata_table_data;
+    let full_metadata_table_columns;
+    let motif_metadata_table;
 
 
-    function filterAndProcessColumns() {
-        selected_table_data = []
-        full_table_data.forEach(function (table_row) {
-            filtered_row = []
-            table_row.forEach(function (cell, index) {
-                const header_name = summary_columns_dict[index.toString()]
-                if (selected_headers.includes(header_name)) {
-                    // Header specific rendering
-                    if (header_name == "assembly_accession") cell = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${cell}')">${cell}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${cell}">`;
-                    if (header_name == "taxid") cell = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${cell}'>` + cell + "</a>";
-                    if (header_name == "organism_name") cell = `<em>${cell}</em>`
-                    if (header_name == "inverted_repeat_density") cell = `${denistyToMegabasePairs(cell)}`
-                    if (header_name.startsWith("avg")) cell = `${cell.toFixed(2)}`
-                   
-                    filtered_row.push(cell)
-                }
-            });
-            selected_table_data.push(filtered_row)
+    function inititalizeMotifPage() {
+        filter_name_list = ['left_arm', 'spacer', 'right_arm', 'sequence'];
+        filter_name_list.forEach(filter => {
+            const option = document.createElement("option");
+            option.value = filter;
+            option.textContent = filter;
+            filter_name_select.appendChild(option);
         });
     }
 
+    function filterTableData(items_to_filter) {
+        const indices_to_remove = full_table_headers
+            .map((header, index) => items_to_filter.includes(header) ? index : -1)
+            .filter(index => index !== -1); // Filter out -1, which means no match
+        full_table_data = full_table_data.map(row =>
+            row.filter((_, index) => !indices_to_remove.includes(index))
+        );
+        full_table_headers = full_table_headers.filter((header, index) =>
+            !indices_to_remove.includes(index)
+        );
+    }
+
+
+    // caatatggaa
+
     function populateTable() {
-        // Customize headers in the datatables format
-        sortSelectedHeaders()
+
+        filterTableData(['armLength', 'spacerLength', 'sequenceLength'])
+
         let columns_option = []
-        for (let header of selected_headers) {
-            if (header == "scaffold_count") header = "chromosome_count"
-            if (header == "tandem_count") header = "Number of Tandem Repeats"
-            if (header == "inverted_repeats_density") header = "Inverted Repeats Density (/ Mb)"
+        for (let header of full_table_headers) {
 
             header = header.split('_').join(' ');
             header = capitalizeFirstLetter(header)
@@ -405,148 +444,189 @@
             })
         }
 
-        // This function populates selected_table_data with only the columns that are selected
-        filterAndProcessColumns()
-
-
         // Initialize table properties, headers and data
-        summary_table = new DataTable('#summary-table',
+        motif_table = new DataTable('#motif-table',
             {
                 columns: columns_option,
-                data: selected_table_data,
+                data: full_table_data,
                 paging: true,
                 pageLength: 100,
-                lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
+                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 columnDefs: [{ searchable: true }]
             });
     }
 
 
-    function fetchDataAndPopulateTable() {
-        $.ajax({
-            url: `${backend_url}/hairpin/metadata`,
-            method: 'GET',
-            success: function (resp_obj) {
-                $("#loader").hide();
-                console.log(resp_obj)
-                full_table_data = resp_obj.data
-                full_table_headers = resp_obj.headers
-                filter_name_list = []
-                for (const [key, value] of Object.entries(full_table_headers))  filter_name_list.push(value)
-                headerListToDict()
-                populateTable()
-                // Populate filter name dropdown
-                filter_name_list.forEach(filter => {
-                    const option = document.createElement("option");
-                    option.value = filter;
-                    option.textContent = filter;
-                    filter_name_select.appendChild(option);
+
+    function clearTable() {
+        if (motif_table)
+            motif_table.destroy();
+        $('#motif-table').empty();
+    }
+
+
+    function populateMotifMetadataTable() {
+        
+        let selected_columns = ['assembly_accession', 'organism_name', 'domain']
+        let columns_option = [];
+        let filtered_data = [];
+
+        // Filter the headers (columns) based on selected_columns
+        for (let header of full_metadata_table_columns) {
+            if (selected_columns.includes(header)) {
+                let display_header = header.split('_').join(' ');
+                display_header = capitalizeFirstLetter(display_header);
+                columns_option.push({
+                    "title": display_header
                 });
-            },
-            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+            }
+        }
+
+        // Filter the data rows to keep only the columns in selected_columns
+        filtered_data = full_metadata_table_data.map(row => {
+            return selected_columns.map(col => row[full_metadata_table_columns.indexOf(col)]);
+        });
+
+        // Initialize table with filtered columns and data
+        motif_metadata_table = new DataTable('#motif-metadata-table', {
+            columns: columns_option,
+            data: filtered_data,
+            paging: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            columnDefs: [{ searchable: true }]
         });
     }
 
-    function clearTable() {
-        summary_table.destroy();
-        $('#summary-table').empty();
+
+    function clearMetadataTable() {
+        if (motif_metadata_table)
+            motif_metadata_table.destroy();
+        $('#motif-table').empty();
     }
+
+
 
     $(document).ready(function () {
 
-        $('#search-input').on('keydown', function (event) {
-            if (event.key === 'Enter') {
-                const search_term = $('#search-input').val();
-                quickSearchDatabase(search_term);
-            }
+
+
+        $("#loader").hide();
+        $("#motif-metadata").hide();
+        $('input[type=checkbox]').prop('checked', false);
+
+
+        inititalizeMotifPage()
+
+
+
+        //     $('#select-all-button').click(function () {
+        //         let checkboxes = $('.selected-rows');
+        //         let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
+
+        //         checkboxes.prop('checked', !isAllChecked);
+        //     });
+
+        //     $('.download-dropdown-item').click(function (event) {
+        //         let button_id = event.target.id;
+        //         let format = button_id.split('-')[1];
+        //         let selected_accessions = [];
+        //         $('.selected-rows').each(function () {
+        //             if ($(this).is(':checked')) {
+        //                 selected_accessions.push(this.id);
+        //             }
+        //         });
+
+        //         console.log(selected_accessions)
+
+        //         let selected_files = []
+        //         for (const data of full_table_data) {
+        //             if (selected_accessions.includes(data[0])) {
+        //                 selected_files.push(data[38])
+        //             }
+        //         }
+
+
+        //         // $("#loader").show();
+        //         $.ajax({
+        //             url: `${backend_url}/hairpin/download`,
+        //             type: 'POST',
+        //             contentType: 'application/json',
+        //             xhrFields: {
+        //                 responseType: 'blob'
+        //             },
+        //             data: JSON.stringify({
+        //                 format: format,
+        //                 selected_files: selected_files,
+        //             }),
+        //             success: function (data) {
+        //                 $("#loader").hide();
+        //                 // Start Download File
+        //                 var link = document.createElement('a');
+        //                 var url = window.URL.createObjectURL(data);
+        //                 link.href = url;
+        //                 link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
+        //                 document.body.appendChild(link);
+        //                 link.click();
+        //                 document.body.removeChild(link);
+        //                 // End Download File
+        //             },
+        //             error: function (xhr, status, error) {
+        //                 $("#loader").hide();
+        //                 console.error('Error:', error);
+        //             }
+        //         });
+        //     });
+
+
+        //     fetchDataAndPopulateTable()
+
+
+        // JavaScript to toggle visibility of the number input
+        document.getElementById('limit-results-checkbox').addEventListener('change', function () {
+            const result_limit_input = document.getElementById('result_limit_input');
+            result_limit_input.classList.toggle('d-none', !this.checked);
         });
 
-        $('#search-button').on('click', function () {
-            const search_term = $('#search-input').val();
-            quickSearchDatabase(search_term);
-        });
-
-        $('#select-all-button').click(function () {
-            let checkboxes = $('.selected-rows');
-            let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-            checkboxes.prop('checked', !isAllChecked);
-        });
-
-        $('.download-dropdown-item').click(function (event) {
-            let button_id = event.target.id;
-            let format = button_id.split('-')[1];
-            let selected_accessions = [];
-            $('.selected-rows').each(function () {
-                if ($(this).is(':checked')) {
-                    selected_accessions.push(this.id);
-                }
-            }); 
-
-            console.log(selected_accessions)
-            
-            let selected_files = []
-            for (const data of full_table_data){
-                if (selected_accessions.includes(data[0])) {
-                    selected_files.push(data[38])
-                }
-            }
-
-
-            $("#loader").show();
-            $.ajax({
-                url: `${backend_url}/hairpin/download`,
-                type: 'POST',
-                contentType: 'application/json',
-                xhrFields: {
-                    responseType: 'blob'
-                },
-                data: JSON.stringify({
-                    format: format,
-                    selected_files: selected_files,
-                }),
-                success: function (data) {
-                    $("#loader").hide();
-                    // Start Download File
-                    var link = document.createElement('a');
-                    var url = window.URL.createObjectURL(data);
-                    link.href = url;
-                    link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    // End Download File
-                },
-                error: function (xhr, status, error) {
-                    $("#loader").hide();
-                    console.error('Error:', error);
-                }
-            });
-        });
-
-
-        fetchDataAndPopulateTable()
     });
 
 
-    function renderProjectColumnsButton() {
-        const dropdownContent = document.getElementById('dropdown-content');
 
-        // Generate checkboxes
-        for (const key in summary_columns_dict) {
-            const label = document.createElement('label');
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.value = summary_columns_dict[key];
-            checkbox.checked = selected_headers.includes(checkbox.value);
-            checkbox.addEventListener('change', handleCheckboxChange);
-            label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(summary_columns_dict[key]));
-            dropdownContent.appendChild(label);
+
+    function calculateAndRenderMetadataFromMotifs() {
+        let unique_files = new Set();
+        for (const data of full_table_data) {
+            unique_files.add(data[0])
         }
-    }
+        const unique_file_count = unique_files.size
+        $("#genomic-unique-files").html(unique_file_count)
+        $("#loader").show();
 
-    
+        // API CALL
+        $.ajax({
+            url: `${backend_url}/hairpin/metadata/multiple_files/`,
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                filenames: Array.from(unique_files)
+            }),
+            success: function (data) {
+                console.log(data)
+                full_metadata_table_data = data.data
+                full_metadata_table_columns = data.columns
+                populateMotifMetadataTable()
+                $("#loader").hide();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+                $("#loader").hide();
+            },
+        });
+
+
+        // Show metadata section
+        $("#motif-metadata").show();
+    }
 
     function handleCheckboxChange(event) {
         clearTable()
@@ -564,18 +644,26 @@
 
     function searchDatabase() {
         $("#loader").show();
+
         const post_data = filters
+        const limit_results_true = document.getElementById("limit-results-checkbox").checked;
+        const limit_results_param = limit_results_true ? `?n=${document.getElementById("result_limit_input").value}` : ``;
         $.ajax({
-            url: `${backend_url}/hairpin/search`,
+            url: `${backend_url}/hairpin/motif_search${limit_results_param}`,
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(post_data),
             success: function (data) {
                 $("#loader").hide();
                 resp_obj = data
+                console.log(resp_obj)
                 clearTable()
+                full_table_headers = resp_obj.columns
                 full_table_data = resp_obj.data
                 populateTable()
+
+
+                calculateAndRenderMetadataFromMotifs()
 
             },
             error: function (xhr, status, error) {
@@ -585,40 +673,16 @@
         });
     }
 
-    function quickSearchDatabase(search_term) {
-        $("#loader").show();
-        const post_data = {
-            value: search_term
-        }
-        $.ajax({
-            url: `${backend_url}/hairpin/quick_search`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(post_data),
-            success: function (data) {
-                $("#loader").hide();
-                clearTable()
-                resp_obj = data
-                full_table_data = resp_obj.data
-                populateTable()
 
-            },
-            error: function (xhr, status, error) {
-                $("#loader").hide();
-                console.error('Error:', error);
-            }
-        });
-    }
 
     let filter_name_list;
-
     const modal = document.getElementById("modal");
     const add_filter_button = document.getElementById("add-filter-btn");
     const close_button = document.querySelector(".close-button");
     const filter_form = document.getElementById("filter-form");
     const filter_name_select = document.getElementById("filter-name");
 
-    
+
 
     add_filter_button.addEventListener("click", () => {
         modal.style.display = "block";
