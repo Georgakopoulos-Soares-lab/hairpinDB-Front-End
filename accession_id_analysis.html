@@ -269,13 +269,56 @@
             text-align: center;
         }
 
-        #hairpin-file-table-wrapper {
+        .accession-table-wrapper {
+            font-size: 15px;
+
+        }
+
+        .accession-table-wrapper table {
             font-size: 15px;
         }
 
-        #hairpin-file-table-wrapper table {
+
+        .statistics-container {
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        #gene-tandem-table_wrapper {
             font-size: 15px;
         }
+
+        .gene-table-wrapper {
+            text-align: center;
+        }
+
+        .table {
+            text-align: center;
+        }
+
+        .density-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Center horizontally */
+            text-align: center;
+            /* Center the heading text */
+            margin: 20px auto;
+            /* Ensure auto margins for centering */
+            padding: 20px;
+            width: 100%;
+            /* Full width of the parent container */
+            max-width: 800px;
+            /* Limit the max width */
+        }
+
+        #density-gene-table {
+            width: 100%;
+            border-collapse: collapse;
+            /* Neater table look */
+        }
+
 
     </style>
 </head>
@@ -328,10 +371,13 @@
                 <h2>Inverted Repeat Metadata</h2>
                 <hr>
                 <p><strong>Inverted Repeat Count</strong> <label id="genomic-hairpin-count"></label></p>
-                <p><strong>Inverted Repeat Total Arm Length (single)</strong> <label id="genomic-arm-length"></label></p>
+                <p><strong>Inverted Repeat Total Arm Length (single)</strong> <label id="genomic-arm-length"></label>
+                </p>
                 <p><strong>Inverted Repeat Total Spacer Length</strong> <label id="genomic-spacer-length"></label></p>
-                <p><strong>Inverted Repeat Total Sequence Length</strong> <label id="genomic-sequence-length"></label></p>
-                <p><strong>Inverted Repeat Avg Sequence Length</strong> <label id="genomic-avg-sequence-length"></label></p>
+                <p><strong>Inverted Repeat Total Sequence Length</strong> <label id="genomic-sequence-length"></label>
+                </p>
+                <p><strong>Inverted Repeat Avg Sequence Length</strong> <label id="genomic-avg-sequence-length"></label>
+                </p>
                 <p><strong>Inverted Repeat Avg Arm Length</strong> <label id="genomic-avg-arm-length"></label></p>
                 <p><strong>Inverted Repeat Avg Spacer Length</strong> <label id="genomic-avg-spacer-length"></label></p>
                 <p><strong>Inverted Repeat GC Percent</strong> <label id="genomic-hairpin-gc"></label></p>
@@ -347,9 +393,10 @@
                     <div id="viz-right"></div>
                 </div>
 
-                <p><strong>This visualization is used to quickly highlight the ratio between the arm and spacer lengths based on (Avg Arm Length / Avg Spacer Length). The arms are displayed
-                with cyan and yellow and the spacer with green color.    
-                </strong> <label id=""></label></p>
+                <p><strong>This visualization is used to quickly highlight the ratio between the arm and spacer lengths
+                        based on (Avg Arm Length / Avg Spacer Length). The arms are displayed
+                        with cyan and yellow and the spacer with green color.
+                    </strong> <label id=""></label></p>
 
             </div>
         </div>
@@ -409,7 +456,8 @@
         </div>
 
         <!-- Table container -->
-        <div id="hairpin-file-table-wrapper" class="dt-container dt-bootstrap5" style="margin-right: 20px; margin-left: 20px;">
+        <div id="hairpin-file-table-wrapper" class="dt-container dt-bootstrap5 accession-table-wrapper"
+            style="margin-right: 20px; margin-left: 20px;">
             <div class="row mt-2 justify-content-md-center">
                 <div class="col-12 ">
                     <table id="hairpin-file-table" class="display table table-striped table-hover dataTable"
@@ -422,9 +470,40 @@
                     </table>
                 </div>
             </div>
+        </div>
 
+        <div class="statistics-container">
+
+            <div class="statistic gene-table-wrapper">
+                <h2>Search Inverted Repeats by Locus Tag</h2>
+                <div>
+                    Gene Start: <label id="gene-start"></label>
+                </div>
+                <div>
+                    Gene End: <label id="gene-end"></label>
+                </div>
+                <hr>
+                <div class="gene-str-search">
+                    <div class="input-group">
+                        <input type="search" class="form-control rounded" id="search-input"
+                            placeholder="Search By Gene ID:" aria-label="Search" aria-describedby="search-addon" />
+                        <button type="button" class="btn btn-outline-primary" id="search-button">search</button>
+                    </div>
+                </div>
+                <table id="gene-tandem-table">
+                </table>
+                <br>
+                <br>
+                <div class="density-wrapper">
+                    <h2>Top 10 most dense genes in Inverted Repeats</h2>
+                    <table id="density-gene-table">
+                    </table>
+                </div>
+
+            </div>
 
         </div>
+
 
 
 
@@ -468,7 +547,6 @@
         const ratio = accession_row_data[49].toFixed(2) / accession_row_data[48].toFixed(2);
         adjustHairpinVisualizationSizesRatio(ratio);
     }
-
 
     function createChart(ctx, labels, values, chart_color, title) {
         return new Chart(ctx, {
@@ -549,48 +627,45 @@
         });
     }
 
-
-
     function createCompositionDonutChart(ctx, counts, colors, labels) {
-            const total = counts.reduce((a, b) => a + b, 0);
-            const percentages = counts.map(count => ((count / total) * 100).toFixed(2));
-            
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Composition',
-                        data: percentages,
-                        backgroundColor: colors,
-                        borderColor: '#1D2124',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: '#FFFFFF', // White color for labels
-                                font: {
-                                    size: 16 // Increase font size
-                                },
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': ' + tooltipItem.raw + '%';
-                                }
+        const total = counts.reduce((a, b) => a + b, 0);
+        const percentages = counts.map(count => ((count / total) * 100).toFixed(2));
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Composition',
+                    data: percentages,
+                    backgroundColor: colors,
+                    borderColor: '#1D2124',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#FFFFFF', // White color for labels
+                            font: {
+                                size: 16 // Increase font size
+                            },
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                return tooltipItem.label + ': ' + tooltipItem.raw + '%';
                             }
                         }
                     }
                 }
-            });
-        }
-
+            }
+        });
+    }
 
     function renderComposition() {
         $.ajax({
@@ -607,7 +682,7 @@
                 const colors = ['#555D63', '#90ee90', '#FFCE56', '#03c3c3'];
                 const labels = ['A', 'T', 'G', 'C'];
 
-                let gc_percent_hairpin = ((sequence_data[2]+sequence_data[3]) / (sequence_data.reduce((partialSum, a) => partialSum + a, 0)) * 100).toFixed(2);
+                let gc_percent_hairpin = ((sequence_data[2] + sequence_data[3]) / (sequence_data.reduce((partialSum, a) => partialSum + a, 0)) * 100).toFixed(2);
                 $('#genomic-hairpin-gc').html(gc_percent_hairpin + "%");
 
                 createCompositionDonutChart(ctx_arm, arm_data, colors, labels);
@@ -617,6 +692,38 @@
             error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
         });
 
+    }
+
+    function renderMostDenseGenes() {
+        $.ajax({
+            url: `${backend_url}/hairpin/genes/most_dense/${filename}`,
+            method: 'GET',
+            success: function (data) {
+                let most_dense_data = data.data
+                let most_dense_columns = data.columns
+                console.log(most_dense_data)
+                let columns_option = []
+                for (let header of most_dense_columns) {
+                    if (header == "density") header = "Density ( / Mbp)"
+                    columns_option.push({
+                        "title": header
+                    })
+
+                }
+                for (let row of most_dense_data){
+                    row[0] = row[0].replace("ID=", ""); 
+                    row[1] = denistyToMegabasePairs(row[1]); 
+                }
+                let most_dense_table = new DataTable('#density-gene-table',
+                    {
+                        columns: columns_option,
+                        order: [[1, 'desc']],
+                        paging: false,
+                        data: most_dense_data,
+                    });
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
     }
 
 
@@ -630,7 +737,7 @@
     let hairpin_file_table;
     let accession_row_data = JSON.parse(localStorage.getItem("accession_row_data"))["full_table_data"]
     let filename = accession_row_data[38];
-
+    let ir_gene_data;
 
 
     let chromosomes = {}
@@ -642,6 +749,14 @@
         "hairpin_repeats_density": 0,
         "composition": { "a": 0, "t": 0, "g": 0, "c": 0 }
     }
+
+    let gene_tandem_table = new DataTable('#gene-tandem-table',
+        {
+            data: [],
+            paging: true,
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        });;
 
     function populateAccessionMetadata() {
         let organims_name = accession_row_data[7];
@@ -719,7 +834,6 @@
 
     // Attach event listener to a specific parent element (e.g., #chromosomes-container)
     $('#chromosomes-container').on('change', '.showviz', function () {
-        console.log("ASD")
         const id = this.id.replace('showviz-', '');
         const viz_element = $('#viz-' + id);
         if ($(this).is(':checked')) {
@@ -739,6 +853,48 @@
         }
     });
 
+
+    $('#search-button').on('click', function () {
+        const search_term = $('#search-input').val();
+        $.ajax({
+            url: `${backend_url}/hairpin/genes/search`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                locus_tag: search_term,
+                filename: filename
+            }),
+            success: function (data) {
+                let gene_data = data.gene_metadata;
+                let gene_start = gene_data[0][3];
+                let gene_end = gene_data[0][4];
+                $("#gene-start").html(gene_start);
+                $("#gene-end").html(gene_end);
+                ir_gene_data = data.inverted_repeats
+                let gene_columns = data.columns
+                let columns_option = []
+                for (let header of gene_columns) {
+                    columns_option.push({
+                        "title": header
+                    })
+
+                }
+                gene_tandem_table.destroy();
+                $('#gene-tandem-table').empty();
+                gene_tandem_table = new DataTable('#gene-tandem-table',
+                    {
+                        columns: columns_option,
+                        data: ir_gene_data,
+                        paging: true,
+                        pageLength: 25,
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                    });
+            },
+            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+        });
+    });
+
+
     $(document).ready(function () {
 
         // Render accession id
@@ -754,66 +910,21 @@
                 table_columns = res.headers;
 
                 $("#loader").hide();
-                
 
                 populateAccessionMetadata();
 
-                // Render table
                 populateTable();
 
-                // Render hairpin metadata
                 renderHairpinMetadata();
 
                 renderLengthStatistics();
 
-                // renderHistogramPercentage()
-                // Render Composition stats
                 renderComposition();
-                // Render Chromosomes
 
+                renderMostDenseGenes();
             },
             error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
         });
-
-
-        // function renderTopFive(topfive) {
-        //     const table_body = $('#topfive-unit-table-body');
-        //     table_body.empty(); // Clear existing rows
-
-        //     $.each(topfive, function (index, item) {
-        //         const row = $('<tr>');
-        //         row.html(`
-        //             <td><b>${item.unit_sequence.toUpperCase()}</b></td>
-        //             <td style="color: white;">${item.frequency}</td>
-        //         `);
-        //         table_body.append(row);
-        //     });
-
-        // }
-
-        // function fetchTopFiveAndRender() {
-        //     $.ajax({
-        //         url: `${backend_url}/statistics/top_n_unit_sequences/${accession_id}?n=5`,
-        //         type: 'GET',
-        //         success: function (response) {
-        //             renderTopFive(response);
-        //         },
-        //         error: function (xhr, status, error) {
-        //             console.error('Error:', error);
-        //         }
-        //     });
-        // }
-
-        // if ($('#topfive-unit-table-body').length) {
-        //     fetchTopFiveAndRender()
-        // } else {
-        //     $(document).ajaxStop(function () {
-        //         if ($('#topfive-unit-table-body').length) {
-        //             fetchTopFiveAndRender()
-        //             $(document).off('ajaxStop');
-        //         }
-        //     });
-        // }
     });
 
 </script>

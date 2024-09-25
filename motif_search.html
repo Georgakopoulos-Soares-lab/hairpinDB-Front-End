@@ -74,8 +74,6 @@
         }
 
 
-
-
         .loader {
             border: 16px solid #f3f3f3;
             /* Light grey */
@@ -136,9 +134,6 @@
         }
 
 
-
-
-
         .filter {
             background-color: #212529;
             color: #ffffff;
@@ -148,6 +143,26 @@
             display: flex;
             align-items: center;
         }
+
+        .filter .strand-label {
+            display: block;
+            font-size: 10px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .strand-label.forward {
+            color: #00F9F9;
+        }
+
+        .strand-label.reverse {
+            color: #55DE55;
+        }
+
+        .strand-label.both {
+            color: #FFCE56;
+        }
+
 
         .filter span {
             margin-right: 10px;
@@ -304,10 +319,10 @@
                     <br><br>
                     <label for="operator">Operator:</label>
                     <select id="operator" name="form_filter_operator">
+                        <option value="equals">equals</option>
                         <option value="contains">contains</option>
                         <option value="starts with">starts with</option>
                         <option value="ends with">ends with</option>
-                        <option value="equals">equals</option>
                         <option value="length equals">length equals</option>
                         <option value="length greater than">length greater than</option>
                         <option value="length less than">length less than</option>
@@ -317,11 +332,22 @@
                     <br><br>
                     <label for="value">Value:</label>
                     <input type="text" id="value" name="form_filter_value" required>
+                    <br><br>
+
+                    <!-- New Dropdown for Reverse Complement Search -->
+                    <label for="reverse-strand">Reverse Strand:</label>
+                    <select id="reverse-strand" name="form_filter_reverse_strand">
+                        <option value="no">No</option>
+                        <option value="only_reverse">Only</option>
+                        <option value="both">Both Strands</option>
+                    </select>
+                    <br><br>
 
                     <button type="submit" class="submit-btn btn btn-primary">Add Filter</button>
                 </form>
             </div>
         </div>
+
 
         <br>
         <!-- Table container -->
@@ -360,30 +386,30 @@
 
         </div>
         <b>
-        <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
-            <div class="genomic-result">
-                <h2>Motif Metadata Analysis</h2>
-                <hr>
-                <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
-                <div class="row mt-2 justify-content-md-center">
-                    <div class="col-12 ">
-                        <table id="motif-metadata-table"
-                            class="display table table-striped table-hover dataTable table-responsive "
-                            style="table-layout: auto; width: 100%;" aria-describedby="example_info">
-                            <thead>
-                                <tr role="row" id="motif-metadata-table-header"></tr>
-                            </thead>
-                            <tbody id="motif-metadata-table-body">
-                            </tbody>
-                        </table>
+            <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
+                <div class="genomic-result">
+                    <h2>Motif Metadata Analysis</h2>
+                    <hr>
+                    <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
+                    <div class="row mt-2 justify-content-md-center">
+                        <div class="col-12 ">
+                            <table id="motif-metadata-table"
+                                class="display table table-striped table-hover dataTable table-responsive "
+                                style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+                                <thead>
+                                    <tr role="row" id="motif-metadata-table-header"></tr>
+                                </thead>
+                                <tbody id="motif-metadata-table-body">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+
+
             </div>
 
-
-        </div>
-
-        <div id="footer-container"></div>
+            <div id="footer-container"></div>
 </body>
 
 
@@ -406,7 +432,7 @@
 
 
     function inititalizeMotifPage() {
-        filter_name_list = ['left_arm', 'spacer', 'right_arm', 'sequence'];
+        filter_name_list = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
         filter_name_list.forEach(filter => {
             const option = document.createElement("option");
             option.value = filter;
@@ -466,7 +492,7 @@
 
 
     function populateMotifMetadataTable() {
-        
+
         let selected_columns = ['assembly_accession', 'organism_name', 'domain']
         let columns_option = [];
         let filtered_data = [];
@@ -658,6 +684,7 @@
                 resp_obj = data
                 console.log(resp_obj)
                 clearTable()
+                clearMetadataTable()
                 full_table_headers = resp_obj.columns
                 full_table_data = resp_obj.data
                 populateTable()
@@ -704,11 +731,14 @@
         const filter_name = event.target.form_filter_name.value;
         const operator = event.target.form_filter_operator.value;
         const value = event.target.form_filter_value.value;
+        const reverse_strand = event.target.form_filter_reverse_strand.value; // Get reverse strand value
 
         if (filter_name && operator && value) {
             const filter_key = `${filter_name} ${operator} ${value}`;
+
             if (!filters[filter_key]) {
-                filters[filter_key] = { filter_name, operator, value };
+                const reverse_strand_value = reverse_strand       
+                filters[filter_key] = { filter_name, operator, value, reverse_strand: reverse_strand_value };
                 render_filters();
                 modal.style.display = "none";
                 filter_form.reset();
@@ -732,8 +762,20 @@
             const filter = filters[filter_key];
             const filter_element = document.createElement('div');
             filter_element.className = 'filter';
+
+            // Small label based on reverse_strand value
+            let strand_label = '';
+            if (filter.reverse_strand === 'no') {
+                strand_label = '<span class="strand-label forward">( Forward ⭢ )</span>';
+            } else if (filter.reverse_strand === 'only_reverse') {
+                strand_label = '<span class="strand-label reverse">( Reverse ⭠ )</span>';
+            } else if (filter.reverse_strand === 'both') {
+                strand_label = '<span class="strand-label both">( Both  ⮂ )</span>';
+            }
+
             filter_element.innerHTML = `
             <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
+            ${strand_label}
             <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
         `;
             filters_container.appendChild(filter_element);

@@ -145,6 +145,33 @@
             min-width: 280px;
             margin: 0 10px;
         }
+
+        .styled-select {
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #6c757d;
+            background-color: #343a40;
+            color: #f8f9fa;
+            width: 200px;
+            text-align: center;
+        }
+
+        .styled-select option {
+            background-color: #343a40;
+            color: #f8f9fa;
+        }
+
+        .styled-select:focus {
+            outline: none;
+            border: 1px solid #f8f9fa;
+        }
+
+        .domain-label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #f8f9fa;
+        }
     </style>
 </head>
 
@@ -216,6 +243,14 @@
         <div class="homepage-container" style="margin-bottom: 1%;">
             <h1>Top 10 Organisms by Inverted Repeat Density</h1>
         </div>
+        <div class="homepage-container" style="text-align: center; margin-bottom: 2%;">
+            <select id="domain-select" class="styled-select">
+                <option value="Virus">Viruses</option>
+                <option value="Bacteria">Bacteria</option>
+                <option value="Eukaryota">Eukaryota</option>
+                <option value="Archaea">Archaea</option>
+            </select>
+        </div>
         <div class="homepage-container">
             <canvas id="donutChart" width="800" height="700"></canvas>
         </div>
@@ -274,6 +309,8 @@
                 indexAxis: 'y',
                 plugins: {
                     tooltip: {
+                        displayColors: false,
+
                         callbacks: {
                             label: function (tooltipItem) {
                                 return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
@@ -398,14 +435,19 @@
                             ticks: {
                                 min: 1,
                                 max: 100000000,
-
                                 callback: function (value) {
+                                    const logValue = Math.log10(value);
 
-                                    const logTicks = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
-                                    if (logTicks.includes(value)) {
-                                        return value;
+                                    if (logValue === -1) {
+                                        return '0';  // 10^-1 as 0
+                                    } else if (logValue === 0) {
+                                        return '1';  // 10^0 as 1
+                                    } else if (logValue === 1) {
+                                        return '10'; // 10^1 as 10
+                                    } else if (logValue % 1 === 0) {
+                                        return `10^${logValue}`;  // Other powers of 10 (e.g., 10^2, 10^3)
                                     }
-                                    return null;
+                                    return null;  // Skip non-powers of 10
                                 }
                             }
                         },
@@ -418,23 +460,29 @@
                             ticks: {
                                 min: 1,
                                 max: 100000000,
-
                                 callback: function (value) {
-                                    // Return only specific values for the logarithmic scale (1, 10, 100, etc.)
-                                    const logTicks = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
-                                    if (logTicks.includes(value)) {
-                                        return value;
+                                    const logValue = Math.log10(value);
+
+                                    if (logValue === -1) {
+                                        return '0';  // 10^-1 as 0
+                                    } else if (logValue === 0) {
+                                        return '1';  // 10^0 as 1
+                                    } else if (logValue === 1) {
+                                        return '10'; // 10^1 as 10
+                                    } else if (logValue % 1 === 0) {
+                                        return `10^${logValue}`;  // Other powers of 10 (e.g., 10^2, 10^3)
                                     }
-                                    return null;
+                                    return null;  // Skip non-powers of 10
                                 }
                             }
                         }
                     },
                     plugins: {
                         tooltip: {
+                            displayColors: false,
                             callbacks: {
                                 label: function (tooltipItem) {
-                                    return `${tooltipItem.dataset.label}: Length ${tooltipItem.parsed.x}, Count ${tooltipItem.parsed.y}`;
+                                    return `Count ${tooltipItem.parsed.y}`;
                                 }
                             }
                         },
@@ -470,9 +518,15 @@
         );
     }
 
+    const selectElement = document.getElementById('domain-select');
+    selectElement.addEventListener('change', function() {
+        const selected_value = selectElement.value;
+        getAndRenderTopTenOrganismsPerDomain(selected_value);
+    });
+
+    let donutChart = null; // Store the chart globally so we can check if it exists
 
     function renderTopOrganismsDensityDonutChart() {
-
         const data = top_dense_organisms;
 
         const labels = data.data.map(item => item[0] + ` ( ${item[1]} )`);
@@ -492,7 +546,13 @@
             '#B39DDB'  // Lavender - Optional additional color
         ];
 
-        const donutChart = new Chart(ctx, {
+        // 1. Check if the chart already exists
+        if (donutChart) {
+            donutChart.destroy(); // 2. Destroy the existing chart
+        }
+
+        // 3. Build the new chart
+        donutChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -507,29 +567,26 @@
             options: {
                 plugins: {
                     tooltip: {
+                        displayColors: false,
                         callbacks: {
                             label: function (tooltipItem) {
-                                return `${tooltipItem.label}: ${tooltipItem.raw}`;
+                                return `${tooltipItem.raw}`;
                             }
                         },
                         backgroundColor: '#444', // Tooltip background color
                     },
                     legend: {
-                        position: 'right', // Position the legend below the chart
-                        labels : {
+                        position: 'right', // Position the legend beside the chart
+                        labels: {
                             color: '#adb5bd',
-
-                            font : {
-                                size: 15 ,
+                            font: {
+                                size: 15
                             }
-                            
                         },
-         
                     },
                     datalabels: {
                         font: {
-                            
-                            size: 15 ,
+                            size: 15,
                             color: '#adb5bd'
                         },
                         formatter: (value, context) => {
@@ -570,9 +627,8 @@
                 maintainAspectRatio: false, // Allow resizing of the chart
                 layout: {
                     padding: {
-                        top: 100 ,// Adjust the spacing between the legend and the chart
-                        bottom: 100 ,// Adjust the spacing between the legend and the chart
-
+                        top: 100,   // Adjust the spacing above the chart
+                        bottom: 100 // Adjust the spacing below the chart
                     }
                 },
                 elements: {
@@ -583,7 +639,8 @@
             },
             plugins: [ChartDataLabels] // Register the datalabels plugin
         });
-    }
+    }       
+
 
     $.ajax({
         url: `${backend_url}/hairpin/statistics/density/domains`,
@@ -610,19 +667,22 @@
         }
     });
 
-    $.ajax({
-        url: `${backend_url}/hairpin/statistics/density/organisms`,
-        method: 'GET',
-        success: function (data) {
-            console.log(data)
-            top_dense_organisms = data
+    function getAndRenderTopTenOrganismsPerDomain(domain){
+            $.ajax({
+            url: `${backend_url}/hairpin/statistics/density/organisms?domain=${domain}`,
+            method: 'GET',
+            success: function (data) {
+                console.log(data)
+                top_dense_organisms = data
+                renderTopOrganismsDensityDonutChart()
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
 
-            renderTopOrganismsDensityDonutChart()
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
+    getAndRenderTopTenOrganismsPerDomain('Virus');
 
     // $.ajax({
     //     url: `${backend_url}/statistics/global/top_n_organisms_by_tandem_repeats_density`,

@@ -396,7 +396,7 @@
         for (let header of selected_headers) {
             if (header == "scaffold_count") header = "chromosome_count"
             if (header == "tandem_count") header = "Number of Tandem Repeats"
-            if (header == "inverted_repeats_density") header = "Inverted Repeats Density (/ Mb)"
+            if (header == "inverted_repeat_density") header = "Inverted Repeats Density (/ Mb)"
 
             header = header.split('_').join(' ');
             header = capitalizeFirstLetter(header)

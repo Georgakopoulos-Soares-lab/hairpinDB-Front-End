@@ -8,15 +8,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.2/css/buttons.dataTables.css" />
+
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.html5.min.js"></script>
+
+
+
+
+
+
+
     <script src="js/functions.js"></script>
 
     <style>
-        
         .homepage-container {
             font-size: xx-large;
             font-family: monospace;
@@ -28,7 +42,7 @@
             padding-right: 3%;
             padding-top: 3%
         }
-   
+
         .domain-name-div {
             display: flex;
             flex-direction: column;
@@ -168,7 +182,7 @@
             font-size: large;
         }
 
-      
+
 
         .main-container {
             font-family: monospace;
@@ -210,7 +224,51 @@
             margin-left: 10px;
             margin-right: 10px;
         }
-       
+
+        .buttons-csv , .buttons-excel {
+            display: inline-block !important;
+            font-weight: 400 !important;
+            font-family: monospace !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+            user-select: none !important;
+            border: 1px solid transparent !important;
+            padding: 0.375rem 0.75rem !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            border-radius: 0.375rem !important;
+            color: #fff !important;
+            background-color: #0d6efd !important;
+            border-color: #0d6efd !important;
+            text-decoration: none !important;
+            cursor: pointer !important;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+        }
+
+        .buttons-csv:hover , .buttons-excel:hover {
+            background-color: #0b5ed7 !important;
+            border-color: #0a58ca !important;
+        }
+
+        .buttons-csv:focus , .buttons-excel:focus  {
+            outline: 0 !important;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5) !important;
+        }e
+
+        .buttons-csv:active , .buttons-excel:active {
+            background-color: #0a58ca !important;
+            border-color: #0a53be !important;
+            box-shadow: none !important;
+        }
+
+        .buttons-csv:disabled , .buttons-excel:disabled,
+        .buttons-csv[disabled] , .buttons-excel[disabled] {
+            background-color: #0d6efd !important;
+            border-color: #0d6efd !important;
+            opacity: 0.65 !important;
+            cursor: not-allowed !important;
+        }
     </style>
 
     </style>
@@ -234,9 +292,12 @@
                             <h2><label id="genomic-organism-name"></label>Domain Hairpin Metadata</h2>
                             <hr>
                             <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label></p>
-                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label></p>
-                            <p><strong>Average Length of Spacer IR</strong> <label id="genomic-invert-spacer-length"></label></p>
-                            <p><strong>Average Length of Sequence IR</strong> <label id="genomic-invert-sequence-length"></label></p>
+                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label>
+                            </p>
+                            <p><strong>Average Length of Spacer IR</strong> <label
+                                    id="genomic-invert-spacer-length"></label></p>
+                            <p><strong>Average Length of Sequence IR</strong> <label
+                                    id="genomic-invert-sequence-length"></label></p>
                             <p><strong>Average Density of IR</strong> <label id="genomic-invert-density"></label></p>
                         </div>
                     </div>
@@ -279,12 +340,12 @@
                     </table>
                 </div>
             </div>
-            
+
 
         </div>
     </div>
 
-<div id="footer-container"></div>
+    <div id="footer-container"></div>
 </body>
 
 <script src="js/components.js"></script>
@@ -299,15 +360,15 @@
     let organismal_data;
 
 
-    function processOrganismalData(data){
+    function processOrganismalData(data) {
         let processed = [];
-        for (const d of data){
-            processed.push([d[0],d[1],d[2].toFixed(2),d[3].toFixed(2),d[4].toFixed(2),d[5].toFixed(2),denistyToMegabasePairs(d[6]),d[7].toFixed(2),formatNumberWithCommas(d[8].toFixed(2))])
+        for (const d of data) {
+            processed.push([d[0], d[1], d[2].toFixed(2), d[3].toFixed(2), d[4].toFixed(2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2), formatNumberWithCommas(d[8].toFixed(2))])
         }
         return processed;
     }
 
-    function populateDomainMetada(){
+    function populateDomainMetada() {
         console.log(domain_data)
         let data = domain_data.data[0]
         $("#genomic-invert-count").html(data[1].toFixed(2));
@@ -343,20 +404,25 @@
             console.log(data)
             let table_data = processOrganismalData(data.data)
             organisms_table = new DataTable('#organisms-table',
-            {
-                data: table_data,
-            });
+                {
+                    data: table_data,
+                    layout: {
+                        topStart: {
+                            buttons: ['csv', 'excel']
+                        }
+                    }
+                });
         },
         error: function (xhr, status, error) {
             console.error('Error:', error);
         }
     });
 
-    $("#domain-name-title").html(domain != 'Virus' ? domain : "Viruses" )
+    $("#domain-name-title").html(domain != 'Virus' ? domain : "Viruses")
     $("#genomic-ncbi-genome-browser").html(domain);
     $("#genomic-ncbi-genome-browser").attr("href", ncbi_domain_references[domain])
 
-    
+
 </script>
 
 </html>
