@@ -267,6 +267,55 @@
             padding: 1rem;
             border-radius: 5px;
         }
+
+    
+        .strand-label {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .strand-label .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            background-color: #333333; /* Dark background */
+            color: #ffffff; /* White text */
+            text-align: left;
+            border-radius: 5px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the label */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            transition: opacity 0.3s;
+        }
+
+        .strand-label .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* Arrow at the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333333 transparent transparent transparent; /* Match the dark background */
+        }
+
+        .strand-label:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Optional: Prevent code elements from wrapping */
+        .tooltip-content code {
+            white-space: nowrap;
+        }
+        .tooltip-content span {
+    display: inline-block;
+}
+
     </style>
 </head>
 
@@ -763,24 +812,44 @@
             const filter_element = document.createElement('div');
             filter_element.className = 'filter';
 
-            // Small label based on reverse_strand value
+            // Small label based on reverse_strand value with tooltip
             let strand_label = '';
             if (filter.reverse_strand === 'no') {
-                strand_label = '<span class="strand-label forward">( Forward ⭢ )</span>';
+                strand_label = `
+                <span class="strand-label forward">( Forward ⭢ )
+                    <div class="tooltip-content">
+                        <strong>Example:</strong><br>
+                        In the sequence <code>AA<span style="background-color:#00F9F9">ATTG</span>GCCCAAT</code>, searching for the motif <code>ATTG</code> on the forward strand in the left to right direction.
+                    </div>
+                </span>`;
             } else if (filter.reverse_strand === 'only_reverse') {
-                strand_label = '<span class="strand-label reverse">( Reverse ⭠ )</span>';
+                strand_label = `
+                <span class="strand-label reverse">( Reverse ⭠ )
+                    <div class="tooltip-content">
+                        <strong>Example:</strong><br>
+                        In the sequence <code>AAATTGGCCC<span style="background-color:#55DE55">CAAT</span></code>, searching for the motif <code>ATTG</code> on the reverse strand involves finding its reverse complement <code>CAAT</code> in the left to right direction.
+                    </div>
+                </span>`;
             } else if (filter.reverse_strand === 'both') {
-                strand_label = '<span class="strand-label both">( Both  ⮂ )</span>';
+                strand_label = `
+                <span class="strand-label both">( Both ⮂ )
+                    <div class="tooltip-content">
+                        <strong>Example:</strong><br>
+                        In the sequence <code>AA<span style="background-color:#FFCE56">ATTG</span>GCCC<span style="background-color:#FFCE56">CAAT</span></code>, searching for the motif <code>ATTG</code> on both strands highlights both the motif and its reverse complement.
+                    </div>
+                </span>`;
             }
 
             filter_element.innerHTML = `
-            <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
-            ${strand_label}
-            <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
-        `;
+                <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
+                ${strand_label}
+                <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
+            `;
             filters_container.appendChild(filter_element);
         }
     }
+
+
 
     function storeAccessionRow(accession_id) {
         for (let row of full_table_data) {

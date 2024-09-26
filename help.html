@@ -64,247 +64,189 @@
         </div>
         <div class="about-container">
             <h2>
+
                 This is the homepage of invertiaDB. It is comprised of high level metadata about the
-                reasearch
-                done, mainly statistics by biological domain , by repeating sequence and biological species:
+                reasearch. The graphs of homepage are: A bar chart of the inverted repeats density per domain
+                , Three line chart that showcase the distribution of lengths for the arms, spacers and whole sequences
+                present on the dataset and
+                an interactive doughnut chart that graphs the top 10 most dense organisms in inverted repeats per
+                biological domain:
             </h2>
         </div>
 
         <div class="about-container">
-            <img src="/img/screen1.png"></img>
+            <img src="/img/help/screen_homepage.png"></img>
+        </div>
+
+        <div class="about-container">
+            <img src="/img/help/screen_homepage_donut.png"></img>
+        </div>
+
+
+        <div class="about-container">
+            <h2>
+                From here you can navigate to other pages of invertiaDB using the navigation bar.
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/invertia_navbar.png"></img>
         </div>
 
         <div class="about-container">
             <h2>
-                From here you can navigate to other pages using the navigation bar , or you can
-                navigate to the statistics per domain using the pie chart legend items
+                One of the core features of invertiaDB is the ability to search ( Explore -> Invertia Dataset ) via
+                various NCBI assembly genome fields as well
+                as inverted repeats metadata and filter out assemblies that you deem relevant for further analysis.
             </h2>
+        </div>
+
+        <div class="about-container">
+            <img src="/img/help/screen_explore.png"></img>
         </div>
         <div class="about-container">
             <h2>
-                Navigation Bar:
-            </h2>
-        </div>
-
-
-        <div class="about-container">
-            <img src="/img/screen2.png"></img>
-        </div>
-
-        <div class="about-container">
-            <h2>
-                Legend Items:
-            </h2>
-        </div>
-        <div class="about-container">
-            <img src="/img/screen3.png"></img>
-        </div>
-        <div class="about-container">
-            <h2>
-                By clicking the legend items we are presented with the statistics per biological domain page. As the
-                name implies, this page
-                is used to perform a statistical analysis on the most relevant properties per domain and a further
-                analysis per biological organism.
-                Another way to access the different domains is through the Navigation Bar > Explore Domains
+                An example workflow would be to:
+                <br>
+                1. Quick search for the term "Influenza". This yields rows that come from the Bacterial and Viral
+                domain. So we must move on to advanced filtering
+                <br>
+                2. Perform advanced filtering to keep only the Viral rows through "Domain contains Virus" filter for
+                organisms that contain the word "Influenza" in their organism_name
+                <br>
+                3. Then we must keep only rows with IRs through the filter: "inverted_repeat_count greater than 0"
+                <br>
+                4. Finally we can select all rows and download the files for custom analysis or analyze the genomes
+                through invertia by clicking the blue button with their assembly_id.
             </h2>
         </div>
 
         <div class="about-container">
-            <img src="/img/screen3a.png"></img>
+            <img src="/img/help/explore_example.png"></img>
         </div>
 
         <div class="about-container">
             <h2>
-                The domain metadata
-                are organized at the upper part of the page whereas the organismal analysis is presented as a table on
-                the lower part.
+                We can then click on the accession id button of a specific row and navigate to
+                the analysis page of this specific accession. Here we can see calculations on inverted repeats
+                and accession metadata with cross references to other public sources
             </h2>
+
         </div>
 
-
-
         <div class="about-container">
-            <img src="/img/screen4.png"></img>
+            <img src="/img/help/invertia_analysis_1.png"></img>
         </div>
         <div class="about-container">
             <h2>
-                By clicking the Explore item at the navigation bar we are presented with a page that is used to
-                effectively search , access and download parts of the
-                Short Tandem Repeats dataset we produced. This page consists of some features that we implemented to
-                explore the dataset. These are:
+                We can also see graphs about the distribution
+                on inverted repeat arm , spacer and sequence length and nucleotide composition charts
+                for the same sequences as well:
             </h2>
-
         </div>
         <div class="about-container">
-            <ul>
-                <li>
-                    <h2>Advanced Filtering</h2>
-                </li>
-                <li>
-                    <h2>Quick Searching</h2>
-                </li>
-                <li>
-                    <h2>Select and Download</h2>
-                </li>
-                <li>
-                    <h2>Project Columns</h2>
-                </li>
-                <li>
-                    <h2>Row filtering</h2>
-                </li>
-            </ul>
+            <img src="/img/help/invertia_analysis_2.png"></img>
         </div>
         <div class="about-container">
-            <img src="/img/screen5.png"></img>
+            <h2>
+                We can then inspect in tabular format the inverted repeats file as it is present on the dataset:
+            </h2>
         </div>
-    </div>
-    <div class="about-container">
+        <div class="about-container">
+            <img src="/img/help/invertia_analysis_3.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                Finally if the genome was annotated through an NCBI gff file. We can use two gene related features 
+                <br>
+                1. To search Inverted repeats that overlap with a gene based on its locus-tag ( Unique identifier )
+                2. To inspect the top 10 most dense genes in Inverted Repeats
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/invertia_analysis_4.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                Through explore -> Domain we can perform an aggregated analysis per domain:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/domain_select.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                The aggregated analysis looks like these and there is the option to download the dataset in csv or xlsx
+                format:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/domain_analysis.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                A more granular way to see the same statistics, meaning an aggregated analysis of multiple assemblies,
+                if the
+                an organism has more than 1, can be performed by the navbar option Explore -> Organisms:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/organism_multiple_assemblies.png"></img>
+        </div>
+        <div class="about-container">
         <h2>
-            Advanced filtering is used to perform rich querying using all the available columns present on the accession
-            metadata. For example find every accesson that
-            comes from the domain of Bacteria and has more than 1 Chromosome and short Tandem Repeats present:
+            When clicking an organism that has multiple assemblies we are presented with an aggregated view of them in
+            terms of
+            inverted repeats. We also have the ability to download and inspect specific assemblies the same as the
+            Invertia Dataset page
         </h2>
     </div>
     <div class="about-container">
-        <img src="/img/screen6.png"></img>
+        <img src="/img/help/organism_aggregated_analysis.png"></img>
     </div>
-
+    <div class="about-container">
+    <h2>
+        InvertiaDB also offers the ability to search for specific DNA motfis in the inverted repeat dataset through the
+        navigation bar option
+        Motif Search. A trivial example use case that showcases this feature is to search for a sequence of interest,
+        e.g. "caatatggaa" on the left arm of all inverted repeats:
+    </h2>
+    </div>
+    <div class="about-container">
+        <img src="/img/help/motif_search_1.png"></img>
+    </div>
+    <div class="about-container">
+    <h2>
+        The primary search leads to a secondary search to find the files and the unique organisms in which these motifs
+        were found to perform further analysis:
+    </h2>
+    </div>
+    <div class="about-container">
+        <img src="/img/help/motif_search_2.png"></img>
+    </div>
     <div class="about-container">
         <h2>
-            The quick search feature is used to search on the most frequently used columns, for example:
-            organism_name=Homo Sapiens
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen7.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            We can then click on the accession id button of a specific row and navigate to the tandem repeats page of
-            this specific accession. Here we can
-            see calculations on tandem repeats , accession metadata, graphs about the distribution on tandem repeats
-            units lengths and cross references to
-            other public sources. We can also see where the short tandem repeats are present at the genome , Chromosome
-            , Start , End:
-        </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/screen9.png"></img>
-    </div>
-    <div class="about-container">
-        <img src="/img/screen10.png"></img>
-    </div>
-    <div class="about-container">
-        <img src="/img/screen11.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            An analysis and visualization per chromosome provides the user with the ability to inspect the different STR unit lengths along with an arbitrary presentation of the unit sequences using unique coloring and a magnitude number to denote the gap between consecutive STR sequences
+            Apart from these use cases the motif search can be ran on various more advanced ways such as searching both
+            arms , searching the reverse strand , both strands as well as apply text search functionalities
+            such as sequence contains X , starts with X and length comparisons such as "length equals X" or "length
+            greater than X" in complex ways while also having the ability to limit results. An example would look like:
         </h2>
     </div>
     <div class="about-container">
-        <img src="/img/screen_chrom_viz.png"></img>
-    </div>
-
-
-    <div class="about-container">
-        <h2>
-            Another view of the same data ( NCBI organismal genomes ) is an aggregation of the different assemblies based on Organism Name. This can be
-            accessed through Explore > Organisms
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen11a.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-           By clicking the organism name button we are being redirected to the aggregated analysis done on the organism for the different assemblies. Here we
-           can gain a high level overview about STRs across assemblies and Inspect  Filter and Download the raw files. 
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen11b.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            In order to access the Human Pangenome Table with the 95 human genomes including their STR metadata you go
-            to
-            Explore > Human Pangenome Project (HPP)
-        </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/screen11c.png"></img>
+        <img src="/img/help/motif_search_3.png"></img>
     </div>
 
     <div class="about-container">
         <h2>
-            By clicking the button with the human genome on the left side of the table we are redirected to a page
-            similar to the NCBI genome assemblies where the full human genome is analyzed in the context of short tandem
-            repeats. Here
-            as the headings imply we have some general metadata and some metadata about STRs.
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen11d.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            Given the importance of genes on the human genome we implemented a feature to perform Short Tandem Repeat
-            searches on genes based on Gene ID along with
-            a bar plot for the top 5 most dense genes in terms STRs :
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen_genes.png"></img>
-    </div>
-    
-    <div class="about-container">
-        <h2>
-            The same design principle is followed for the Telomere-to-Telomere genomes that are accessed through Explore > Telomere-to-Telomere Organismal Genomes:
-        </h2>
-    </div>
-
-    <div class="about-container">
-        <img src="/img/screen11f.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            We can then navigate to the specific assembly by clicking the blue button with the accession_id on the left
-        </h2>
-    </div>
-
-
-    <div class="about-container">
-        <img src="/img/screen11g.png"></img>
-    </div>
-
-    <div class="about-container">
-        <h2>
-            Finally you can use the downloads page to download the dataset as a whole in three different formats
-            depending on the use. For example CSV for
-            spreadsheet use, JSON for app development and Parquet.snappy for HPC use.
+            There is also an about/contact page that explains the basics of Inverted Repeats along with the lab's researchers emails to
+            contact if you have any feedback or questions and a downloads page in order to download the dataset in csv,json,parquet and bed format:
         </h2>
     </div>
     <div class="about-container">
-        <img src="/img/screen12.png"></img>
+        <img src="/img/help/about_page.png"></img>
     </div>
+    <div class="about-container">
+        <img src="/img/help/downloads_page.png"></img>
     </div>
-    <br>
-    <br>
-
-
-
     <div id="navbar-container"></div>
     <div id="footer-container"></div>
 </body>
