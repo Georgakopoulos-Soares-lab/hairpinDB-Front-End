@@ -1,5 +1,5 @@
 // Prod vs Dev check
-const backend_url = window.location.hostname.includes('localhost')
+const backend_url = window.location.hostname.includes('localhost')  || window.location.hostname.includes('127.0.0.1')
     ? 'http://localhost:5000'  // Dev
     : 'https://www.microsatellitesexplorer.com/hairpin_api';  // Prod
 
