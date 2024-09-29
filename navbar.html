@@ -1,24 +1,45 @@
 <!-- navbar.html -->
 <style>
     .text-left {
-        font-size: x-large;
+        font-size: 1.2rem; /* Reduced from x-large to a smaller size */
+    }
+
+    .navbar-brand {
+        font-size: 1rem; /* Reduced font size of the brand */
     }
 
     .nav-item {
-        margin-left: 30px;
-        border: 10px;
+        margin-left: 15px; /* Reduced margin between nav items */
+        padding: 0; /* Removed extra padding */
+    }
 
+    .nav-link {
+        font-size: 0.85rem; /* Reduced font size of links */
+        padding: 5px 10px; /* Reduced padding inside links */
     }
 
     .navbar {
-        background-color: #343a40;
+        background-color: #343a40; /* Keep the existing background color */
         font-family: monospace;
+        padding: 5px 15px; /* Reduced padding inside the navbar */
     }
 
+    .navbar-toggler {
+        padding: 2px 5px; /* Make the toggler smaller */
+    }
 
+    .dropdown-menu {
+        font-size: 0.85rem; /* Smaller font size for dropdown items */
+    }
+
+    img {
+        height: 35px; /* Reduced the logo size */
+        width: auto; /* Ensure logo maintains aspect ratio */
+    }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-dark" >
+
+<nav class="navbar navbar-expand-sm navbar-dark" >
     <div class="px-3 text-left">
         <img src="/img/imageedit_2_9787711800.png" ></img>
         <a class="navbar-brand" ><span class="text-left">&nbsp;invertiaDB</span></a>

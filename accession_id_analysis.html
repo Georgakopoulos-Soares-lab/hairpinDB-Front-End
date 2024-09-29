@@ -421,12 +421,15 @@
             <br>
             <div class="three-column-chart-container">
                 <div class="chart-container">
+                    <h3>Arm</h3>
                     <canvas id="arm-length-chart"></canvas>
                 </div>
                 <div class="chart-container">
+                    <h3>Spacer</h3>
                     <canvas id="spacer-length-chart"></canvas>
                 </div>
                 <div class="chart-container">
+                    <h3>Sequence</h3>
                     <canvas id="sequence-length-chart"></canvas>
                 </div>
             </div>
@@ -587,7 +590,7 @@
                 },
                 plugins: {
                     legend: {
-                        display: true,
+                        display: false,
                         labels: {
                             color: 'white',
                             font: { size: 18 }
@@ -618,9 +621,9 @@
 
 
                 // Create three charts
-                createChart(document.getElementById('arm-length-chart').getContext('2d'), labels_arms, values_arms, 'rgba(75, 192, 192, 1)', 'Count per IR Arm Length\n\n');
-                createChart(document.getElementById('spacer-length-chart').getContext('2d'), labels_spacers, values_spacers, 'rgba(144, 238, 144, 1)', 'Count per IR Spacer Length\n\n');
-                createChart(document.getElementById('sequence-length-chart').getContext('2d'), labels_sequences, values_sequences, 'rgba(75, 192, 192, 1)', 'Count per IR Sequence Length\n\n');
+                createChart(document.getElementById('arm-length-chart').getContext('2d'), labels_arms, values_arms, 'rgba(75, 192, 192, 1)', '');
+                createChart(document.getElementById('spacer-length-chart').getContext('2d'), labels_spacers, values_spacers, 'rgba(144, 238, 144, 1)', '');
+                createChart(document.getElementById('sequence-length-chart').getContext('2d'), labels_sequences, values_sequences, 'rgba(75, 192, 192, 1)', '');
 
             },
             error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }

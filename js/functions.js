@@ -1,4 +1,8 @@
-let backend_url = "http://localhost:5000"
+// Prod vs Dev check
+const backend_url = window.location.hostname.includes('localhost')
+    ? 'http://localhost:5000'  // Dev
+    : 'https://www.microsatellitesexplorer.com/hairpin_api';  // Prod
+
 let organism_groups = ['archaea', 'bacteria', 'fungi', 'plant', 'protozoa', 'vertebrate_mammalian', 'vertebrate_other', 'invertebrate', 'viral']
 let domains = ['Archaea' , "Bacteria", "Virus", "Eukaryota"]
 let ncbi_domain_references = {
