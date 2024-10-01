@@ -819,7 +819,7 @@
                 <span class="strand-label forward">( Forward ⭢ )
                     <div class="tooltip-content">
                         <strong>Example:</strong><br>
-                        In the sequence <code>AA<span style="background-color:#00F9F9">ATTG</span>GCCCAAT</code>, searching for the motif <code>ATTG</code> on the forward strand in the left to right direction.
+                        In the sequence <code>AAATTGGCCCAAT</code>, searching for the motif <code>ATTG</code> on the forward strand in the left to right direction.
                     </div>
                 </span>`;
             } else if (filter.reverse_strand === 'only_reverse') {
@@ -827,7 +827,7 @@
                 <span class="strand-label reverse">( Reverse ⭠ )
                     <div class="tooltip-content">
                         <strong>Example:</strong><br>
-                        In the sequence <code>AAATTGGCCC<span style="background-color:#55DE55">CAAT</span></code>, searching for the motif <code>ATTG</code> on the reverse strand involves finding its reverse complement <code>CAAT</code> in the left to right direction.
+                        In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>ATTG</code> on the reverse strand involves finding its reverse complement <code>CAAT</code> in the left to right direction.
                     </div>
                 </span>`;
             } else if (filter.reverse_strand === 'both') {
@@ -835,7 +835,7 @@
                 <span class="strand-label both">( Both ⮂ )
                     <div class="tooltip-content">
                         <strong>Example:</strong><br>
-                        In the sequence <code>AA<span style="background-color:#FFCE56">ATTG</span>GCCC<span style="background-color:#FFCE56">CAAT</span></code>, searching for the motif <code>ATTG</code> on both strands highlights both the motif and its reverse complement.
+                        In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>ATTG</code> on both strands highlights both the motif and its reverse complement CAAT.
                     </div>
                 </span>`;
             }

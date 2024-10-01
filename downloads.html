@@ -52,13 +52,27 @@
         <hr>
         <div class="about-container">
             <div>
-                <button class="btn btn-primary" onclick="downloadZipFile('parquet')">Download as Parquet ⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('csv')">Download as CSV ⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('json')">Download as JSON ⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('bed')">Download as BED ⇓</button>
-
+                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'full')">Download as Parquet ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('csv', 'full' )">Download as CSV ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('json', 'full')">Download as JSON ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('bed', 'full')">Download as BED ⇓</button>
             </div>
         </div>
+        <div class="about-container">
+            <h2>
+               InvertiaDB Dataset Split By Domain
+            </h2>
+        </div>
+        <hr>
+        <div class="about-container">
+            <div>
+                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'per_domain')">Download as Parquet⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('csv', 'per_domain')">Download as CSV ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('json', 'per_domain')">Download as JSON ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('bed', 'per_domain')">Download as BED ⇓</button>
+            </div>
+        </div>
+
         <br>
         <br>
         <br>
@@ -78,9 +92,9 @@
 
     const bucket_name = 'accession_files'; 
     
-    function downloadZipFile(format){
+    function downloadZipFile(format, collection){
         
-        const file_name = `ncbi_${format}_accessions.zip`;
+        const file_name = collection == 'full' ? `hairpin_data_${format}.tar.gz` : `data_per_domain_${format}.tar.gz`;
         const url = `https://storage.googleapis.com/${bucket_name}/${file_name}`;
             const a = document.createElement('a');
             a.style.display = 'none';

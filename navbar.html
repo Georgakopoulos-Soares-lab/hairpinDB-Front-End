@@ -36,13 +36,19 @@
         height: 35px; /* Reduced the logo size */
         width: auto; /* Ensure logo maintains aspect ratio */
     }
+
+    .logo-click:hover {
+        cursor:pointer;
+    }
+
+
 </style>
 
 
 <nav class="navbar navbar-expand-sm navbar-dark" >
     <div class="px-3 text-left">
-        <img src="/img/imageedit_2_9787711800.png" ></img>
-        <a class="navbar-brand" ><span class="text-left">&nbsp;invertiaDB</span></a>
+        <img class='logo-click' src="/img/imageedit_2_9787711800.png" data-href="/homepage.html" ></img>
+        <label class='logo-click' class="navbar-brand" ><span class="text-left" data-href="/homepage.html">&nbsp;invertiaDB</span></label>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
