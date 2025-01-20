@@ -10,8 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/components.js"></script>
 
@@ -219,6 +219,22 @@
         .dropdown-item:hover {
             cursor: pointer;
         }
+
+
+        .dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu .form-check-label {
+            font-size: 14px;
+        }
+
+        #dataTablesButtonsContainer {
+            margin-top: 2%;
+            margin-left: 2%;
+            margin-right: 2%;
+        }
     </style>
 </head>
 
@@ -241,10 +257,29 @@
         <!-- Table container -->
         <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
             <br>
+
             <div class="input-group">
                 <input type="search" class="form-control rounded" id="search-input"
                     placeholder="Quick Search on Organism Name" aria-label="Search" aria-describedby="search-addon" />
                 <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
+            </div>
+            <br>
+
+            <!-- Column Visibility and Export Buttons Container -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div id="dataTablesButtonsContainer">
+                    <!-- Column Visibility Dropdown -->
+                    <div class="dropdown d-inline-block">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="columnVisibilityDropdown" style="display: none;"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Column Visibility
+                        </button>
+                        <div id="columnVisibilityContainer" class="dropdown-menu"
+                            aria-labelledby="columnVisibilityDropdown">
+                            <!-- Checkboxes will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
 
@@ -254,7 +289,7 @@
                         style="table-layout: auto; width: 100%;" aria-describedby="example_info">
                         <thead>
                             <tr role="row" id="tandem-table-header">
-                                <th>Organism</th>
+                                <!-- <th>Organism</th>
                                 <th>Domain</th>
                                 <th>Assemblies</th>
                                 <th>Average #IRs</th>
@@ -263,7 +298,7 @@
                                 <th>Average IR Sequence</th>
                                 <th>Average IR Density</th>
                                 <th>Average GC Percent (genome)</th>
-                                <th>Average Genome size</th>
+                                <th>Average Genome size</th> -->
                             </tr>
                         </thead>
                         <tbody id="tandem-table-body">
@@ -281,18 +316,49 @@
 
 <script>
 
-
     let organisms_table;
     let organism_data;
     let organism_columns;
+    let initial_visible_column_indexes;
+
+
+
+    function renderColumnVisibilityDropdown(headers) {
+        document.getElementById("columnVisibilityDropdown").style.display="block";
+
+        const $colVisContainer = $('#columnVisibilityContainer');
+        $colVisContainer.empty();
+
+        headers.forEach((colName, colIdx) => {
+            let checked = (initial_visible_column_indexes.includes(colIdx)) ? 'checked' : '';
+            let checkboxId = `colVisCheck${colIdx}`;
+            let checkboxHTML = `
+          <div class="form-check">
+            <input class="form-check-input toggle-vis" type="checkbox" ${checked} data-column="${colIdx}" id="${checkboxId}">
+            <label class="form-check-label" for="${checkboxId}">
+              ${capitalizeFirstLetterOfEachWord(colName)}
+            </label>
+          </div>`;
+            $colVisContainer.append(checkboxHTML);
+        });
+
+        $('.toggle-vis').on('change', function (e) {
+            let column = organisms_table.column($(this).attr('data-column'));
+            column.visible(!column.visible());
+        });
+    }
 
     function processOrganismsTable(data) {
-    let new_data = [];
+        let new_data = [];
 
         for (let d of data) {
-            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(d[0])}')"><em>${d[0]}</em></button>`;
+            let button =
+                `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(d[data_index_by_name["organism_name"]])}')"><em>${d[data_index_by_name["organism_name"]]}</em></button>`;
 
-            new_data.push([button, d[9], d[1], formatNumberWithCommas(d[2].toFixed(2)), d[3].toFixed(2), d[4].toFixed(2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2) + '%', formatNumberWithCommas(d[8].toFixed(2))])
+            new_data.push([button, d[9], d[1], formatNumberWithCommas(d[2].toFixed(2)), d[3].toFixed(2), d[4].toFixed(
+                    2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2) + '%',
+                formatNumberWithCommas(d[8].toFixed(2))
+            ])
         }
         return new_data;
     }
@@ -304,21 +370,48 @@
             url: `${backend_url}/hairpin/statistics/organisms`,
             method: 'GET',
             success: function (data) {
+
+
                 organism_data = data.data
                 organism_columns = data.columns;
-                let table_data = processOrganismsTable(data.data)
+
+                createGetDataIndexByName(organism_columns, "data");
+                initial_visible_column_indexes=["organism_name","assembly_count","avg_inverted_repeat_count","stddev_inverted_repeat_count","min_inverted_repeat_count","max_inverted_repeat_count","avg_length_sequences","stddev_length_sequences","min_length_sequences","max_length_sequences","avg_genome_size"].map(
+                    c => data_index_by_name[c]
+                )
+                const columns = organism_columns.map((col, idx) => {
+                    return {
+                        title: capitalizeFirstLetterOfEachWord(col),
+                        visible: initial_visible_column_indexes.includes(idx)
+                    };
+                });
+
+
+
+                renderColumnVisibilityDropdown(organism_columns)
+                
+                let table_data = processOrganismalData(organism_data, data_index_by_name)
                 $("#loader").hide();
 
                 organisms_table = new DataTable('#organisms-table', {
                     data: table_data,
+                    columns,
+                    columns,
                     paging: true,
                     pageLength: 100,
-                    lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
-                    columnDefs: [{ searchable: true }]
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "All"]
+                    ],
+                    columnDefs: [{
+                        searchable: true
+                    }]
                 });
 
             },
-            error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Error:', textStatus, errorThrown);
+            }
         });
     }
 
@@ -342,15 +435,7 @@
     })
 
 
-    function goToOrganism(organisms_name) {
-        for (let row of organism_data) {
-
-            if (row[0] == atob(organisms_name)) {
-                localStorage.setItem('organism_row_data', JSON.stringify({ "organism_row": row }));
-            }
-        }
-        location.href = `/organism_analysis.html`;
-    }
+    
 
     function clearTable() {
         organisms_table.destroy();
@@ -374,8 +459,13 @@
                     data: processOrganismsTable(data),
                     paging: true,
                     pageLength: 100,
-                    lengthMenu: [[10, 25, 50 , 100,  -1], [10, 25, 50, 100, "All"]],
-                    columnDefs: [{ searchable: true }]
+                    lengthMenu: [
+                        [10, 25, 50, 100, -1],
+                        [10, 25, 50, 100, "All"]
+                    ],
+                    columnDefs: [{
+                        searchable: true
+                    }]
                 });
             },
             error: function (xhr, status, error) {
@@ -384,9 +474,6 @@
             }
         });
     }
-
-
-
 </script>
 
 </html>

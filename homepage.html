@@ -1,203 +1,191 @@
 <!DOCTYPE html>
 <html data-bs-theme="dark">
-
 <head>
-    <title>invertiaDB</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
-    <script src="js/functions.js"></script>
+  <title>invertiaDB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="icon" type="img/x-icon" href="/img/favicon.ico" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+  <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+  <script src="js/functions.js"></script>
+  <style>
+    
+    .homepage-container {
+      font-size: xx-large;
+      font-family: monospace;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: 'center';
+      padding-left: 3%;
+      padding-right: 3%;
+      /* padding-top: 3% */
+    }
 
-    <style>
-        .homepage-container {
-            font-size: xx-large;
-            font-family: monospace;
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: "center";
-            padding-left: 3%;
-            padding-right: 3%;
-            /* padding-top: 3% */
-        }
+    .penn-logo {
+      width: 18%;
+      height: 18%;
+    }
 
-        .penn-logo {
-            width: 18%;
-            height: 18%;
+    #legend {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-        }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+      font-family: monospace;
+      background-color: #1b1e22;
+      padding: 5px;
+      border-radius: 10%;
+    }
 
+    .legend-item:hover {
+      opacity: 0.8;
+      cursor: pointer;
+    }
 
-        #legend {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
+    .legend-item span {
+      margin-left: 5px;
+      font-size: 15px;
+    }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-            font-family: monospace;
-            background-color: #1b1e22;
-            padding: 5px;
-            border-radius: 10%;
-        }
+    .tooltip {
+      position: absolute;
+      text-align: center;
+      width: 60px;
+      height: 28px;
+      padding: 2px;
+      font: 12px sans-serif;
+      background: #f0f0f0;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      pointer-events: none;
+      opacity: 0;
+    }
 
-        .legend-item:hover {
-            opacity: 0.8;
-            cursor: pointer;
+    .bar {
+      fill: steelblue;
+    }
 
-        }
+    .bar:hover {
+      fill: brown;
+    }
 
+    .histogram-tooltip {
+      position: absolute;
+      text-align: center;
+      padding: 6px;
+      font: 12px sans-serif;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      pointer-events: none;
+    }
 
-        .legend-item span {
-            margin-left: 5px;
-            font-size: 15px;
-        }
+    .chart-title {
+      font-size: 20px;
+    }
 
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            width: 60px;
-            height: 28px;
-            padding: 2px;
-            font: 12px sans-serif;
-            background: #f0f0f0;
-            border: 1px solid #aaa;
-            border-radius: 8px;
-            pointer-events: none;
-            opacity: 0;
-        }
+    .container {
+      padding-left: 3%;
+      padding-right: 3%;
+      padding-top: 3%;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
 
-        .bar {
-            fill: steelblue;
-        }
+    .column {
+      flex: 1;
+      margin: 0 1%;
+    }
 
-        .bar:hover {
-            fill: brown;
-        }
+    .main-container {
+      font-family: monospace;
+    }
 
-        .histogram-tooltip {
-            position: absolute;
-            text-align: center;
-            padding: 6px;
-            font: 12px sans-serif;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            pointer-events: none;
-        }
+    .statistic h2 {
+      display: flex;
+      justify-content: center;
+    }
 
-        .chart-title {
-            font-size: 20px;
-        }
+    .statistic {
+      margin-left: 3%;
+      margin-right: 3%;
+    }
 
-        .container {
-            padding-left: 3%;
-            padding-right: 3%;
-            padding-top: 3%;
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
+    .three-column-chart-container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
 
-        .column {
-            flex: 1;
-            margin: 0 1%;
-        }
+    .chart-container {
+      flex: 1;
+      max-width: 30%;
+      min-width: 280px;
+      margin: 0 10px;
+    }
 
-        .main-container {
-            font-family: monospace;
-        }
+    .styled-select {
+      font-size: 0.8rem;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #6c757d;
+      background-color: #343a40;
+      color: #f8f9fa;
+      width: 170px;
+      text-align: center;
+    }
 
+    .styled-select option {
+      background-color: #343a40;
+      color: #f8f9fa;
+    }
 
-        .statistic h2 {
-            display: flex;
-            justify-content: center;
-        }
+    .styled-select:focus {
+      outline: none;
+      border: 1px solid #f8f9fa;
+    }
 
-        .statistic {
-            margin-left: 3%;
-            margin-right: 3%;
-
-        }
-
-        .three-column-chart-container {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding-left: 20px;
-            padding-right: 20px;
-
-        }
-
-        .chart-container {
-            flex: 1;
-            max-width: 30%;
-            min-width: 280px;
-            margin: 0 10px;
-        }
-
-        .styled-select {
-            font-size: 0.8rem;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #6c757d;
-            background-color: #343a40;
-            color: #f8f9fa;
-            width: 170px;
-            text-align: center;
-        }
-
-        .styled-select option {
-            background-color: #343a40;
-            color: #f8f9fa;
-        }
-
-        .styled-select:focus {
-            outline: none;
-            border: 1px solid #f8f9fa;
-        }
-
-        .domain-label {
-            margin-right: 10px;
-            font-weight: bold;
-            color: #f8f9fa;
-        }
-    </style>
+    .domain-label {
+      margin-right: 10px;
+      font-weight: bold;
+      color: #f8f9fa;
+    }
+  </style>
 </head>
-
 <body>
-
-    <div id="navbar-container"></div>
-    <div class="main-container">
-        <!-- <div class="homepage-container">
+  <div id="navbar-container"></div>
+  <div class="main-container">
+    <!-- <div class="homepage-container">
             <img class='penn-logo' src="img/penn_logo.png"></img>
         </div> -->
-<!-- 
+    <!-- 
         <div class="homepage-container">
 
             <h1></h1>
         </div> -->
-        <div class="homepage-container" style="padding-top: 1.4%;padding-bottom: 1.4%;">
-
-            <h2 style="font-size: 1.5rem;">invertiaDB: A Database of Inverted Repeats Across Organismal Genomes</h2>
-        </div>
-        <!-- <div class="homepage-container">
+    <div class="homepage-container" style="padding-top: 1.4%; padding-bottom: 1.4%">
+      <h2 style="font-size: 1.5rem">invertiaDB: A Database of Inverted Repeats Across Organismal Genomes</h2>
+    </div>
+    <!-- <div class="homepage-container">
             <img class='penn-logo' src="img/hairpin_loop_cropped.png"></img>
         </div> -->
-
-        <!-- <div class="homepage-container">
+    <!-- <div class="homepage-container">
             <h1><b>118,072 </b>genomes analyzed.</h1>
         </div>
 
@@ -209,563 +197,504 @@
         <br>
         <br>
         <br> -->
-        
-
-
-        <div class="homepage-container">
-            <h1>
-                <div class="chart chart-title" style="font-size: 1.2rem; padding-bottom: 1%;">Distribution of Inverted Repeats <b>Density</b>
-                    (Mbp) per domain</div>
-                <canvas id="densities-chart" height="100"></canvas>
-            </h1>
-
-        </div>
-
-        <div class="statistic">
-            <h2 style="font-size: 1.2rem;">Inverted Repeat Length Diagrams</h2>
-            <div class="three-column-chart-container">
-                <h2 style="margin-left: 8%;font-size: 1.2rem;">Arm</h2>
-                <h2 style="font-size: 1.2rem;">Spacer</h2>
-                <h2 style="margin-right: 8%;font-size: 1.2rem;">Sequence</h2>
-            </div>
-
-            <div class="three-column-chart-container">
-                <div class="chart-container">
-                    <canvas width="600" height="280" id="arm-length-chart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas width="600" height="300" id="spacer-length-chart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <canvas width="600" height="300" id="sequence-length-chart"></canvas>
-                </div>
-            </div>
-        </div>
-        <br>
-
-        <div class="homepage-container" style="margin-bottom: 1%; ">
-            <h1 style="font-size: 1.2rem;">Top 10 Organisms by Inverted Repeat Density</h1>
-        </div>
-        <div class="homepage-container" style="text-align: center; margin-bottom: 2%; font-size: 1.1rem;">
-            <select id="domain-select" class="styled-select">
-                <option value="Virus">Viruses</option>
-                <option value="Bacteria">Bacteria</option>
-                <option value="Eukaryota">Eukaryota</option>
-                <option value="Archaea">Archaea</option>
-            </select>
-        </div>
-        <div class="homepage-container">
-            <canvas id="donutChart" width="800" height="700"></canvas>
-        </div>
+    <div class="homepage-container">
+      <h1>
+        <div class="chart chart-title" style="font-size: 1.2rem; padding-bottom: 1%"> Distribution of Inverted Repeats <b>Density</b> (Mbp) per domain </div>
+        <canvas id="densities-chart" height="100"></canvas>
+      </h1>
     </div>
-
-    <br>
-    <br>
-
-    <div id="footer-container"></div>
+    <div class="statistic">
+      <h2 style="font-size: 1.2rem">Inverted Repeat Length Diagrams</h2>
+      <div class="three-column-chart-container">
+        <h2 style="margin-left: 8%; font-size: 1.2rem">Arm</h2>
+        <h2 style="font-size: 1.2rem">Spacer</h2>
+        <h2 style="margin-right: 8%; font-size: 1.2rem">Sequence</h2>
+      </div>
+      <div class="three-column-chart-container">
+        <div class="chart-container">
+          <canvas width="600" height="280" id="arm-length-chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas width="600" height="300" id="spacer-length-chart"></canvas>
+        </div>
+        <div class="chart-container">
+          <canvas width="600" height="300" id="sequence-length-chart"></canvas>
+        </div>
+      </div>
+    </div>
+    <br />
+    <div class="homepage-container" style="margin-bottom: 1%">
+      <h1 style="font-size: 1.2rem">Top 10 Organisms by Inverted Repeat Density</h1>
+    </div>
+    <div class="homepage-container" style="text-align: center; margin-bottom: 2%; font-size: 1.1rem">
+      <select id="domain-select" class="styled-select">
+        <option value="Virus">Viruses</option>
+        <option value="Bacteria">Bacteria</option>
+        <option value="Eukaryota">Eukaryota</option>
+        <option value="Archaea">Archaea</option>
+      </select>
+    </div>
+    
+    <div class="homepage-container">
+      <canvas id="donutChart" width="800" height="700"></canvas>
+    </div>
+    <div class="homepage-container" style="font-size: 20px; display: flex; justify-content: flex-end; align-items: center; ">
+      <span class="tooltip-text"><b>Tip:</b> You can click the legend elements of the chart to remove / add the displayed organisms</span>
+    </div>
+  </div>
+  <br />
+  <br />
+  <div id="footer-container"></div>
 </body>
-
 <script src="js/components.js"></script>
-
 <script>
+  Chart.defaults.color = '#adb5bd';
+  Chart.defaults.font.size = '15';
+  Chart.defaults.font.family = 'monospace';
+  let group_avg_density = {};
+  let densities_resp;
+  let global_lengths_resp;
+  let top_dense_organisms;
 
-    Chart.defaults.color = '#adb5bd';
-    Chart.defaults.font.size = '15';
-    Chart.defaults.font.family = 'monospace';
-
-
-    let group_avg_density = {}
-    let densities_resp;
-    let global_lengths_resp;
-    let top_dense_organisms;
-
-
-    function convertToChartData(jsonData, colors) {
-        const labels = ['Domain'];
-        jsonData.data.sort((a, b) => b[1] - a[1]);
-        const datasets = jsonData.data.map((item, index) => {
-            return {
-                label: item[0],
-                data: [denistyToMegabasePairs(item[1])],
-                backgroundColor: colors[index % colors.length],
-                barThickness: 25
-            };
-        });
-
-        return {
-            labels: labels,
-            datasets: datasets
-        };
-    }
-
-    function renderStackedChartDensities() {
-
-        const ctx = document.getElementById('densities-chart').getContext('2d');
-        const colors = ['#555D63', '#90ee90', '#FFCE56', '#03c3c3'];
-
-        let data = convertToChartData(densities_resp, colors);
-
-        const config = {
-            type: 'bar',
-            data: data,
-            options: {
-                indexAxis: 'y',
-                plugins: {
-                    tooltip: {
-                        displayColors: false,
-
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
-                            }
-                        }
-                    },
-                    legend: {
-                        display: true
-                    }
-                },
-                scales: {
-                    x: {
-                        stacked: false,
-                        title: {
-                            display: true,
-                            text: 'Density (Mbp)'
-                        }
-                    },
-                    y: {
-                        stacked: false
-                    }
-                }
-            }
-        };
-
-        const densities_chart = new Chart(ctx, config);
-    }
-
-    function createLineChart(ctx, dataset, label, color) {
-            const chartData = {
-                labels: dataset.map(item => item[0]),
-                datasets: [{
-                    label: label,
-                    data: dataset.map(item => ({ x: item[0], y: item[1] })),
-                    borderColor: color,
-                    backgroundColor: color + '33', // Adding transparency for area under the line
-                    fill: true,
-                    tension: 0.4, // Smooth curves
-                    pointRadius: 4,
-                    pointBackgroundColor: color,
-                    pointBorderColor: color,
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: color,
-                    pointHoverBorderColor: color,
-                }]
-            };
-
-            const config = {
-                type: 'line',
-                data: chartData,
-                options: {
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            title: {
-                                display: true,
-                                text: 'Length'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Count'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function (tooltipItem) {
-                                    return `${tooltipItem.dataset.label}: Length ${tooltipItem.parsed.x}, Count ${tooltipItem.parsed.y}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            display: true
-                        }
-                    }
-                }
-            };
-
-            return new Chart(ctx, config);
-        }
-
-        function renderLineChartLengths() {
-        const data = global_lengths_resp;
-        const colors = ['#90ee90', '#FFCE56', '#03c3c3'];
-
-        function createChart(ctx, dataset, label, color) {
-            console.log(label);
-            
-            const chartData = {
-                datasets: [{
-                    label: label,
-                    data: dataset.map(item => ({ x: item[0], y: item[1] })),
-                    borderColor: color,
-                    borderWidth: 0.5,
-                    backgroundColor: color + '33',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 1,
-                    pointBackgroundColor: color,
-                    pointBorderColor: color,
-                    pointHoverRadius: 4,
-                    pointHoverBackgroundColor: color,
-                    pointHoverBorderColor: color,
-                }]
-            };
-
-            const xScale = label === 'Spacers'
-                ? {
-                    type: 'linear',
-                    title: {
-                        display: true,
-                        text: 'Length (Linear Scale)'
-                    },
-                    min: 0,
-                    max: 8
-                }
-                : {
-                    type: 'logarithmic',
-                    title: {
-                        display: true,
-                        text: 'Length (Log Scale)'
-                    },
-                    ticks: {
-                        min: 1,
-                        max: 100000000,
-                        callback: function (value) {
-                            const logValue = Math.log10(value);
-                            if (logValue === -1) return '0';
-                            if (logValue === 0) return '1';
-                            if (logValue === 1) return '10';
-                            if (logValue % 1 === 0) return `10^${logValue}`;
-                            return null;
-                        }
-                    }
-                };
-
-            const yScale = label === 'Spacers'
-                ? {
-                    type: 'linear',
-                    title: {
-                        display: true,
-                        text: 'Count (Linear Scale)'
-                    },
-                    ticks: {
-                        min: 1,
-                        max: 100000000
-                    }
-                }
-                : {
-                    type: 'logarithmic',
-                    title: {
-                        display: true,
-                        text: 'Count (Log Scale)'
-                    },
-                    ticks: {
-                        min: 1,
-                        max: 100000000,
-                        callback: function (value) {
-                            const logValue = Math.log10(value);
-                            if (logValue === -1) return '0';
-                            if (logValue === 0) return '1';
-                            if (logValue === 1) return '10';
-                            if (logValue % 1 === 0) return `10^${logValue}`;
-                            return null;
-                        }
-                    }
-                };
-
-            const config = {
-                type: 'line',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: xScale,
-                        y: yScale
-                    },
-                    plugins: {
-                        tooltip: {
-                            displayColors: false,
-                            callbacks: {
-                                label: function (tooltipItem) {
-                                    return `Count ${tooltipItem.parsed.y}`;
-                                }
-                            }
-                        },
-                        legend: {
-                            display: false
-                        }
-                    }
-                }
-            };
-
-            // Add superscript formatting for logarithmic scales
-            if (label !== 'Spacers') {
-                config.options.scales.x.ticks.callback = formatPowerOfTen;
-                config.options.scales.y.ticks.callback = formatPowerOfTen;
-            }
-
-            return new Chart(ctx, config);
-        }
-
-        createChart(
-            document.getElementById('arm-length-chart').getContext('2d'),
-            data.arms,
-            'Arms',
-            colors[0]
-        );
-
-        createChart(
-            document.getElementById('spacer-length-chart').getContext('2d'),
-            data.spacers,
-            'Spacers',
-            colors[1]
-        );
-
-        createChart(
-            document.getElementById('sequence-length-chart').getContext('2d'),
-            data.sequences,
-            'Sequences',
-            colors[2]
-        );
-    }
-
-        function formatPowerOfTen(value, index, ticks) {
-        const logValue = Math.log10(value);
-        if (logValue === -1) return '0';
-        if (logValue === 0) return '1';
-        if (logValue === 1) return '10';
-        if (logValue % 1 === 0) {
-            return '10' + toSuperscript(logValue);
-        }
-        return null;
-    }
-
-    // Helper function to convert numbers to Unicode superscript
-    function toSuperscript(num) {
-        const superscriptMap = {
-            '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', 
-            '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
-            '-': '⁻'
-        };
-        return num.toString().split('').map(char => superscriptMap[char] || char).join('');
-    }
-    const selectElement = document.getElementById('domain-select');
-    selectElement.addEventListener('change', function() {
-        const selected_value = selectElement.value;
-        getAndRenderTopTenOrganismsPerDomain(selected_value);
+  function convertToChartData(jsonData, colors) {
+    const labels = ['Domain'];
+    jsonData.data.sort((a, b) => b[1] - a[1]);
+    const datasets = jsonData.data.map((item, index) => {
+      return {
+        label: item[0],
+        data: [denistyToMegabasePairs(item[1])],
+        backgroundColor: colors[index % colors.length],
+        barThickness: 25
+      };
     });
+    return {
+      labels: labels,
+      datasets: datasets
+    };
+  }
 
-    let donutChart = null; // Store the chart globally so we can check if it exists
-
-    function renderTopOrganismsDensityDonutChart() {
-        const data = top_dense_organisms;
-
-        const labels = data.data.map(item => item[0] + ` ( ${item[1]} )`);
-        const values = data.data.map(item => denistyToMegabasePairs(item[2]));
-
-        const ctx = document.getElementById('donutChart').getContext('2d');
-        const colors = [
-            '#555D63', // Cool Gray
-            '#90ee90', // Light Green
-            '#FFCE56', // Bright Yellow
-            '#03c3c3', // Teal
-            '#FF6F61', // Coral
-            '#6A1B9A', // Deep Purple
-            '#F57C00', // Orange
-            '#4CAF50', // Medium Green
-            '#2196F3', // Blue
-            '#B39DDB'  // Lavender - Optional additional color
-        ];
-
-        // 1. Check if the chart already exists
-        if (donutChart) {
-            donutChart.destroy(); // 2. Destroy the existing chart
-        }
-
-        // 3. Build the new chart
-        donutChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Average Density',
-                    data: values,
-                    backgroundColor: colors,
-                    borderColor: '#333', // Color of the border
-                    borderWidth: 2 // Border widths
-                }]
-            },
-            options: {
-                plugins: {
-                    tooltip: {
-                        displayColors: false,
-                        callbacks: {
-                            label: function (tooltipItem) {
-                                return `${tooltipItem.raw}`;
-                            }
-                        },
-                        backgroundColor: '#444', // Tooltip background color
-                    },
-                    legend: {
-                        position: 'right', // Position the legend beside the chart
-                        labels: {
-                            color: '#adb5bd',
-                            font: {
-                                size: 15
-                            }
-                        },
-                    },
-                    datalabels: {
-                        font: {
-                            size: 15,
-                            color: '#adb5bd'
-                        },
-                        formatter: (value, context) => {
-                            const label = context.chart.data.labels[context.dataIndex];
-
-                            // Function to split the text by word and wrap it if it exceeds a certain number of characters
-                            const wrapText = (text, maxCharsPerLine) => {
-                                const words = text.split(' ');
-                                let line = '';
-                                let result = [];
-                                let currentLineLength = 0;
-
-                                words.forEach((word) => {
-                                    if (currentLineLength + word.length + 1 > maxCharsPerLine) {
-                                        result.push(line.trim());
-                                        line = word + ' ';
-                                        currentLineLength = word.length;
-                                    } else {
-                                        line += word + ' ';
-                                        currentLineLength += word.length + 1;
-                                    }
-                                });
-
-                                result.push(line.trim()); // Push the last line
-                                return result.slice(0, 3).join('\n'); // Limit to 3 lines
-                            };
-
-                            // Adjust max characters per line for a three-line split
-                            const wrappedLabel = wrapText(label, 10); // 10 characters per line for 3 lines
-                            return `${wrappedLabel}: ${value}`;
-                        },
-                        anchor: 'end', // Position labels outside the chart
-                        align: 'end', // Align the labels outside
-                        offset: 15, // Adjust the distance from the chart
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: false, // Allow resizing of the chart
-                layout: {
-                    padding: {
-                        top: 100,   // Adjust the spacing above the chart
-                        bottom: 100 // Adjust the spacing below the chart
-                    }
-                },
-                elements: {
-                    arc: {
-                        borderWidth: 3 // Border width of segments
-                    }
-                }
-            },
-            plugins: [ChartDataLabels] // Register the datalabels plugin
-        });
-    }       
-
-
-    $.ajax({
-        url: `${backend_url}/hairpin/statistics/density/domains`,
-        method: 'GET',
-        success: function (data) {
-            densities_resp = data
-            renderStackedChartDensities()
+  function renderStackedChartDensities() {
+    const ctx = document.getElementById('densities-chart').getContext('2d');
+    const colors = ['#555D63', '#90ee90', '#FFCE56', '#03c3c3'];
+    let data = convertToChartData(densities_resp, colors);
+    const config = {
+      type: 'bar',
+      data: data,
+      options: {
+        indexAxis: 'y',
+        plugins: {
+          tooltip: {
+            displayColors: false,
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+              }
+            }
+          },
+          legend: {
+            display: true
+          }
         },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
-
-
-    $.ajax({
-        url: `${backend_url}/hairpin/statistics/global/length`,
-        method: 'GET',
-        success: function (data) {
-            global_lengths_resp = sortDataByFirstIndex(data)
-            renderLineChartLengths()
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
-
-    function getAndRenderTopTenOrganismsPerDomain(domain){
-            $.ajax({
-            url: `${backend_url}/hairpin/statistics/density/organisms?domain=${domain}`,
-            method: 'GET',
-            success: function (data) {
-                console.log(data)
-                top_dense_organisms = data
-                renderTopOrganismsDensityDonutChart()
-            },
-            error: function (xhr, status, error) {
-                console.error('Error:', error);
+        scales: {
+          x: {
+            stacked: false,
+            title: {
+              display: true,
+              text: 'Density (Mbp)'
             }
-        });
+          },
+          y: {
+            stacked: false
+          }
+        }
+      }
+    };
+    const densities_chart = new Chart(ctx, config);
+  }
+
+  function createLineChart(ctx, dataset, label, color) {
+    const chartData = {
+      labels: dataset.map((item) => item[0]),
+      datasets: [{
+        label: label,
+        data: dataset.map((item) => ({
+          x: item[0],
+          y: item[1]
+        })),
+        borderColor: color,
+        backgroundColor: color + '33', // Adding transparency for area under the line
+        fill: true,
+        tension: 0.4, // Smooth curves
+        pointRadius: 4,
+        pointBackgroundColor: color,
+        pointBorderColor: color,
+        pointHoverRadius: 6,
+        pointHoverBackgroundColor: color,
+        pointHoverBorderColor: color
+      }]
+    };
+    const config = {
+      type: 'line',
+      data: chartData,
+      options: {
+        scales: {
+          x: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: 'Length'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Count'
+            }
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.dataset.label}: Length ${tooltipItem.parsed.x}, Count ${tooltipItem.parsed.y}`;
+              }
+            }
+          },
+          legend: {
+            display: true
+          }
+        }
+      }
+    };
+    return new Chart(ctx, config);
+  }
+
+  function renderLineChartLengths() {
+    const data = global_lengths_resp;
+    const colors = ['#90ee90', '#FFCE56', '#03c3c3'];
+
+    function createChart(ctx, dataset, label, color) {
+      console.log(label);
+      const chartData = {
+        datasets: [{
+          label: label,
+          data: dataset.map((item) => ({
+            x: item[0],
+            y: item[1]
+          })),
+          borderColor: color,
+          borderWidth: 0.5,
+          backgroundColor: color + '33',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 1,
+          pointBackgroundColor: color,
+          pointBorderColor: color,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: color,
+          pointHoverBorderColor: color
+        }]
+      };
+      const xScale = label === 'Spacers' ? {
+        type: 'linear',
+        title: {
+          display: true,
+          text: 'Length (Linear Scale)'
+        },
+        min: 0,
+        max: 8
+      } : {
+        type: 'logarithmic',
+        title: {
+          display: true,
+          text: 'Length (Log Scale)'
+        },
+        ticks: {
+          min: 1,
+          max: 100000000,
+          callback: function(value) {
+            const logValue = Math.log10(value);
+            if (logValue === -1) return '0';
+            if (logValue === 0) return '1';
+            if (logValue === 1) return '10';
+            if (logValue % 1 === 0) return `10^${logValue}`;
+            return null;
+          }
+        }
+      };
+      const yScale = label === 'Spacers' ? {
+        type: 'linear',
+        title: {
+          display: true,
+          text: 'Count (Linear Scale)'
+        },
+        ticks: {
+          min: 1,
+          max: 100000000
+        }
+      } : {
+        type: 'logarithmic',
+        title: {
+          display: true,
+          text: 'Count (Log Scale)'
+        },
+        ticks: {
+          min: 1,
+          max: 100000000,
+          callback: function(value) {
+            const logValue = Math.log10(value);
+            if (logValue === -1) return '0';
+            if (logValue === 0) return '1';
+            if (logValue === 1) return '10';
+            if (logValue % 1 === 0) return `10^${logValue}`;
+            return null;
+          }
+        }
+      };
+      const config = {
+        type: 'line',
+        data: chartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: xScale,
+            y: yScale
+          },
+          plugins: {
+            tooltip: {
+              displayColors: false,
+              callbacks: {
+                label: function(tooltipItem) {
+                  return `Count ${tooltipItem.parsed.y}`;
+                }
+              }
+            },
+            legend: {
+              display: false
+            }
+          }
+        }
+      };
+      // Add superscript formatting for logarithmic scales
+      if (label !== 'Spacers') {
+        config.options.scales.x.ticks.callback = formatPowerOfTen;
+        config.options.scales.y.ticks.callback = formatPowerOfTen;
+      }
+      return new Chart(ctx, config);
     }
+    createChart(document.getElementById('arm-length-chart').getContext('2d'), data.arms, 'Arms', colors[0]);
+    createChart(document.getElementById('spacer-length-chart').getContext('2d'), data.spacers, 'Spacers', colors[1]);
+    createChart(document.getElementById('sequence-length-chart').getContext('2d'), data.sequences, 'Sequences', colors[2]);
+  }
 
-    getAndRenderTopTenOrganismsPerDomain('Virus');
+  function formatPowerOfTen(value, index, ticks) {
+    const logValue = Math.log10(value);
+    if (logValue === -1) return '0';
+    if (logValue === 0) return '1';
+    if (logValue === 1) return '10';
+    if (logValue % 1 === 0) {
+      return '10' + toSuperscript(logValue);
+    }
+    return null;
+  }
+  // Helper function to convert numbers to Unicode superscript
+  function toSuperscript(num) {
+    const superscriptMap = {
+      0: '⁰',
+      1: '¹',
+      2: '²',
+      3: '³',
+      4: '⁴',
+      5: '⁵',
+      6: '⁶',
+      7: '⁷',
+      8: '⁸',
+      9: '⁹',
+      '-': '⁻'
+    };
+    return num.toString().split('').map((char) => superscriptMap[char] || char).join('');
+  }
+  const selectElement = document.getElementById('domain-select');
+  selectElement.addEventListener('change', function() {
+    const selected_value = selectElement.value;
+    getAndRenderTopTenOrganismsPerDomain(selected_value);
+  });
+  let donutChart = null; // Store the chart globally so we can check if it exists
+  function renderTopOrganismsDensityDonutChart() {
+    const data = top_dense_organisms;
+    const labels = data.data.map((item) => item[0] + ` ( ${item[1]} )`);
+    const values = data.data.map((item) => denistyToMegabasePairs(item[2]));
+    const ctx = document.getElementById('donutChart').getContext('2d');
+    const colors = ['#555D63', // Cool Gray
+      '#90ee90', // Light Green
+      '#FFCE56', // Bright Yellow
+      '#03c3c3', // Teal
+      '#FF6F61', // Coral
+      '#6A1B9A', // Deep Purple
+      '#F57C00', // Orange
+      '#4CAF50', // Medium Green
+      '#2196F3', // Blue
+      '#B39DDB' // Lavender - Optional additional color
+    ];
+    // 1. Check if the chart already exists
+    if (donutChart) {
+      donutChart.destroy(); // 2. Destroy the existing chart
+    }
+    // 3. Build the new chart
+    donutChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Average Density',
+          data: values,
+          backgroundColor: colors,
+          borderColor: '#333', // Color of the border
+          borderWidth: 2 // Border widths
+        }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            displayColors: false,
+            callbacks: {
+              label: function(tooltipItem) {
+                return `${tooltipItem.raw}`;
+              }
+            },
+            backgroundColor: '#444' // Tooltip background color
+          },
+          legend: {
+            position: 'right', // Position the legend beside the chart
+            labels: {
+              color: '#adb5bd',
+              font: {
+                size: 15
+              }
+            }
+          },
+          datalabels: {
+            font: {
+              size: 15,
+              color: '#adb5bd'
+            },
+            formatter: (value, context) => {
+              const label = context.chart.data.labels[context.dataIndex];
+              // Function to split the text by word and wrap it if it exceeds a certain number of characters
+              const wrapText = (text, maxCharsPerLine) => {
+                const words = text.split(' ');
+                let line = '';
+                let result = [];
+                let currentLineLength = 0;
+                words.forEach((word) => {
+                  if (currentLineLength + word.length + 1 > maxCharsPerLine) {
+                    result.push(line.trim());
+                    line = word + ' ';
+                    currentLineLength = word.length;
+                  } else {
+                    line += word + ' ';
+                    currentLineLength += word.length + 1;
+                  }
+                });
+                result.push(line.trim()); // Push the last line
+                return result.slice(0, 3).join('\n'); // Limit to 3 lines
+              };
+              // Adjust max characters per line for a three-line split
+              const wrappedLabel = wrapText(label, 10); // 10 characters per line for 3 lines
+              return `${wrappedLabel}: ${value}`;
+            },
+            anchor: 'end', // Position labels outside the chart
+            align: 'end', // Align the labels outside
+            offset: 15 // Adjust the distance from the chart
+          }
+        },
+        responsive: true,
+        maintainAspectRatio: false, // Allow resizing of the chart
+        layout: {
+          padding: {
+            top: 100, // Adjust the spacing above the chart
+            bottom: 100 // Adjust the spacing below the chart
+          }
+        },
+        elements: {
+          arc: {
+            borderWidth: 3 // Border width of segments
+          }
+        }
+      },
+      plugins: [ChartDataLabels] // Register the datalabels plugin
+    });
+  }
+  $.ajax({
+    url: `${backend_url}/hairpin/statistics/density/domains`,
+    method: 'GET',
+    success: function(data) {
+      densities_resp = data;
+      renderStackedChartDensities();
+    },
+    error: function(xhr, status, error) {
+      console.error('Error:', error);
+    }
+  });
+  $.ajax({
+    url: `${backend_url}/hairpin/statistics/global/length`,
+    method: 'GET',
+    success: function(data) {
+      global_lengths_resp = sortDataByFirstIndex(data);
+      renderLineChartLengths();
+    },
+    error: function(xhr, status, error) {
+      console.error('Error:', error);
+    }
+  });
 
-    // $.ajax({
-    //     url: `${backend_url}/statistics/global/top_n_organisms_by_tandem_repeats_density`,
-    //     type: 'GET',
-    //     success: function (response) {
-    //         let top_ten_organisms_rows = [];
-    //         response.forEach(row => {
-    //             const taxid = row[3];
-    //             top_ten_organisms_rows.push([`<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${taxid}'>${row[0]}<a>`, prettifyGroupName(row[1]), denistyToMegabasePairs(row[2]) + " / Mb"])
-    //         })
-    //         topten_organisms_table = new DataTable('#topten-organisms-table',
-    //             {
-    //                 data: top_ten_organisms_rows,
-    //                 paging: false,
-    //                 searching: false,
-    //                 ordering: false,
-    //                 "bInfo": false
-    //             });
-    //     },
-    //     error: function (xhr, status, error) {
-    //         console.error('Error:', error);
-    //     }
-    // });
-
-    // $.ajax({
-    //     url: `${backend_url}/statistics/global/sru_distribution`,
-    //     type: 'GET',
-    //     success: function (response) {
-    //         renderHistogramPercentage(response)
-
-    //     },
-    //     error: function (xhr, status, error) {
-    //         console.error('Error:', error);
-    //     }
-    // });
-
-
-
-
+  function getAndRenderTopTenOrganismsPerDomain(domain) {
+    $.ajax({
+      url: `${backend_url}/hairpin/statistics/density/organisms?domain=${domain}`,
+      method: 'GET',
+      success: function(data) {
+        console.log(data);
+        top_dense_organisms = data;
+        renderTopOrganismsDensityDonutChart();
+      },
+      error: function(xhr, status, error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+  getAndRenderTopTenOrganismsPerDomain('Virus');
+  // $.ajax({
+  //     url: `${backend_url}/statistics/global/top_n_organisms_by_tandem_repeats_density`,
+  //     type: 'GET',
+  //     success: function (response) {
+  //         let top_ten_organisms_rows = [];
+  //         response.forEach(row => {
+  //             const taxid = row[3];
+  //             top_ten_organisms_rows.push([`<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${taxid}'>${row[0]}<a>`, prettifyGroupName(row[1]), denistyToMegabasePairs(row[2]) + " / Mb"])
+  //         })
+  //         topten_organisms_table = new DataTable('#topten-organisms-table',
+  //             {
+  //                 data: top_ten_organisms_rows,
+  //                 paging: false,
+  //                 searching: false,
+  //                 ordering: false,
+  //                 "bInfo": false
+  //             });
+  //     },
+  //     error: function (xhr, status, error) {
+  //         console.error('Error:', error);
+  //     }
+  // });
+  // $.ajax({
+  //     url: `${backend_url}/statistics/global/sru_distribution`,
+  //     type: 'GET',
+  //     success: function (response) {
+  //         renderHistogramPercentage(response)
+  //     },
+  //     error: function (xhr, status, error) {
+  //         console.error('Error:', error);
+  //     }
+  // });
 </script>
-
 </html>

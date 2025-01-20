@@ -12,8 +12,10 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
     <script src="js/functions.js"></script>
 
 
@@ -216,6 +218,36 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
+                            <h2><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h2>
+                            <hr>
+                            <!-- <p><strong>Average IR Count</strong> <label id="genomic-hairpin-count"></label></p>
+                            <p><strong>Average IR Arm</strong> <label id="genomic-avg-arm-length"></label></p>
+                            <p><strong>Average IR Spacer</strong> <label id="genomic-avg-spacer-length"></label>
+                            </p>
+                            <p><strong>Average IR Sequence</strong> <label
+                                    id="genomic-avg-sequence-length"></label></p>
+                            <p><strong>Average IR Density </strong> <label id="genomic-hairpin-density"></label>
+                            </p> -->
+
+
+                            <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label> (std. deviation: <label
+                                id="genomic-invert-count-dev"></label>)</p>
+              
+                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label> (std.
+                              Deviation: <label id="genomic-invert-arm-length-dev"></label>)</p>
+                            <p><strong>Average Length of Spacer IR</strong> <label id="genomic-invert-spacer-length"></label> (std.
+                              Deviation: <label id="genomic-invert-spacer-length-dev"></label>)</p>
+                            <p><strong>Average Length of Sequence IR</strong> <label id="genomic-invert-sequence-length"></label>
+                              (std. deviation: <label id="genomic-invert-sequence-length-dev"></label>)</p>
+                            <p><strong>Average Density IRs</strong> <label id="genomic-invert-density"></label>
+                                (std. deviation: <label id="genomic-invert-density-dev"></label>)</p>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="genomic-column left">
+                    <div class="genomic-result">
+                        <div class="table-like">
                             <h2><label id="t2t-organism-name"></label>Aggregated analysis</h2>
                             <hr>
                             <p><strong>Assemblies: </strong><label id="genomic-assemblies"></label></p>
@@ -227,25 +259,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="genomic-column left">
-                    <div class="genomic-result">
-                        <div class="table-like">
-                            <h2><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h2>
-                            <hr>
-                            <p><strong>Average IR Count</strong> <label id="genomic-hairpin-count"></label></p>
-                            <p><strong>Average IR Arm</strong> <label id="genomic-avg-arm-length"></label></p>
-                            <p><strong>Average IR Spacer</strong> <label id="genomic-avg-spacer-length"></label>
-                            </p>
-                            <p><strong>Average IR Sequence</strong> <label
-                                    id="genomic-avg-sequence-length"></label></p>
-                            <p><strong>Average IR Density </strong> <label id="genomic-hairpin-density"></label>
-                            </p>
-
-
-
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
         <br>
@@ -268,6 +282,7 @@
         </div> -->
 
 
+        <div id="boxPlot"></div>
         <br>
         <br>
 
@@ -322,10 +337,15 @@
 
 
     let organism_row_data = JSON.parse(localStorage.getItem("organism_row_data"))["organism_row"];
+    let metadata_index_by_name = JSON.parse(localStorage.getItem("organism_row_data"))["idx"];
+    console.log(metadata_index_by_name)
     let organism_name = organism_row_data[0];
     let single_metadata;
     let all_metadata;
     let accession_ids = []
+    let filenames = [];
+    let data_index_by_name;
+    
 
     function preprocessAssembliesTable(data) {
         let new_data = []
@@ -358,23 +378,47 @@
     function renderMetadata() {
 
         let metadata = single_metadata
-        console.log(metadata)
-        console.log(organism_row_data);
+        // console.log(metadata);
         // T2T organism Metadata
         let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${metadata[5]}'>` + metadata[5] + "</a>";
-        $("#genomic-assemblies").html(`${organism_row_data[1]}`);
+        $("#genomic-assemblies").html(`${organism_row_data[metadata_index_by_name["assembly_count"]]}`);
 
         $("#genomic-taxid").html(taxid_link);
         $("#genomic-domain").html(`${metadata[39]}`);
-        $("#genomic-gc-percent").html(`${organism_row_data[7].toFixed(1)}% (genome)`);
+        $("#genomic-gc-percent").html(`${organism_row_data[metadata_index_by_name["avg_gc_percent"]].toFixed(2)} %`);
 
         // hairpin Metadata
-        $("#genomic-hairpin-count").html(`${organism_row_data[2].toFixed(2)}`);
-        $("#genomic-avg-arm-length").html(`${organism_row_data[3].toFixed(2)}`);
-        $("#genomic-avg-spacer-length").html(`${organism_row_data[4].toFixed(2)}`);
-        $("#genomic-avg-sequence-length").html(`${organism_row_data[5].toFixed(2)}`);
-        $("#genomic-hairpin-density").html(`${denistyToMegabasePairs(organism_row_data[6])} / Mb`);
+        // $("#genomic-hairpin-count").html(`${organism_row_data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2)}`);
+        // $("#genomic-avg-arm-length").html(`${organism_row_data[metadata_index_by_name["avg_length_arms"]].toFixed(2)}`);
+        // $("#genomic-avg-spacer-length").html(`${organism_row_data[metadata_index_by_name["avg_length_spacers"]].toFixed(2)}`);
+        // $("#genomic-avg-sequence-length").html(`${organism_row_data[metadata_index_by_name["avg_length_sequences"]].toFixed(2)}`);
 
+
+            // Count
+        $("#genomic-invert-count").html(organism_row_data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2));
+        $("#genomic-invert-count-dev").html(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_count"]].toFixed(2));
+
+        // Arm Length
+        $("#genomic-invert-arm-length").html(organism_row_data[metadata_index_by_name["avg_length_arms"]].toFixed(2));
+        $("#genomic-invert-arm-length-dev").html(organism_row_data[metadata_index_by_name["stddev_length_arms"]].toFixed(2));
+
+        // Spacer Length
+        $("#genomic-invert-spacer-length").html(organism_row_data[metadata_index_by_name["avg_length_spacers"]].toFixed(2));
+        $("#genomic-invert-spacer-length-dev").html(organism_row_data[metadata_index_by_name["stddev_length_spacers"]].toFixed(2));
+
+
+        // Sequence Length
+        $("#genomic-invert-sequence-length").html(organism_row_data[metadata_index_by_name["avg_length_sequences"]].toFixed(2));
+        $("#genomic-invert-sequence-length-dev").html(organism_row_data[metadata_index_by_name["stddev_length_sequences"]].toFixed(2));
+
+        // IR Density
+        const html_density = denistyToMegabasePairs(organism_row_data[metadata_index_by_name["avg_inverted_repeat_density"]]);
+        const html_density_dev = denistyToMegabasePairs(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_density"]]); 
+
+        $("#genomic-invert-density").html(html_density);
+        $("#genomic-invert-density-dev").html(html_density_dev);
+
+        // $("#genomic-hairpin-density").html(`${denistyToMegabasePairs(organism_row_data[metadata_index_by_name["avg_inverted_repeat_density"]])} / Mb`);
     }
 
 
@@ -434,24 +478,143 @@
         });
     });
 
-    function renderGraphs() {
-        let filenames = [];
+    // function renderFilesTable() {
+        
+    //     for (const row of all_metadata) {
+    //         filenames.push(row[38])
+    //     }
+    //     $.ajax({
+    //         url: `${backend_url}/hairpin/statistics/multiple_files/length`,
+    //         method: 'POST',
+    //         contentType: 'application/json',
+    //         data: JSON.stringify({
+    //             filenames: filenames,
+    //         }),
+    //         success: function (data) {
+    //             console.log(data)
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
+    //     });
+
+    // }
+    function createBoxPlot(data) {
+      const armArr = [];
+      const spacerArr = [];
+      const sequenceArr = [];
+
+      // Extract data for arms, spacers, and sequences
+      for (const d of data) {
+        armArr.push(d[data_index_by_name["armLength"]]);
+        spacerArr.push(d[data_index_by_name["spacerLength"]]);
+        sequenceArr.push(d[data_index_by_name["sequenceLength"]]);
+      }
+
+      // Create traces for the box plot
+      const traces = [{
+          y: armArr,
+          type: 'box',
+          name: 'Arm',
+          hoverinfo: 'y+name',
+          marker: {
+            color: '#3D9970',
+            size: 4 // Smaller points for outliers
+          },
+          boxpoints: 'outliers', // Show outliers
+        },
+        {
+          y: spacerArr,
+          type: 'box',
+          name: 'Spacer',
+          hoverinfo: 'y+name',
+          marker: {
+            color: '#FF4136',
+            size: 4 // Smaller points for outliers
+          },
+          boxpoints: 'outliers', // Show outliers
+        },
+        {
+          y: sequenceArr,
+          type: 'box',
+          name: 'Sequence',
+          hoverinfo: 'y+name',
+          marker: {
+            color: '#FF851B',
+            size: 4 // Smaller points for outliers
+          },
+          boxpoints: 'outliers', // Show outliers
+        }
+      ];
+
+      // Layout for the box plot with consistent font styling
+      const layout = {
+        title: {
+          text: 'Data Distribution of Lengths per IR Subcompartment',
+          font: {
+            color: '#fff',
+            family: 'Arial, sans-serif',
+            size: 16
+          },
+        },
+        yaxis: {
+          title: {
+            text: 'Length (bp)',
+            font: {
+              color: '#fff',
+              family: 'Arial, sans-serif',
+              size: 16
+            },
+          },
+          rangemode: 'tozero', // Ensure the y-axis starts at 0
+          gridcolor: 'rgba(255,255,255,0.2)', // Light grid lines for clarity
+          tickcolor: '#fff',
+          tickfont: {
+            color: '#fff',
+            family: 'Arial, sans-serif',
+            size: 16
+          },
+        },
+        xaxis: {
+          tickfont: {
+            color: '#fff',
+            family: 'Arial, sans-serif',
+            size: 16
+          },
+        },
+        boxmode: 'group',
+        plot_bgcolor: '#343a40', // Dark theme background
+        paper_bgcolor: '#343a40', // Dark theme background
+        font: {
+          color: '#fff', // White text for dark theme
+          family: 'Arial, sans-serif',
+          size: 16,
+        },
+      };
+
+      // Render the box plot
+      Plotly.newPlot('boxPlot', traces, layout, {
+        responsive: true
+      });
+    }
+
+
+    function fetchDataForGraphs(){
+        
         for (const row of all_metadata) {
             filenames.push(row[38])
         }
         $.ajax({
-            url: `${backend_url}/hairpin/statistics/multiple_files/length`,
+            url: `${backend_url}/hairpin/statistics/multiple_files`,
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
                 filenames: filenames,
             }),
             success: function (data) {
-                console.log(data)
+                createGetDataIndexByName(data.columns, "data")
+                createBoxPlot(data.data)
             },
             error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
         });
-
     }
 
 
@@ -459,6 +622,9 @@
         url: `${backend_url}/hairpin/organisms/metadata/${btoa(organism_name)}`,
         method: 'GET',
         success: function (data) {
+            // console
+            // createGetDataIndexByName(data, "metadata")
+            
             single_metadata = data[0]
             all_metadata = data
 
@@ -475,7 +641,8 @@
                     pageLength: 25,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 });
-            renderGraphs()
+            // renderFilesTable()
+            fetchDataForGraphs()
         },
         error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
     });

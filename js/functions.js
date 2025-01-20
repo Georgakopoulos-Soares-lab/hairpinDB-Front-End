@@ -53,3 +53,102 @@ function sortDataByFirstIndex(data) {
 function formatNumberWithCommas(number) {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+function processOrganismalData(data, idx) {
+    let processed = [];
+    console.log(data)
+    // Step 1: Initial processing (round floats, leave integers and strings untouched)
+    for (const d of data) {
+      let row = [...d];
+
+      for (let i = 0; i < row.length; i++) {
+        const value = row[i];
+
+        // Check if the value is numeric and not null or empty
+        if (!isNaN(value) && value !== null && value !== '') {
+          if (Number.isInteger(parseFloat(value))) {
+            // Leave integers as-is for now
+            row[i] = value;
+          } else {
+        
+            // If is density measure
+            if ([30,31,32,33,34,35,36].includes(i)){
+                row[i] = denistyToMegabasePairs(value)
+            }
+            else {
+                row[i] = parseFloat(value).toFixed(2);
+            }
+
+          }
+        }
+       
+
+        if (i == idx["organism_name"] ){
+            let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(value)}')"><em>${value}</em></button>`;
+            row[i] = button
+        }
+
+      
+        
+
+      }
+
+      processed.push(row);
+    }
+
+    // Step 2: Format numbers with commas
+    for (let row of processed) {
+      for (let i = 0; i < row.length; i++) {
+        const value = row[i];
+
+        // Check if the value is numeric and not null or empty
+        if (!isNaN(value) && value !== null && value !== '') {
+          row[i] = parseFloat(value).toLocaleString('en-US', {
+            minimumFractionDigits: value.toString().includes('.') ? 2 : 0,
+            maximumFractionDigits: 2
+          });
+        }
+      }
+    }
+    
+    
+
+    return processed;
+  }
+
+
+  function createGetDataIndexByName(headers, idx) {
+    if (idx == "data") {
+      data_index_by_name = {}
+      headers.forEach(function (value, i) {
+        data_index_by_name[value] = i
+      });
+    } else {
+      metadata_index_by_name = {}
+      headers.forEach(function (value, i) {
+        metadata_index_by_name[value] = i
+      });
+    }
+  }
+
+
+  function capitalizeFirstLetterOfEachWord(str) {
+    return str
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+  }
+
+
+  function goToOrganism(organisms_name) {
+    for (let row of organism_data) {
+
+        if (row[0] == atob(organisms_name)) {
+            localStorage.setItem('organism_row_data', JSON.stringify({
+                "organism_row": row,
+                "idx" : data_index_by_name
+            }));
+        }
+    }
+    location.href = `/organism_analysis.html`;
+  }

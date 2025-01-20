@@ -1,866 +1,867 @@
 <!DOCTYPE html>
 <html data-bs-theme="dark">
-
 <head>
-    <title>invertiaDB</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
-    <script src="js/functions.js"></script>
-    <script src="js/components.js"></script>
+  <title>invertiaDB</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+  <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+  <script src="js/functions.js"></script>
+  <script src="js/components.js"></script>
+  <style>
+    body {
+      font-family: monospace;
+    }
 
-    <style>
-        body {
-            font-family: monospace;
-        }
+    .accession-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px;
+    }
 
-        .accession-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px;
-        }
+    .accession-div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
 
-        .accession-div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 230px;
+      max-height: 200px;
+      /* Set a max height to make it scrollable */
+      overflow-y: auto;
+      /* Enable vertical scrolling */
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      top: 100%;
+      /* Make the dropdown expand below the button */
+      left: 0;
+    }
 
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+    .dropdown-content label {
+      display: block;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 230px;
-            max-height: 200px;
-            /* Set a max height to make it scrollable */
-            overflow-y: auto;
-            /* Enable vertical scrolling */
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-            top: 100%;
-            /* Make the dropdown expand below the button */
-            left: 0;
-        }
+    .dropdown-content label:hover {
+      background-color: #f1f1f1;
+    }
 
-        .dropdown-content label {
-            display: block;
-            padding: 8px 16px;
-            cursor: pointer;
-        }
+    .dropdown-content input[type="checkbox"] {
+      margin-right: 10px;
+    }
 
-        .dropdown-content label:hover {
-            background-color: #f1f1f1;
-        }
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
 
-        .dropdown-content input[type="checkbox"] {
-            margin-right: 10px;
-        }
+    .loader {
+      border: 16px solid #f3f3f3;
+      /* Light grey */
+      border-top: 16px solid #3498db;
+      /* Blue */
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      animation: spin 2s linear infinite;
+    }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+    .dt-empty {
+      display: none;
+    }
 
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
 
-        .loader {
-            border: 16px solid #f3f3f3;
-            /* Light grey */
-            border-top: 16px solid #3498db;
-            /* Blue */
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
-        }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
-        .dt-empty {
-            display: none;
-        }
+    .filter-bar,
+    .filters-container {
+      background-color: #343A40;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      width: 90%;
+      margin: 10px;
+      padding: 10px;
+    }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+    .add-filter-btn {
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+    }
 
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+    .filter {
+      background-color: #212529;
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 10px 20px;
+      margin: 5px;
+      display: flex;
+      align-items: center;
+    }
 
+    .filter .strand-label {
+      display: block;
+      font-size: 10px;
+      margin-top: 5px;
+      font-weight: bold;
+    }
 
+    .strand-label.forward {
+      color: #00F9F9;
+    }
 
-        .filter-bar,
-        .filters-container {
-            background-color: #343A40;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            width: 90%;
+    .strand-label.reverse {
+      color: #55DE55;
+    }
 
-            margin: 10px;
-            padding: 10px;
+    .strand-label.both {
+      color: #FFCE56;
+    }
 
-        }
+    .filter span {
+      margin-right: 10px;
+    }
 
-        /* 
-        .filters-container {
-            display: flex;
-            flex-wrap: wrap;
-            background-color: #343A40;
-            border-radius: 10px;
-            width: 90%;
-            align-items: center;
-            margin: 10px;
-            padding: 10px;
-        } */
+    .remove-filter-btn {
+      background-color: #b00020;
+      color: #ffffff;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.3s ease;
+    }
 
-        .add-filter-btn {
-            border: none;
+    .remove-filter-btn:hover {
+      background-color: #ff5252;
+    }
 
-            cursor: pointer;
-            margin-right: 10px;
-        }
+    .remove-filter-btn:focus {
+      outline: none;
+      /* Remove outline on focus */
+    }
 
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1050; /* Ensure it's above other elements */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
 
-        .filter {
-            background-color: #212529;
-            color: #ffffff;
-            border-radius: 20px;
-            padding: 10px 20px;
-            margin: 5px;
-            display: flex;
-            align-items: center;
-        }
+    .modal-content {
+      background-color: #212529;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 10px;
+      color: #ffffff;
+    }
 
-        .filter .strand-label {
-            display: block;
-            font-size: 10px;
-            margin-top: 5px;
-            font-weight: bold;
-        }
+    .close-button {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
-        .strand-label.forward {
-            color: #00F9F9;
-        }
+    .close-button:hover,
+    .close-button:focus {
+      color: #ffffff;
+      text-decoration: none;
+      cursor: pointer;
+    }
 
-        .strand-label.reverse {
-            color: #55DE55;
-        }
+    .submit-btn {
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto 0;
+    }
 
-        .strand-label.both {
-            color: #FFCE56;
-        }
+    .form-check-input {
+      margin-top: 10px;
+    }
 
+    .dropdown-item:hover {
+      cursor: pointer;
+    }
 
-        .filter span {
-            margin-right: 10px;
-        }
+    .form-check-label {
+      white-space: nowrap;
+    }
 
-        .remove-filter-btn {
-            background-color: #b00020;
-            color: #ffffff;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 15px;
-            transition: background-color 0.3s ease;
-        }
+    .filter-checkbox,
+    .filter-checkbox-label {
+      flex-shrink: 0;
+    }
 
-        .remove-filter-btn:hover {
-            background-color: #ff5252;
-        }
+    .genomic-container {
+      color: #f0f0f0;
+      text-align: center;
+    }
 
-        .remove-filter-btn:focus {
-            outline: none;
-            /* Remove outline on focus */
-        }
+    .genomic-result {
+      text-align: center;
+      background-color: #343a40;
+      padding: 1rem;
+      border-radius: 5px;
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
+    .strand-label {
+      position: relative;
+      cursor: pointer;
+    }
 
-        .modal-content {
-            background-color: #212529;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 10px;
-            color: #ffffff;
-        }
+    .strand-label .tooltip-content {
+      visibility: hidden;
+      opacity: 0;
+      background-color: #333333;
+      /* Dark background */
+      color: #ffffff;
+      /* White text */
+      text-align: left;
+      border-radius: 5px;
+      padding: 10px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      /* Position the tooltip above the label */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      transition: opacity 0.3s;
+    }
 
-        .close-button {
-            color: #aaaaaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+    .strand-label .tooltip-content::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      /* Arrow at the bottom of the tooltip */
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333333 transparent transparent transparent;
+      /* Match the dark background */
+    }
 
-        .close-button:hover,
-        .close-button:focus {
-            color: #ffffff;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    .strand-label:hover .tooltip-content {
+      visibility: visible;
+      opacity: 1;
+    }
 
-        .submit-btn {
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto 0;
-        }
+    /* Optional: Prevent code elements from wrapping */
+    .tooltip-content code {
+      white-space: nowrap;
+    }
 
-        .form-check-input {
-            margin-top: 10px;
-        }
+    .tooltip-content span {
+      display: inline-block;
+    }
 
-        .dropdown-item:hover {
-            cursor: pointer;
-        }
+    .tooltip-help {
+      position: absolute;
+      text-align: center;
+      padding: 8px;
+      font-family: 'Arial', sans-serif;
+      font-size: 16px;
+      color: #fff;
+      background-color: rgba(0, 0, 0, 0.85);
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      z-index: 1050;
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+      transform: scale(0.90);
+    }
 
-        .form-check-label {
-            white-space: nowrap;
+    .tooltip-help.show {
+      opacity: 0.8;
+      transform: scale(1);
+      /* Full size when shown */
+    }
 
-        }
+    .tooltip-inner {
+      padding: 6px;
+      background-color: rgba(0, 0, 0, 0.85);
+      border-radius: 4px;
+      color: #fff;
+    }
 
-        .filter-checkbox,
-        .filter-checkbox-label {
-            flex-shrink: 0;
-        }
-
-
-        .genomic-container {
-            color: #f0f0f0;
-            text-align: center;
-        }
-
-        .genomic-result {
-            text-align: center;
-            background-color: #343a40;
-            padding: 1rem;
-            border-radius: 5px;
-        }
-
-    
-        .strand-label {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .strand-label .tooltip-content {
-            visibility: hidden;
-            opacity: 0;
-            background-color: #333333; /* Dark background */
-            color: #ffffff; /* White text */
-            text-align: left;
-            border-radius: 5px;
-            padding: 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%; /* Position the tooltip above the label */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-            transition: opacity 0.3s;
-        }
-
-        .strand-label .tooltip-content::after {
-            content: "";
-            position: absolute;
-            top: 100%; /* Arrow at the bottom of the tooltip */
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #333333 transparent transparent transparent; /* Match the dark background */
-        }
-
-        .strand-label:hover .tooltip-content {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Optional: Prevent code elements from wrapping */
-        .tooltip-content code {
-            white-space: nowrap;
-        }
-        .tooltip-content span {
-    display: inline-block;
-}
-
-    </style>
+    /* New Styles for Alert */
+    #filter-warning {
+      width: 90%;
+      margin: 0 auto 10px auto;
+    }
+  </style>
 </head>
-
 <body>
+  <!-- Container for the Navbar -->
+  <div id="navbar-container"></div>
+  <br>
+  <br>
+  <div class="main-container">
+    <!-- Bootstrap Alert for Filter Warnings (Above the Filter Bar) -->
+    <div id="filter-warning" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
+      Single filters for motif searches of less than 6 base pairs are discouraged due to performance issues. Please use single motif searches from 6 base pairs and above. The same applies for length filters.
+      <button type="button" class="btn-close" aria-label="Close" onclick="$('#filter-warning').addClass('d-none');"></button>
+    </div>
 
-    <!-- Container for the Navbar -->
-    <div id="navbar-container"></div>
+    <div class="accession-div">
+      <h2>Motif search</h2>
+      <div class="loader" id="loader"></div>
+      <br>
+      <br>
+      <div class="filter-bar">
+        <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Motif Filters</button>
+        <div class="form-check d-flex align-items-center" style="margin-left: 10px; margin-right: 10px">
+          <input class="form-check-input filter-checkbox" type="checkbox" id="limit-results-checkbox" checked=''>
+          <label class="form-check-label ms-3 filter-checkbox-label" for="limit-results-checkbox" style="margin-right: 10x;"> Limit Results</label>
+          <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number" id="result_limit_input" value="1000" min="1">
+        </div>
+        <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top" data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
+        </button>
+        <button type="button" class="btn btn-success" style="margin-left: 20px;" onclick="searchDatabase()">Search database</button>
+      </div>
+      <div id="filters-container" class="filters-container">No Filters Applied</div>
+    </div>
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Add Motif Filter</h2>
+        <form id="filter-form">
+          <br>
+          <!-- HTML: Add this to the existing filter modal -->
+          <label for="filter-name">Filter Name:</label>
+          <select id="filter-name" name="form_filter_name" class="form-select" required>
+            <!-- Options will be populated by JavaScript -->
+          </select>
+          <br>
+          <br>
+          <label for="operator">Operator:</label>
+          <select id="operator" name="form_filter_operator" class="form-select" required>
+            <option value="equals">equals</option>
+            <option value="contains">contains</option>
+            <option value="starts with">starts with</option>
+            <option value="ends with">ends with</option>
+            <option value="length greater than">length greater than</option>
+            <option value="length less than">length less than</option>
+            <option value="length greater or equal">length greater or equal</option>
+            <option value="length less or equal">length less or equal</option>
+          </select>
+          <br>
+          <br>
+          <label for="value">Value: </label>
+          <input type="text" id="value" name="form_filter_value" class="form-control" required>
+          <br>
+          <br>
+          <!-- Reverse Strand Selector -->
+          <div id="reverse-strand-container">
+            <label for="reverse-strand">Reverse Strand:</label>
+            <select id="reverse-strand" name="form_filter_reverse_strand" class="form-select" required>
+              <option value="no">No</option>
+              <option value="only_reverse">Only</option>
+              <option value="both">Both Strands</option>
+            </select>
+          </div>
+          <br>
+          <br>
+          <button type="submit" class="submit-btn btn btn-primary">Add Filter</button>
+        </form>
+      </div>
+    </div>
     <br>
-    <br>
-
-    <div class="main-container">
-
-        <div class="accession-div">
-            <h2>Motif search</h2>
-            <div class="loader" id="loader"></div>
-
-            <br>
-            <br>
-            <div class="filter-bar">
-                <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Motif Filters</button>
-                <div class="form-check d-flex align-items-center" style="margin-left: 10px; margin-right: 10px">
-                    <input class="form-check-input filter-checkbox" type="checkbox" id="limit-results-checkbox"
-                        checked=''>
-                    <label class="form-check-label ms-2 filter-checkbox-label" for="limit-results-checkbox"
-                        style="margin-right: 10x;"> Limit Results</label>
-                    <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number"
-                        id="result_limit_input" value="1000" min="1">
-                </div>
-
-
-                <button type="button" class="btn btn-success" style="margin-left: 20px;"
-                    onclick="searchDatabase()">Search database</button>
-
-            </div>
-
-            <div id="filters-container" class="filters-container">No Filters Applied</div>
-
+    <!-- Table container -->
+    <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
+      <!-- Pagination Controls (Top) -->
+      <div class="top-pagination mb-3"></div>
+      <div class="row mt-2 justify-content-md-center">
+        <div class="col-12 ">
+          <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive " style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+            <thead>
+              <tr role="row" id="hairpin-table-header"></tr>
+            </thead>
+            <tbody id="hairpin-table-body">
+            </tbody>
+          </table>
         </div>
-
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <h2>Add Motif Filter</h2>
-                <form id="filter-form">
-                    <br>
-                    <label for="filter-name">Filter Name:</label>
-                    <select id="filter-name" name="form_filter_name">
-                        <!-- Options will be populated by JavaScript -->
-                    </select>
-                    <br><br>
-                    <label for="operator">Operator:</label>
-                    <select id="operator" name="form_filter_operator">
-                        <option value="equals">equals</option>
-                        <option value="contains">contains</option>
-                        <option value="starts with">starts with</option>
-                        <option value="ends with">ends with</option>
-                        <option value="length equals">length equals</option>
-                        <option value="length greater than">length greater than</option>
-                        <option value="length less than">length less than</option>
-                        <option value="length greater or equal">length greater or equal</option>
-                        <option value="length less or equal">length less or equal</option>
-                    </select>
-                    <br><br>
-                    <label for="value">Sequence:</label>
-                    <input type="text" id="value" name="form_filter_value" required>
-                    <br><br>
-
-                    <!-- New Dropdown for Reverse Complement Search -->
-                    <label for="reverse-strand">Reverse Strand:</label>
-                    <select id="reverse-strand" name="form_filter_reverse_strand">
-                        <option value="no">No</option>
-                        <option value="only_reverse">Only</option>
-                        <option value="both">Both Strands</option>
-                    </select>
-                    <br><br>
-
-                    <button type="submit" class="submit-btn btn btn-primary">Add Filter</button>
-                </form>
-            </div>
+      </div>
+      <!-- Pagination Controls (Bottom) -->
+      <div class="row mt-2 justify-content-between">
+        <div class="col-md-6">
+          <!-- Existing pagination can remain here -->
         </div>
-
-
-        <br>
-        <!-- Table container -->
-        <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
-
-            <!-- <button id="select-all-button" class="btn btn-outline-primary">Select/Deselect All Visible Rows</button>
-            <div class="dropdown">
-                <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    Download Selected Rows
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="download-rows-btn">
-                    <li><a class="dropdown-item download-dropdown-item" id="download-csv-btn">Download as CSV</a></li>
-                    <li><a class="dropdown-item download-dropdown-item" id="download-json-btn">Download as JSON</a></li>
-                    <li><a class="dropdown-item download-dropdown-item" id="download-parquet-btn">Download as
-                            Parquet</a>
-                    </li>
-                    <li><a class="dropdown-item download-dropdown-item" id="download-bed-btn">Download as
-                        BED</a>
-                </li>
-                </ul>
-            </div> -->
-
-            <div class="row mt-2 justify-content-md-center">
-                <div class="col-12 ">
-                    <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive "
-                        style="table-layout: auto; width: 100%;" aria-describedby="example_info">
-                        <thead>
-                            <tr role="row" id="hairpin-table-header"></tr>
-                        </thead>
-                        <tbody id="hairpin-table-body">
-                        </tbody>
-                    </table>
-                </div>
+      </div>
+    </div>
+    <b>
+      <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
+        <div class="genomic-result">
+          <h2>Motif Metadata Analysis</h2>
+          <hr>
+          <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
+          <div class="row mt-2 justify-content-md-center">
+            <div class="col-12 ">
+              <table id="motif-metadata-table" class="display table table-striped table-hover dataTable table-responsive " style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+                <thead>
+                  <tr role="row" id="motif-metadata-table-header"></tr>
+                </thead>
+                <tbody id="motif-metadata-table-body">
+                </tbody>
+              </table>
             </div>
-
+          </div>
         </div>
-        <b>
-            <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
-                <div class="genomic-result">
-                    <h2>Motif Metadata Analysis</h2>
-                    <hr>
-                    <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
-                    <div class="row mt-2 justify-content-md-center">
-                        <div class="col-12 ">
-                            <table id="motif-metadata-table"
-                                class="display table table-striped table-hover dataTable table-responsive "
-                                style="table-layout: auto; width: 100%;" aria-describedby="example_info">
-                                <thead>
-                                    <tr role="row" id="motif-metadata-table-header"></tr>
-                                </thead>
-                                <tbody id="motif-metadata-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-
-            <div id="footer-container"></div>
+      </div>
+      <div id="footer-container"></div>
+  </b>
 </body>
-
-
 <script>
+  // Constant data
+  let filters = {}
+  // Res Table 
+  let full_table_data;
+  let full_table_headers;
+  let motif_table;
+  let summary_columns_dict = {};
+  // Metadata Table 
+  let full_metadata_table_data;
+  let full_metadata_table_columns;
+  let motif_metadata_table;
 
-    // Constant data
-    let filters = {}
+  function initializeMotifPage() {
+    filter_name_list = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
+    filter_name_list.forEach(filter => {
+      const option = document.createElement("option");
+      option.value = filter;
+      option.textContent = filter;
+      filter_name_select.appendChild(option);
+    });
+  }
 
-    // Res Table 
-    let full_table_data;
-    let full_table_headers;
-    let motif_table;
+  function filterTableData(items_to_filter) {
+    const indices_to_remove = full_table_headers.map((header, index) => items_to_filter.includes(header) ? index : -1).filter(index => index !== -1); // Filter out -1, which means no match
+    full_table_data = full_table_data.map(row => row.filter((_, index) => !indices_to_remove.includes(index)));
+    full_table_headers = full_table_headers.filter((header, index) => !indices_to_remove.includes(index));
+  }
 
-    let summary_columns_dict = {};
+  function populateTable() {
+    filterTableData(['armLength', 'spacerLength', 'sequenceLength'])
+    let columns_option = []
+    for (let header of full_table_headers) {
+      header = header.split('_').join(' ');
+      header = capitalizeFirstLetter(header)
+      columns_option.push({
+        "title": header
+      })
+    }
+    // Initialize table properties, headers and data
+    motif_table = new DataTable('#motif-table', {
+      columns: columns_option,
+      data: full_table_data,
+      paging: true,
+      pageLength: 100,
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "All"]
+      ],
+      columnDefs: [{
+        searchable: true
+      }],
+      // Initialize DataTable and handle pagination cloning
+      initComplete: function(settings, json) {
+        clonePagination();
+      }
+    });
+  }
 
-    // Metadata Table 
-    let full_metadata_table_data;
-    let full_metadata_table_columns;
-    let motif_metadata_table;
+  function clearTable() {
+    if (motif_table) motif_table.destroy();
+    $('#motif-table').empty();
+    $('.top-pagination').empty();
+  }
 
-
-    function inititalizeMotifPage() {
-        filter_name_list = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
-        filter_name_list.forEach(filter => {
-            const option = document.createElement("option");
-            option.value = filter;
-            option.textContent = filter;
-            filter_name_select.appendChild(option);
+  function populateMotifMetadataTable() {
+    let selected_columns = ['assembly_accession', 'organism_name', 'domain']
+    let columns_option = [];
+    let filtered_data = [];
+    // Filter the headers (columns) based on selected_columns
+    for (let header of full_metadata_table_columns) {
+      if (selected_columns.includes(header)) {
+        let display_header = header.split('_').join(' ');
+        display_header = capitalizeFirstLetter(display_header);
+        columns_option.push({
+          "title": display_header
         });
+      }
     }
+    // Filter the data rows to keep only the columns in selected_columns
+    filtered_data = full_metadata_table_data.map(row => {
+      return selected_columns.map(col => row[full_metadata_table_columns.indexOf(col)]);
+    });
+    // Initialize table with filtered columns and data
+    motif_metadata_table = new DataTable('#motif-metadata-table', {
+      columns: columns_option,
+      data: filtered_data,
+      paging: true,
+      pageLength: 25,
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "All"]
+      ],
+      columnDefs: [{
+        searchable: true
+      }]
+    });
+  }
 
-    function filterTableData(items_to_filter) {
-        const indices_to_remove = full_table_headers
-            .map((header, index) => items_to_filter.includes(header) ? index : -1)
-            .filter(index => index !== -1); // Filter out -1, which means no match
-        full_table_data = full_table_data.map(row =>
-            row.filter((_, index) => !indices_to_remove.includes(index))
-        );
-        full_table_headers = full_table_headers.filter((header, index) =>
-            !indices_to_remove.includes(index)
-        );
+  function clearMetadataTable() {
+    if (motif_metadata_table) motif_metadata_table.destroy();
+    $('#motif-metadata-table').empty();
+  }
+
+  // Cloning Pagination Controls
+  function clonePagination() {
+    var $pagination = $('#motif-table_paginate').clone();
+    $('.top-pagination').html($pagination.html());
+
+    // Bind click events for top pagination
+    $('.top-pagination').find('a').each(function(index, element) {
+      $(element).on('click', function(e) {
+        e.preventDefault();
+        var pageNum = $(this).attr('data-dt-idx');
+        motif_table.page(parseInt(pageNum) - 1).draw(false);
+      });
+    });
+  }
+
+  // Handle DataTable draw event to keep pagination in sync
+  $(document).ready(function() {
+    $("#loader").hide();
+    $("#motif-metadata").hide();
+    $('input[type=checkbox]').prop('checked', false);
+    initializeMotifPage()
+    $('#example-filters').tooltip({
+      title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability. Click the button to explore the feature.',
+      template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+      trigger: 'hover'
+    });
+    // Hide the reverse strand selector for length-related filters
+    $('#operator').on('change', function() {
+      const selectedOperator = $(this).val();
+      const reverseStrandContainer = $('#reverse-strand-container');
+      if (selectedOperator.includes('length')) {
+        reverseStrandContainer.hide();
+      } else {
+        reverseStrandContainer.show();
+      }
+    });
+    // Show Example functionality
+    $('#example-filters').on('click', function() {
+      // Clear current filters
+      filters = {};
+      // Randomly choose one of the example sets
+      const randomExample = Math.random() > 0.5 ? 'example1' : 'example2';
+      if (randomExample === 'example1') {
+        // Example 1 filters
+        filters['left_arm equals caatatggaa'] = {
+          filter_name: 'left_arm',
+          operator: 'equals',
+          value: 'caatatggaa',
+          reverse_strand: 'no'
+        };
+        filters['spacer contains atg'] = {
+          filter_name: 'spacer',
+          operator: 'contains',
+          value: 'atg',
+          reverse_strand: 'only_reverse'
+        };
+      } else {
+        // Example 2 filters
+        filters['left_arm equals tttatatata'] = {
+          filter_name: 'left_arm',
+          operator: 'equals',
+          value: 'tttatatata',
+          reverse_strand: 'no'
+        };
+        filters['spacer length greater than 0'] = {
+          filter_name: 'spacer',
+          operator: 'length greater than',
+          value: '0',
+          reverse_strand: 'no'
+        };
+        filters['spacer contains aa'] = {
+          filter_name: 'spacer',
+          operator: 'contains',
+          value: 'aa',
+          reverse_strand: 'both'
+        };
+      }
+      // Render and apply the filters
+      render_filters();
+    });
+    // JavaScript to toggle visibility of the number input
+    document.getElementById('limit-results-checkbox').addEventListener('change', function() {
+      const result_limit_input = document.getElementById("result_limit_input");
+      result_limit_input.classList.toggle('d-none', !this.checked);
+    });
+
+    // Initialize DataTable and handle pagination cloning on draw
+    $(document).on('draw.dt', '#motif-table', function() {
+      clonePagination();
+    });
+  });
+
+  function calculateAndRenderMetadataFromMotifs() {
+    let unique_files = new Set();
+    for (const data of full_table_data) {
+      unique_files.add(data[0])
     }
-
-
-    // caatatggaa
-
-    function populateTable() {
-
-        filterTableData(['armLength', 'spacerLength', 'sequenceLength'])
-
-        let columns_option = []
-        for (let header of full_table_headers) {
-
-            header = header.split('_').join(' ');
-            header = capitalizeFirstLetter(header)
-            columns_option.push({
-                "title": header
-            })
-        }
-
-        // Initialize table properties, headers and data
-        motif_table = new DataTable('#motif-table',
-            {
-                columns: columns_option,
-                data: full_table_data,
-                paging: true,
-                pageLength: 100,
-                lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-                columnDefs: [{ searchable: true }]
-            });
-    }
-
-
-
-    function clearTable() {
-        if (motif_table)
-            motif_table.destroy();
-        $('#motif-table').empty();
-    }
-
-
-    function populateMotifMetadataTable() {
-
-        let selected_columns = ['assembly_accession', 'organism_name', 'domain']
-        let columns_option = [];
-        let filtered_data = [];
-
-        // Filter the headers (columns) based on selected_columns
-        for (let header of full_metadata_table_columns) {
-            if (selected_columns.includes(header)) {
-                let display_header = header.split('_').join(' ');
-                display_header = capitalizeFirstLetter(display_header);
-                columns_option.push({
-                    "title": display_header
-                });
-            }
-        }
-
-        // Filter the data rows to keep only the columns in selected_columns
-        filtered_data = full_metadata_table_data.map(row => {
-            return selected_columns.map(col => row[full_metadata_table_columns.indexOf(col)]);
-        });
-
-        // Initialize table with filtered columns and data
-        motif_metadata_table = new DataTable('#motif-metadata-table', {
-            columns: columns_option,
-            data: filtered_data,
-            paging: true,
-            pageLength: 25,
-            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-            columnDefs: [{ searchable: true }]
-        });
-    }
-
-
-    function clearMetadataTable() {
-        if (motif_metadata_table)
-            motif_metadata_table.destroy();
-        $('#motif-table').empty();
-    }
-
-
-
-    $(document).ready(function () {
-
-
-
+    const unique_file_count = unique_files.size
+    $("#genomic-unique-files").html(unique_file_count)
+    $("#loader").show();
+    // API CALL
+    $.ajax({
+      url: `${backend_url}/hairpin/metadata/multiple_files/`,
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify({
+        filenames: Array.from(unique_files)
+      }),
+      success: function(data) {
+        console.log(data)
+        full_metadata_table_data = data.data
+        full_metadata_table_columns = data.columns
+        populateMotifMetadataTable()
         $("#loader").hide();
-        $("#motif-metadata").hide();
-        $('input[type=checkbox]').prop('checked', false);
-
-
-        inititalizeMotifPage()
-
-
-
-        //     $('#select-all-button').click(function () {
-        //         let checkboxes = $('.selected-rows');
-        //         let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
-
-        //         checkboxes.prop('checked', !isAllChecked);
-        //     });
-
-        //     $('.download-dropdown-item').click(function (event) {
-        //         let button_id = event.target.id;
-        //         let format = button_id.split('-')[1];
-        //         let selected_accessions = [];
-        //         $('.selected-rows').each(function () {
-        //             if ($(this).is(':checked')) {
-        //                 selected_accessions.push(this.id);
-        //             }
-        //         });
-
-        //         console.log(selected_accessions)
-
-        //         let selected_files = []
-        //         for (const data of full_table_data) {
-        //             if (selected_accessions.includes(data[0])) {
-        //                 selected_files.push(data[38])
-        //             }
-        //         }
-
-
-        //         // $("#loader").show();
-        //         $.ajax({
-        //             url: `${backend_url}/hairpin/download`,
-        //             type: 'POST',
-        //             contentType: 'application/json',
-        //             xhrFields: {
-        //                 responseType: 'blob'
-        //             },
-        //             data: JSON.stringify({
-        //                 format: format,
-        //                 selected_files: selected_files,
-        //             }),
-        //             success: function (data) {
-        //                 $("#loader").hide();
-        //                 // Start Download File
-        //                 var link = document.createElement('a');
-        //                 var url = window.URL.createObjectURL(data);
-        //                 link.href = url;
-        //                 link.download = button_id.split('-')[1] + "_data_" + getCurrentTimestamp() + ".zip";
-        //                 document.body.appendChild(link);
-        //                 link.click();
-        //                 document.body.removeChild(link);
-        //                 // End Download File
-        //             },
-        //             error: function (xhr, status, error) {
-        //                 $("#loader").hide();
-        //                 console.error('Error:', error);
-        //             }
-        //         });
-        //     });
-
-
-        //     fetchDataAndPopulateTable()
-
-
-        // JavaScript to toggle visibility of the number input
-        document.getElementById('limit-results-checkbox').addEventListener('change', function () {
-            const result_limit_input = document.getElementById('result_limit_input');
-            result_limit_input.classList.toggle('d-none', !this.checked);
-        });
-
+      },
+      error: function(xhr, status, error) {
+        console.error('Error:', error);
+        $("#loader").hide();
+      },
     });
+    // Show metadata section
+    $("#motif-metadata").show();
+  }
 
-
-
-
-    function calculateAndRenderMetadataFromMotifs() {
-        let unique_files = new Set();
-        for (const data of full_table_data) {
-            unique_files.add(data[0])
-        }
-        const unique_file_count = unique_files.size
-        $("#genomic-unique-files").html(unique_file_count)
-        $("#loader").show();
-
-        // API CALL
-        $.ajax({
-            url: `${backend_url}/hairpin/metadata/multiple_files/`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                filenames: Array.from(unique_files)
-            }),
-            success: function (data) {
-                console.log(data)
-                full_metadata_table_data = data.data
-                full_metadata_table_columns = data.columns
-                populateMotifMetadataTable()
-                $("#loader").hide();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error:', error);
-                $("#loader").hide();
-            },
-        });
-
-
-        // Show metadata section
-        $("#motif-metadata").show();
+  function handleCheckboxChange(event) {
+    clearTable()
+    const {
+      value,
+      checked
+    } = event.target;
+    if (checked) {
+      selected_headers.push(value);
+    } else {
+      const index = selected_headers.indexOf(value);
+      if (index > -1) {
+        selected_headers.splice(index, 1);
+      }
     }
+    populateTable()
+  }
 
-    function handleCheckboxChange(event) {
+  function searchDatabase() {
+    $("#loader").show();
+    const post_data = filters
+    const limit_results_true = document.getElementById("limit-results-checkbox").checked;
+    const limit_results_param = limit_results_true ? `?n=${document.getElementById("result_limit_input").value}` : ``;
+    $.ajax({
+      url: `${backend_url}/hairpin/motif_search${limit_results_param}`,
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(post_data),
+      success: function(data) {
+        $("#loader").hide();
+        resp_obj = data
+        console.log(resp_obj)
         clearTable()
-        const { value, checked } = event.target;
-        if (checked) {
-            selected_headers.push(value);
-        } else {
-            const index = selected_headers.indexOf(value);
-            if (index > -1) {
-                selected_headers.splice(index, 1);
-            }
-        }
+        clearMetadataTable()
+        full_table_headers = resp_obj.columns
+        full_table_data = resp_obj.data
         populateTable()
+        calculateAndRenderMetadataFromMotifs()
+      },
+      error: function(xhr, status, error) {
+        $("#loader").hide();
+        console.error('Error:', error);
+      }
+    });
+  }
+  let filter_name_list;
+  const modal = document.getElementById("modal");
+  const add_filter_button = document.getElementById("add-filter-btn");
+  const close_button = document.querySelector(".close-button");
+  const filter_form = document.getElementById("filter-form");
+  const filter_name_select = document.getElementById("filter-name");
+  add_filter_button.addEventListener("click", () => {
+    modal.style.display = "block";
+    // Hide the warning when the modal opens
+    $('#filter-warning').addClass('d-none');
+  });
+  close_button.addEventListener("click", () => {
+    modal.style.display = "none";
+  });
+  window.addEventListener("click", (event) => {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  });
+  filter_form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const filter_name = event.target.form_filter_name.value;
+    const operator = event.target.form_filter_operator.value;
+    const value = event.target.form_filter_value.value;
+    const reverse_strand = event.target.form_filter_reverse_strand.value; // Get reverse strand value
+
+    // Define motif-related filter names
+    const motifFilters = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
+
+    // Initialize flag for warning
+    let showWarning = false;
+
+    // Check if the filter is a motif filter
+    if (motifFilters.includes(filter_name)) {
+      if (operator.includes('length')) {
+        const numericValue = parseInt(value, 10);
+        if (isNaN(numericValue) || numericValue < 6) {
+          showWarning = true;
+        }
+      } else {
+        if (value.length < 6) {
+          showWarning = true;
+        }
+      }
     }
 
-    function searchDatabase() {
-        $("#loader").show();
-
-        const post_data = filters
-        const limit_results_true = document.getElementById("limit-results-checkbox").checked;
-        const limit_results_param = limit_results_true ? `?n=${document.getElementById("result_limit_input").value}` : ``;
-        $.ajax({
-            url: `${backend_url}/hairpin/motif_search${limit_results_param}`,
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(post_data),
-            success: function (data) {
-                $("#loader").hide();
-                resp_obj = data
-                console.log(resp_obj)
-                clearTable()
-                clearMetadataTable()
-                full_table_headers = resp_obj.columns
-                full_table_data = resp_obj.data
-                populateTable()
-
-
-                calculateAndRenderMetadataFromMotifs()
-
-            },
-            error: function (xhr, status, error) {
-                $("#loader").hide();
-                console.error('Error:', error);
-            }
-        });
+    if (showWarning) {
+      // Show the Bootstrap warning alert
+      $('#filter-warning').removeClass('d-none');
+      // Automatically hide the alert after a few seconds (optional)
+      setTimeout(() => {
+        $('#filter-warning').addClass('d-none');
+      }, 10000); // 10 seconds
+    } else {
+      // Hide the warning alert if it's visible
+      $('#filter-warning').addClass('d-none');
     }
 
-
-
-    let filter_name_list;
-    const modal = document.getElementById("modal");
-    const add_filter_button = document.getElementById("add-filter-btn");
-    const close_button = document.querySelector(".close-button");
-    const filter_form = document.getElementById("filter-form");
-    const filter_name_select = document.getElementById("filter-name");
-
-
-
-    add_filter_button.addEventListener("click", () => {
-        modal.style.display = "block";
-    });
-
-    close_button.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-
-    window.addEventListener("click", (event) => {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    });
-
-    filter_form.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const filter_name = event.target.form_filter_name.value;
-        const operator = event.target.form_filter_operator.value;
-        const value = event.target.form_filter_value.value;
-        const reverse_strand = event.target.form_filter_reverse_strand.value; // Get reverse strand value
-
-        if (filter_name && operator && value) {
-            const filter_key = `${filter_name} ${operator} ${value}`;
-
-            if (!filters[filter_key]) {
-                const reverse_strand_value = reverse_strand       
-                filters[filter_key] = { filter_name, operator, value, reverse_strand: reverse_strand_value };
-                render_filters();
-                modal.style.display = "none";
-                filter_form.reset();
-            } else {
-                alert("Filter already exists!");
-            }
-        } else {
-            alert("All fields are required!");
-        }
-    });
-
-    function remove_filter(filter_key) {
-        delete filters[filter_key];
+    if (filter_name && operator && value) {
+      const filter_key = `${filter_name} ${operator} ${value}`;
+      if (!filters[filter_key]) {
+        const reverse_strand_value = reverse_strand
+        filters[filter_key] = {
+          filter_name,
+          operator,
+          value,
+          reverse_strand: reverse_strand_value
+        };
         render_filters();
+        modal.style.display = "none";
+        filter_form.reset();
+      } else {
+        alert("Filter already exists!");
+      }
+    } else {
+      alert("All fields are required!");
     }
-
-    function render_filters() {
-        const filters_container = document.getElementById('filters-container');
-        filters_container.innerHTML = '';
-        for (let filter_key in filters) {
-            const filter = filters[filter_key];
-            const filter_element = document.createElement('div');
-            filter_element.className = 'filter';
-
-            // Small label based on reverse_strand value with tooltip
-            let strand_label = '';
-            if (filter.reverse_strand === 'no') {
-                strand_label = `
-                <span class="strand-label forward">( Forward ⭢ )
-                    <div class="tooltip-content">
-                        <strong>Example:</strong><br>
-                        In the sequence <code>AAATTGGCCCAAT</code>, searching for the motif <code>ATTG</code> on the forward strand in the left to right direction.
-                    </div>
-                </span>`;
-            } else if (filter.reverse_strand === 'only_reverse') {
-                strand_label = `
-                <span class="strand-label reverse">( Reverse ⭠ )
-                    <div class="tooltip-content">
-                        <strong>Example:</strong><br>
-                        In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>ATTG</code> on the reverse strand involves finding its reverse complement <code>CAAT</code> in the left to right direction.
-                    </div>
-                </span>`;
-            } else if (filter.reverse_strand === 'both') {
-                strand_label = `
-                <span class="strand-label both">( Both ⮂ )
-                    <div class="tooltip-content">
-                        <strong>Example:</strong><br>
-                        In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>ATTG</code> on both strands highlights both the motif and its reverse complement CAAT.
-                    </div>
-                </span>`;
-            }
-
-            filter_element.innerHTML = `
-                <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
-                ${strand_label}
-                <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
-            `;
-            filters_container.appendChild(filter_element);
-        }
+  });
+  // Render Filters Function
+  function render_filters() {
+    const filters_container = document.getElementById('filters-container');
+    filters_container.innerHTML = '';
+    for (let filter_key in filters) {
+      const filter = filters[filter_key];
+      const filter_element = document.createElement('div');
+      filter_element.className = 'filter';
+      // Small label based on reverse_strand value with tooltip
+      let strand_label = '';
+      if (filter.reverse_strand === 'no') {
+        strand_label = `
+            <span class="strand-label forward">( Forward ⭢ )
+                <div class="tooltip-content">
+                    <strong>Example:</strong><br>
+                    In the sequence <code>AAATTGGCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the forward strand in the left to right direction.
+                </div>
+            </span>`;
+      } else if (filter.reverse_strand === 'only_reverse') {
+        strand_label = `
+            <span class="strand-label reverse">( Reverse ⭠ )
+                <div class="tooltip-content">
+                    <strong>Example:</strong><br>
+                    In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the reverse strand involves finding its reverse complement in the left to right direction.
+                </div>
+            </span>`;
+      } else if (filter.reverse_strand === 'both') {
+        strand_label = `
+            <span class="strand-label both">( Both ⮂ )
+                <div class="tooltip-content">
+                    <strong>Example:</strong><br>
+                    Searching for the motif <code>${filter.value}</code> highlights both the motif and its reverse complement.
+                </div>
+            </span>`;
+      }
+      filter_element.innerHTML = `
+            <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
+            ${strand_label}
+            <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
+        `;
+      filters_container.appendChild(filter_element);
     }
+  }
 
+  // Remove Filter
+  function remove_filter(filter_key) {
+    delete filters[filter_key];
+    render_filters();
+  }
 
-
-    function storeAccessionRow(accession_id) {
-        for (let row of full_table_data) {
-            if (row[0] == (accession_id)) {
-                localStorage.setItem('accession_row_data', JSON.stringify({ "full_table_data": row }));
-            }
-        }
-        location.href = `/accession_id_analysis.html?accession_id=${accession_id}`
+  function storeAccessionRow(accession_id) {
+    for (let row of full_table_data) {
+      if (row[0] == (accession_id)) {
+        localStorage.setItem('accession_row_data', JSON.stringify({
+          "full_table_data": row
+        }));
+      }
     }
-
-
+    location.href = `/accession_id_analysis.html?accession_id=${accession_id}`
+  }
 </script>
-
 </html>
