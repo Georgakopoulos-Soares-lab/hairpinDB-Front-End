@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
+
 <head>
   <title>invertiaDB</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -16,6 +17,15 @@
   <style>
     body {
       font-family: monospace;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      padding-left: 2rem;
+      padding-right: 2rem;
+      justify-content: center;
+      align-items: center;
     }
 
     .accession-header {
@@ -50,6 +60,7 @@
       top: 100%;
       /* Make the dropdown expand below the button */
       left: 0;
+      z-index: 100000;
     }
 
     .dropdown-content label {
@@ -96,13 +107,26 @@
     }
 
     .filter-bar {
-      background-color: #343A40;
+      background-color: #F9F9F9;
+      /* Soft white background */
+      border-bottom: 1px solid #E0E0E0;
+      /* Optional light border for separation */
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
       padding: 10px;
       border-radius: 10px;
-      display: flex;
       align-items: center;
-      width: 90%;
-      margin: 10px;
+      width: 100%;
+      margin: 30px 10px;
+      gap: 12px;
+      display: flex;
+
+    }
+
+    @media (max-width: 768px) {
+      .filter-bar {
+        flex-direction: column;
+      }
+
     }
 
     .add-filter-btn {
@@ -113,12 +137,10 @@
 
     .filters-container {
       display: flex;
-      flex-wrap: wrap;
     }
 
     .filter {
-      background-color: #212529;
-      color: #ffffff;
+      background-color: #c1cdda;
       border-radius: 20px;
       padding: 10px 20px;
       margin: 5px;
@@ -157,38 +179,72 @@
     .modal {
       display: none;
       position: fixed;
-      z-index: 1;
+      z-index: 1000;
       left: 0;
       top: 0;
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
+      background-color: rgba(0, 0, 0, 0.2);
+      /* Soft transparent background */
+      backdrop-filter: blur(4px);
+      /* Subtle blur effect */
+      transition: all 0.3s ease-in-out;
     }
 
+    /* Modal Content */
     .modal-content {
-      background-color: #212529;
-      margin: 15% auto;
+      background-color: #ffffff;
+      /* Light background */
+      margin: 10% auto;
+      /* Center the modal */
       padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
+      width: 90%;
       max-width: 400px;
-      border-radius: 10px;
-      color: #ffffff;
+      /* Limit modal width */
+      border-radius: 12px;
+      /* Rounded corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      /* Subtle shadow for depth */
+      font-family: Arial, sans-serif;
+      color: #333333;
+      /* Dark text for readability */
+      animation: slide-down 0.3s ease-in-out;
+      /* Smooth slide-down effect */
     }
+
+    /* Animation for modal */
+    @keyframes slide-down {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+
+
+    /* Close Button */
+    .close-button-container {}
 
     .close-button {
-      color: #aaaaaa;
+      color: #333333;
+      /* Dark close button */
       float: right;
-      font-size: 28px;
+      font-size: 1.8rem;
       font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-end;
     }
 
-    .close-button:hover,
-    .close-button:focus {
-      color: #ffffff;
-      text-decoration: none;
-      cursor: pointer;
+    .close-button:hover {
+      color: #616060;
+      /* Red on hover */
     }
 
     .submit-btn {
@@ -214,10 +270,12 @@
       font-family: 'Arial', sans-serif;
       font-size: 16px;
       color: #fff;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: #616060 !important;
+      /* Light background */
       border-radius: 8px;
       pointer-events: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      /* Subtle shadow */
       z-index: 1050;
       opacity: 0;
       transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
@@ -232,91 +290,202 @@
 
     .tooltip-inner {
       padding: 6px;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: #616060 !important;
       border-radius: 4px;
       color: #fff;
     }
 
+    .button-secondary {
+      background-color: #f0f0f0;
+      /* Light gray */
+      color: #333;
+      /* Dark text */
+      border: 1px solid #ccc;
+      /* Subtle border */
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .button-secondary:hover {
+      background-color: #e6e6e6;
+      /* Slightly darker gray */
+      color: #000;
+      /* Slightly darker text */
+    }
+
+
+    /* Modern Select Dropdown */
+    select {
+      -webkit-appearance: none;
+      /* Remove default dropdown arrow for Webkit browsers */
+      -moz-appearance: none;
+      /* Remove default dropdown arrow for Mozilla browsers */
+      appearance: none;
+      /* Remove default dropdown arrow for all browsers */
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #fff;
+      background-image: url('data:image/svg+xml;charset=US-ASCII, %3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 4 5%27%3E%3Cpath fill%3D%27%23666%27 d%3D%27M2 0L0 2h4zM0 3l2 2 2-2z%27/%3E%3C/svg%3E');
+      /* Custom arrow */
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 10px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      padding: 8px 16px;
+      min-width: 70px;
+    }
+
+    select:focus {
+      border-color: #007bff;
+      /* Primary color */
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+      outline: none;
+    }
+
+    select:hover {
+      border-color: #bbb;
+      /* Light gray for hover */
+    }
+
+    /* Add padding to ensure text and dropdown arrow don't overlap */
+    select.form-select {
+      padding-right: 30px;
+    }
+
+    /* Input Group Styling */
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 100%;
+    }
+
+    .input-group {
+      flex: 1;
+      border-radius: 8px 8px;
+      min-width: 50%;
+      margin-left: 8px;
+      border: 1px solid #ddd;
+    }
+
+    /* Remove ugly outline for select */
+    select:focus-visible {
+      outline: none;
+    }
+
+    .filter-container {
+      gap: 8px;
+      align-items: center;
+    }
+
+    /*Table CSS*/
+    table.dataTable td.dt-type-numeric,
+    table.dataTable td.dt-type-date {
+      text-align: start !important;
+    }
+
+    th.dt-type-numeric {
+      text-align: start !important;
+    }
+
+    td.sorting_1 {
+      display: flex;
+    }
   </style>
 </head>
+
 <body>
   <!-- Container for the Navbar -->
   <div id="navbar-container"></div>
-  <br>
-  <br>
-  <br>
-  <br>
   <div class="main-container">
     <div class="accession-div">
       <div class="loader" id="loader"></div>
-      <br>
-      <br>
-      <div class="filter-bar">
-        <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Advanced Filters</button>
-        <div id="filters-container" class="filters-container"></div>
-        <div class="d-flex align-items-center">
-          <input class="form-check-input me-2" type="checkbox" id="with-annotations">
-          <span>Genomes with annotations</span>
-        </div>
-        <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top" data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
-        </button>
-        <button type="button" class="btn btn-success ms-2" onclick="searchDatabase()">Search database</button>
-      </div>
     </div>
     <div id="modal" class="modal">
       <div class="modal-content">
-        <span class="close-button">&times;</span>
+        <div class="close-button-container">
+          <span class="close-button">&times;</span>
+        </div>
         <h2>Add Filter</h2>
         <form id="filter-form">
           <br>
-          <label for="filter-name">Filter Name:</label>
-          <select id="filter-name" name="form_filter_name">
-            <!-- Options dynamically populated by JavaScript -->
-          </select>
+          <div class="d-flex filter-container">
+            <label for="filter-name">Filter Name:</label>
+            <select id="filter-name" name="form_filter_name">
+              <!-- Options dynamically populated by JavaScript -->
+            </select>
+          </div>
           <br>
           <br>
-          <label for="operator">Operator:</label>
-          <select id="operator" name="form_filter_operator">
-            <!-- Options populated dynamically -->
-          </select>
+          <div class="d-flex filter-container">
+            <label for="operator">Operator:</label>
+            <select id="operator" name="form_filter_operator">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
           <br>
           <br>
-          <label for="value">Value:</label>
-          <input type="text" id="value" name="form_filter_value" required>
+          <div class="d-flex filter-container">
+            <label for="value">Value:</label>
+            <input type="text" id="value" name="form_filter_value" class="input-group" required>
+          </div>
           <br>
           <br>
           <button type="submit" class="submit-btn btn btn-primary">Add Filter</button>
         </form>
       </div>
     </div>
-    <br>
     <!-- Table container -->
     <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
-      <button id="select-all-button" class="btn btn-outline-primary">Select/Deselect All Visible Rows</button>
-      <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn" data-bs-toggle="dropdown" aria-expanded="false"> Download Selected Rows </button>
-        <ul class="dropdown-menu" aria-labelledby="download-rows-btn">
-          <li><a class="dropdown-item download-dropdown-item" id="download-csv-btn">Download as CSV</a></li>
-          <li><a class="dropdown-item download-dropdown-item" id="download-json-btn">Download as JSON</a></li>
-          <li><a class="dropdown-item download-dropdown-item" id="download-parquet-btn">Download as Parquet</a>
-          </li>
-          <li><a class="dropdown-item download-dropdown-item" id="download-bed-btn">Download as BED</a>
-          </li>
-        </ul>
+      <div class="filter-bar mt-5">
+        <div>
+          <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Advanced Filters</button>
+        </div>
+
+        <div id="filters-container" class="filters-container"></div>
+        <div class="d-flex align-items-center">
+          <input class="form-check-input m-2" type="checkbox" id="with-annotations">
+          <span>Genomes with annotations</span>
+        </div>
+        <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top"
+          data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
+        </button>
+        <button type="button" class="btn button-secondary ms-2" onclick="searchDatabase()">Search database</button>
       </div>
-      <div class="dropdown">
-        <button class="dropdown-btn btn btn-dark" id="column-selection">Show Columns ↓</button>
-        <div class="dropdown-content" id="dropdown-content"></div>
+      <div class="filter-bar mb-4 mt-2">
+        <button id="select-all-button" class="btn btn-outline-primary">Select/Deselect All Visible Rows</button>
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="download-rows-btn" data-bs-toggle="dropdown"
+            aria-expanded="false"> Download Selected Rows </button>
+          <ul class="dropdown-menu" aria-labelledby="download-rows-btn">
+            <li><a class="dropdown-item download-dropdown-item" id="download-csv-btn">Download as CSV</a></li>
+            <li><a class="dropdown-item download-dropdown-item" id="download-json-btn">Download as JSON</a></li>
+            <li><a class="dropdown-item download-dropdown-item" id="download-parquet-btn">Download as Parquet</a>
+            </li>
+            <li><a class="dropdown-item download-dropdown-item" id="download-bed-btn">Download as BED</a>
+            </li>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button class="dropdown-btn btn button-secondary" id="column-selection">Show Columns ↓</button>
+          <div class="dropdown-content" id="dropdown-content"></div>
+        </div>
       </div>
-      <br>
-      <br>
       <div class="input-group">
-        <input type="search" class="form-control rounded" id="search-input" placeholder="Quick Search on Accession ID, Organism Name , Domain or Taxonomy ID" aria-label="Search" aria-describedby="search-addon" />
+        <input type="search" class="form-control rounded" id="search-input"
+          placeholder="Quick Search on Accession ID, Organism Name , Domain or Taxonomy ID" aria-label="Search"
+          aria-describedby="search-addon" />
         <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
       </div>
-      <div class="row mt-2 justify-content-md-center">
+      <div class="row mt-5 justify-content-md-center">
         <div class="col-12 ">
-          <table id="summary-table" class="display table table-striped table-hover dataTable" style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+          <table id="summary-table" class="display table table-striped table-hover dataTable"
+            style="table-layout: auto; width: 100%;" aria-describedby="example_info">
             <thead>
               <tr role="row" id="tandem-table-header"></tr>
             </thead>
@@ -365,12 +534,12 @@
     $.ajax({
       url: `${backend_url}/hairpin/with_annotations`,
       method: 'GET',
-      success: function(resp_obj) {
+      success: function (resp_obj) {
         // Store the assembly accessions in a Set for quick lookup
         assembliesWithAnnotations = new Set(resp_obj.data.map(item => item[0]));
         console.log('Assemblies with Annotations:', assembliesWithAnnotations);
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error fetching assemblies with annotations:', textStatus, errorThrown);
       }
     });
@@ -378,9 +547,9 @@
 
   function filterAndProcessColumns() {
     selected_table_data = []
-    full_table_data.forEach(function(table_row) {
+    full_table_data.forEach(function (table_row) {
       filtered_row = []
-      table_row.forEach(function(cell, index) {
+      table_row.forEach(function (cell, index) {
         const header_name = summary_columns_dict[index.toString()]
         if (selected_headers.includes(header_name)) {
           // Header specific rendering
@@ -461,8 +630,8 @@
       paging: true,
       pageLength: 100,
       dom: "<'row'<'col-sm-4 d-flex justify-content-start'f><'col-sm-4'><'col-sm-4 d-flex justify-content-end'p>>" +
-       "<'row'<'col-sm-12'tr>>" +
-       "<'row'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
+        "<'row'<'col-sm-12'tr>>" +
+        "<'row'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
       lengthMenu: [
         [10, 25, 50, 100, -1],
         [10, 25, 50, 100, "All"]
@@ -477,7 +646,7 @@
     $.ajax({
       url: `${backend_url}/hairpin/metadata`,
       method: 'GET',
-      success: function(resp_obj) {
+      success: function (resp_obj) {
         $("#loader").hide();
         console.log(resp_obj)
         full_table_data = resp_obj.data
@@ -494,7 +663,7 @@
           filter_name_select.appendChild(option);
         });
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
@@ -504,32 +673,32 @@
     summary_table.destroy();
     $('#summary-table').empty();
   }
-  $(document).ready(function() {
+  $(document).ready(function () {
     $('#example-filters').tooltip({
       title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability and the search is initiated. Click the button to explore the feature.',
       template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
       trigger: 'hover'
     });
-    $('#search-input').on('keydown', function(event) {
+    $('#search-input').on('keydown', function (event) {
       if (event.key === 'Enter') {
         const search_term = $('#search-input').val();
         quickSearchDatabase(search_term);
       }
     });
-    $('#search-button').on('click', function() {
+    $('#search-button').on('click', function () {
       const search_term = $('#search-input').val();
       quickSearchDatabase(search_term);
     });
-    $('#select-all-button').click(function() {
+    $('#select-all-button').click(function () {
       let checkboxes = $('.selected-rows');
       let isAllChecked = checkboxes.length === checkboxes.filter(':checked').length;
       checkboxes.prop('checked', !isAllChecked);
     });
-    $('.download-dropdown-item').click(function(event) {
+    $('.download-dropdown-item').click(function (event) {
       let button_id = event.target.id;
       let format = button_id.split('-')[1];
       let selected_accessions = [];
-      $('.selected-rows').each(function() {
+      $('.selected-rows').each(function () {
         if ($(this).is(':checked')) {
           selected_accessions.push(this.id);
         }
@@ -552,7 +721,7 @@
           format: format,
           selected_files: selected_files,
         }),
-        success: function(data) {
+        success: function (data) {
           $("#loader").hide();
           // Start Download File
           var link = document.createElement('a');
@@ -564,7 +733,7 @@
           document.body.removeChild(link);
           // End Download File
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
           $("#loader").hide();
           console.error('Error:', error);
         }
@@ -576,7 +745,7 @@
     const operatorSelect = $('#operator');
     const valueInput = $('#value');
     // Event listener for `filter-name` selection
-    $('#filter-name').on('change', function() {
+    $('#filter-name').on('change', function () {
       const selectedFilter = $(this).val();
       const isNumeric = numericColumns.includes(selectedFilter);
       // Update operators based on filter type
@@ -606,7 +775,7 @@
         valueInput.attr('type', 'text');
       }
     });
-    $('#example-filters').on('click', function() {
+    $('#example-filters').on('click', function () {
       // Define two example filter sets
       const exampleFiltersSets = [
         [{
@@ -621,7 +790,7 @@
           filter_name: 'inverted_repeat_count',
           operator: 'greater than',
           value: 0
-        }, ],
+        },],
         [{
           filter_name: 'inverted_repeat_count',
           operator: 'greater than',
@@ -634,10 +803,10 @@
           filter_name: 'organism_name',
           operator: 'contains',
           value: 'Lacto'
-        }, ]
+        },]
       ];
       // Add event listener for the checkbox
-      $('#with-annotations').on('change', function() {
+      $('#with-annotations').on('change', function () {
         clearTable();
         populateTable();
       });
@@ -700,14 +869,14 @@
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(post_data),
-      success: function(data) {
+      success: function (data) {
         $("#loader").hide();
         resp_obj = data
         clearTable()
         full_table_data = resp_obj.data
         populateTable()
       },
-      error: function(xhr, status, error) {
+      error: function (xhr, status, error) {
         $("#loader").hide();
         console.error('Error:', error);
       }
@@ -725,14 +894,14 @@
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(post_data),
-      success: function(data) {
+      success: function (data) {
         $("#loader").hide();
         clearTable()
         resp_obj = data
         full_table_data = resp_obj.data
         populateTable()
       },
-      error: function(xhr, status, error) {
+      error: function (xhr, status, error) {
         $("#loader").hide();
         console.error('Error:', error);
       }
@@ -812,4 +981,5 @@
     location.href = `/accession_id_analysis.html?accession_id=${accession_id}`
   }
 </script>
+
 </html>

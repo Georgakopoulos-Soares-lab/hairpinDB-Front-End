@@ -1,204 +1,226 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
-    <title>Organism Analysis</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    
-    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
-    <script src="js/functions.js"></script>
+<meta http-equiv=" Content-Type" content="text/html; charset=utf-8">
+<link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+<title>Organism Analysis</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+<script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+<script src="js/functions.js"></script>
 
 
-    <style>
-        .accession-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+<style>
+    .accession-header {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+
+    .accession-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+    }
+
+
+    .loader {
+        border: 16px solid #f3f3f3;
+        /* Light grey */
+        border-top: 16px solid #4682B4;
+        /* Blue */
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
         }
 
-
-        .accession-div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
+        100% {
+            transform: rotate(360deg);
         }
+    }
+
+    .genomic-container {
+        color: #f0f0f0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .genomic-title {
+        font-size: 2rem;
+        background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+        color: #1d1f21;
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        margin: 2.5rem auto 0rem auto;
+        width: fit-content;
+        max-width: 90%;
+    }
 
 
-        .loader {
-            border: 16px solid #f3f3f3;
-            /* Light grey */
-            border-top: 16px solid #4682B4;
-            /* Blue */
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            animation: spin 2s linear infinite;
-        }
+    .genomic-columns {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+    }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+    .genomic-column {
+        width: 48%;
+    }
 
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+    .genomic-result {
+        background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+        color: #212529;
+        padding: 1.5rem;
+        text-align: center;
+        border-radius: 0.75rem;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        margin: 1rem 2rem;
+    }
 
-        .genomic-container {
-            color: #f0f0f0;
-            text-align: center;
-            width: 100%;
-        }
+    .genomic-result h4 {
+        color: #4682B4;
+        margin-top: 0;
+    }
 
-        .genomic-title {
-            font-size: 3.5rem;
-            background: linear-gradient(to bottom, #1C2A41, #212529);
+    .genomic-result p {
+        margin: 0.5rem 0;
+    }
 
-            padding: 1rem
-        }
+    .statistics-container {
+        background-color: #343a40;
+        padding: 1rem;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-evenly;
+    }
 
+
+    /* Responsive design for smaller screens */
+    @media (max-width: 768px) {
         .genomic-columns {
-            display: flex;
-            justify-content: space-between;
+            flex-direction: column;
         }
 
         .genomic-column {
-            width: 48%;
-            /* Slightly less than 50% to account for spacing */
+            width: 100%;
+            margin-bottom: 1rem;
         }
+    }
 
-        .genomic-result {
-            text-align: center;
-            background-color: #343a40;
-            padding: 1rem;
-            border-radius: 5px;
-        }
+    .bar {
+        fill: steelblue;
+    }
 
-        .genomic-result h2 {
-            color: #4682B4;
-            margin-top: 0;
-        }
+    .bar:hover {
+        fill: brown;
+    }
 
-        .genomic-result p {
-            margin: 0.5rem 0;
-        }
-
-        .statistics-container {
-            background-color: #343a40;
-            padding: 1rem;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-evenly;
-        }
+    .tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 6px;
+        font: 12px sans-serif;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        pointer-events: none;
+    }
 
 
-        /* Responsive design for smaller screens */
-        @media (max-width: 768px) {
-            .genomic-columns {
-                flex-direction: column;
-            }
+    .aggregated-analysis-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 85%;
+        margin: 0 auto;
+    }
 
-            .genomic-column {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-        }
-
-        .bar {
-            fill: steelblue;
-        }
-
-        .bar:hover {
-            fill: brown;
-        }
-
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            padding: 6px;
-            font: 12px sans-serif;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            pointer-events: none;
-        }
+    .column {
+        width: 48%;
+        padding: 5%;
+    }
 
 
-        .aggregated-analysis-container {
-            display: flex;
-            justify-content: space-between;
-            max-width: 85%;
-            margin: 0 auto;
-        }
+    .main-container {
+        font-family: monospace;
+        font-size: 1.2rem;
+    }
 
-        .column {
-            width: 48%;
-            padding: 5%;
-        }
+    .hairpin-file-table td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 300px;
+        /* Adjust the width as needed */
+    }
 
+    .tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 6px;
+        font: 12px sans-serif;
+        background: white;
+        border-radius: 8px;
+    }
 
-        .main-container {
-            font-family: monospace;
-            font-size: 1.2rem;
-        }
+    .axis-label {
+        font-size: 6px;
+    }
 
-        .hairpin-file-table td {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 300px;
-            /* Adjust the width as needed */
-        }
+    #organism-hairpin-table {
+        text-align: center;
+        font-size: 1rem;
+    }
 
-        .tooltip {
-            position: absolute;
-            text-align: center;
-            padding: 6px;
-            font: 12px sans-serif;
-            background: white;
-            border-radius: 8px;
-        }
+    #organism-hairpin-table td {
+        text-align: center;
+    }
 
-        .axis-label {
-            font-size: 6px;
-        }
+    .assemblies-wrapper {
+        margin-left: 80px;
+        margin-right: 80px;
+        /* display: flex; */
+    }
 
-        #organism-hairpin-table {
-            text-align: center;
-            font-size: 1rem;
-        }
+    .btns-wrapper {
+        margin-left: 80px;
+        margin-right: 80px;
+        display: flex;
+    }
 
-        #organism-hairpin-table td {
-            text-align: center;
-        }
+    .dropdown-item:hover {
+        cursor: pointer;
+    }
 
-        .assemblies-wrapper {
-            margin-left: 80px;
-            margin-right: 80px;
-            /* display: flex; */
-        }
-
-        .btns-wrapper {
-            margin-left: 80px;
-            margin-right: 80px;
-            display: flex;
-        }
-
-        .dropdown-item:hover {
-            cursor: pointer;
-        }
-    </style>
+    /* Responsive container for the chart */
+    #boxPlot {
+        width: 100%;
+        /* Full width of the parent container */
+        max-width: 1100px;
+        /* Optional: limit the maximum width */
+        height: 500px;
+        /* Height of the chart */
+        margin: 0 auto;
+        /* Center the chart */
+    }
+</style>
 </head>
 
 <body>
@@ -218,7 +240,7 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h2><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h2>
+                            <h4><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h4>
                             <hr>
                             <!-- <p><strong>Average IR Count</strong> <label id="genomic-hairpin-count"></label></p>
                             <p><strong>Average IR Arm</strong> <label id="genomic-avg-arm-length"></label></p>
@@ -230,15 +252,18 @@
                             </p> -->
 
 
-                            <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label> (std. deviation: <label
-                                id="genomic-invert-count-dev"></label>)</p>
-              
-                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label> (std.
-                              Deviation: <label id="genomic-invert-arm-length-dev"></label>)</p>
-                            <p><strong>Average Length of Spacer IR</strong> <label id="genomic-invert-spacer-length"></label> (std.
-                              Deviation: <label id="genomic-invert-spacer-length-dev"></label>)</p>
-                            <p><strong>Average Length of Sequence IR</strong> <label id="genomic-invert-sequence-length"></label>
-                              (std. deviation: <label id="genomic-invert-sequence-length-dev"></label>)</p>
+                            <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label> (std.
+                                deviation: <label id="genomic-invert-count-dev"></label>)</p>
+
+                            <p><strong>Average Length of Arm IR</strong> <label id="genomic-invert-arm-length"></label>
+                                (std.
+                                Deviation: <label id="genomic-invert-arm-length-dev"></label>)</p>
+                            <p><strong>Average Length of Spacer IR</strong> <label
+                                    id="genomic-invert-spacer-length"></label> (std.
+                                Deviation: <label id="genomic-invert-spacer-length-dev"></label>)</p>
+                            <p><strong>Average Length of Sequence IR</strong> <label
+                                    id="genomic-invert-sequence-length"></label>
+                                (std. deviation: <label id="genomic-invert-sequence-length-dev"></label>)</p>
                             <p><strong>Average Density IRs</strong> <label id="genomic-invert-density"></label>
                                 (std. deviation: <label id="genomic-invert-density-dev"></label>)</p>
 
@@ -248,7 +273,7 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h2><label id="t2t-organism-name"></label>Aggregated analysis</h2>
+                            <h4><label id="t2t-organism-name"></label>Aggregated analysis</h4>
                             <hr>
                             <p><strong>Assemblies: </strong><label id="genomic-assemblies"></label></p>
 
@@ -259,7 +284,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </div>
         <br>
@@ -282,7 +307,9 @@
         </div> -->
 
 
-        <div id="boxPlot"></div>
+        <div class="boxPlot-wrapper">
+            <div id="boxPlot"></div>
+        </div>
         <br>
         <br>
 
@@ -345,13 +372,13 @@
     let accession_ids = []
     let filenames = [];
     let data_index_by_name;
-    
+
 
     function preprocessAssembliesTable(data) {
         let new_data = []
         for (const d of data) {
             let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${d[0]}')">${d[0]}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${d[38]}">`
-            let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
+            let taxid_link = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
             let organisms_name = `<em>${d[7]}</em>`;
             let scaffolds = d[29];
             let hairpin = d[40];
@@ -394,7 +421,7 @@
         // $("#genomic-avg-sequence-length").html(`${organism_row_data[metadata_index_by_name["avg_length_sequences"]].toFixed(2)}`);
 
 
-            // Count
+        // Count
         $("#genomic-invert-count").html(organism_row_data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2));
         $("#genomic-invert-count-dev").html(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_count"]].toFixed(2));
 
@@ -413,7 +440,7 @@
 
         // IR Density
         const html_density = denistyToMegabasePairs(organism_row_data[metadata_index_by_name["avg_inverted_repeat_density"]]);
-        const html_density_dev = denistyToMegabasePairs(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_density"]]); 
+        const html_density_dev = denistyToMegabasePairs(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_density"]]);
 
         $("#genomic-invert-density").html(html_density);
         $("#genomic-invert-density-dev").html(html_density_dev);
@@ -479,7 +506,7 @@
     });
 
     // function renderFilesTable() {
-        
+
     //     for (const row of all_metadata) {
     //         filenames.push(row[38])
     //     }
@@ -498,107 +525,115 @@
 
     // }
     function createBoxPlot(data) {
-      const armArr = [];
-      const spacerArr = [];
-      const sequenceArr = [];
+        const armArr = [];
+        const spacerArr = [];
+        const sequenceArr = [];
 
-      // Extract data for arms, spacers, and sequences
-      for (const d of data) {
-        armArr.push(d[data_index_by_name["armLength"]]);
-        spacerArr.push(d[data_index_by_name["spacerLength"]]);
-        sequenceArr.push(d[data_index_by_name["sequenceLength"]]);
-      }
-
-      // Create traces for the box plot
-      const traces = [{
-          y: armArr,
-          type: 'box',
-          name: 'Arm',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#3D9970',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
-        },
-        {
-          y: spacerArr,
-          type: 'box',
-          name: 'Spacer',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#FF4136',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
-        },
-        {
-          y: sequenceArr,
-          type: 'box',
-          name: 'Sequence',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#FF851B',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
+        // Extract data for arms, spacers, and sequences
+        for (const d of data) {
+            armArr.push(d[data_index_by_name["armLength"]]);
+            spacerArr.push(d[data_index_by_name["spacerLength"]]);
+            sequenceArr.push(d[data_index_by_name["sequenceLength"]]);
         }
-      ];
 
-      // Layout for the box plot with consistent font styling
-      const layout = {
-        title: {
-          text: 'Data Distribution of Lengths per IR Subcompartment',
-          font: {
-            color: '#fff',
-            family: 'Arial, sans-serif',
-            size: 16
-          },
-        },
-        yaxis: {
-          title: {
-            text: 'Length (bp)',
-            font: {
-              color: '#fff',
-              family: 'Arial, sans-serif',
-              size: 16
+        // Create traces for the box plot
+        const traces = [{
+            y: armArr,
+            type: 'box',
+            name: 'Arm',
+            hoverinfo: 'y+name',
+            marker: {
+                color: '#3D9970',
+                size: 4 // Smaller points for outliers
             },
-          },
-          rangemode: 'tozero', // Ensure the y-axis starts at 0
-          gridcolor: 'rgba(255,255,255,0.2)', // Light grid lines for clarity
-          tickcolor: '#fff',
-          tickfont: {
-            color: '#fff',
-            family: 'Arial, sans-serif',
-            size: 16
-          },
+            boxpoints: 'outliers', // Show outliers
         },
-        xaxis: {
-          tickfont: {
-            color: '#fff',
-            family: 'Arial, sans-serif',
-            size: 16
-          },
+        {
+            y: spacerArr,
+            type: 'box',
+            name: 'Spacer',
+            hoverinfo: 'y+name',
+            marker: {
+                color: '#FF4136',
+                size: 4 // Smaller points for outliers
+            },
+            boxpoints: 'outliers', // Show outliers
         },
-        boxmode: 'group',
-        plot_bgcolor: '#343a40', // Dark theme background
-        paper_bgcolor: '#343a40', // Dark theme background
-        font: {
-          color: '#fff', // White text for dark theme
-          family: 'Arial, sans-serif',
-          size: 16,
-        },
-      };
+        {
+            y: sequenceArr,
+            type: 'box',
+            name: 'Sequence',
+            hoverinfo: 'y+name',
+            marker: {
+                color: '#FF851B',
+                size: 4 // Smaller points for outliers
+            },
+            boxpoints: 'outliers', // Show outliers
+        }
+        ];
 
-      // Render the box plot
-      Plotly.newPlot('boxPlot', traces, layout, {
-        responsive: true
-      });
+        // Layout for the box plot with consistent font styling in light mode
+        const layout = {
+            title: {
+                text: 'Data Distribution of Lengths per IR Subcompartment',
+                font: {
+                    color: '#212529', // Dark text for light mode
+                    family: 'Arial, sans-serif',
+                    size: 16,
+                },
+            },
+            width: 1000,
+            autosize: true, // Automatically size based on the container
+            yaxis: {
+                title: {
+                    text: 'Length (bp)',
+                    font: {
+                        color: '#212529', // Dark text for axis title
+                        family: 'Arial, sans-serif',
+                        size: 16,
+                    },
+                },
+                rangemode: 'tozero', // Ensure the y-axis starts at 0
+                gridcolor: 'rgba(0,0,0,0.1)', // Light gray grid lines for clarity
+                tickcolor: '#212529', // Dark tick marks
+                tickfont: {
+                    color: '#212529', // Dark tick labels
+                    family: 'Arial, sans-serif',
+                    size: 16,
+                },
+            },
+            xaxis: {
+                tickfont: {
+                    color: '#212529', // Dark tick labels
+                    family: 'Arial, sans-serif',
+                    size: 16,
+                },
+            },
+            boxmode: 'group',
+            plot_bgcolor: '#ffffff', // Light background for plot area
+            paper_bgcolor: '#f8f9fa', // Very light gray for outer background
+            font: {
+                color: '#212529', // Dark text for light mode
+                family: 'Arial, sans-serif',
+                size: 16,
+            },
+            margin: {
+                l: 60, // Left margin for y-axis labels
+                r: 30, // Right margin for padding
+                t: 40, // Top margin for title
+                b: 60, // Bottom margin for x-axis labels
+            },
+        };
+
+        // Render the box plot
+        Plotly.newPlot('boxPlot', traces, layout, {
+            responsive: true
+        });
     }
 
 
-    function fetchDataForGraphs(){
-        
+    function fetchDataForGraphs() {
+
         for (const row of all_metadata) {
             filenames.push(row[38])
         }
@@ -624,7 +659,7 @@
         success: function (data) {
             // console
             // createGetDataIndexByName(data, "metadata")
-            
+
             single_metadata = data[0]
             all_metadata = data
 

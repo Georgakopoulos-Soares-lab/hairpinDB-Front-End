@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
+
 <head>
   <title>invertiaDB</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -16,6 +17,15 @@
   <style>
     body {
       font-family: monospace;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-height: 100vh;
     }
 
     .accession-header {
@@ -97,13 +107,15 @@
 
     .filter-bar,
     .filters-container {
-      background-color: #343A40;
+      background-color: #F9F9F9;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
       border-radius: 10px;
       display: flex;
       align-items: center;
       width: 90%;
       margin: 10px;
       padding: 10px;
+      gap: 12px;
     }
 
     .add-filter-btn {
@@ -113,8 +125,8 @@
     }
 
     .filter {
-      background-color: #212529;
-      color: #ffffff;
+      background-color: #F9F9F9;
+      color: #000;
       border-radius: 20px;
       padding: 10px 20px;
       margin: 5px;
@@ -130,15 +142,15 @@
     }
 
     .strand-label.forward {
-      color: #00F9F9;
+      color: #464b4b;
     }
 
     .strand-label.reverse {
-      color: #55DE55;
+      color: #464b4b;
     }
 
     .strand-label.both {
-      color: #FFCE56;
+      color: #464b4b;
     }
 
     .filter span {
@@ -172,7 +184,8 @@
     .modal {
       display: none;
       position: fixed;
-      z-index: 1050; /* Ensure it's above other elements */
+      z-index: 1050;
+      /* Ensure it's above other elements */
       left: 0;
       top: 0;
       width: 100%;
@@ -181,29 +194,90 @@
       background-color: rgba(0, 0, 0, 0.4);
     }
 
+    /* Modal Content */
     .modal-content {
-      background-color: #212529;
+      background-color: #ffffff;
+      /* Light background */
       margin: 10% auto;
+      /* Center the modal */
       padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 500px;
-      border-radius: 10px;
-      color: #ffffff;
+      width: 90%;
+      max-width: 400px;
+      /* Limit modal width */
+      border-radius: 12px;
+      /* Rounded corners */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      /* Subtle shadow for depth */
+      color: #333333;
+      /* Dark text for readability */
+      animation: slide-down 0.3s ease-in-out;
+      /* Smooth slide-down effect */
     }
 
+    /* Animation for modal */
+    @keyframes slide-down {
+      from {
+        transform: translateY(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Close Button */
     .close-button {
-      color: #aaaaaa;
+      color: #333333;
+      /* Dark close button */
       float: right;
-      font-size: 28px;
+      font-size: 1.8rem;
       font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      justify-content: flex-end;
     }
 
-    .close-button:hover,
-    .close-button:focus {
-      color: #ffffff;
-      text-decoration: none;
-      cursor: pointer;
+    .close-button:hover {
+      color: #616060;
+    }
+
+    /* Modern Select Dropdown */
+    select.form-select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #fff;
+      background-image: url('data:image/svg+xml;charset=US-ASCII, %3Csvg xmlns%3D%27http://www.w3.org/2000/svg%27 viewBox%3D%270 0 4 5%27%3E%3Cpath fill%3D%27%23666%27 d%3D%27M2 0L0 2h4zM0 3l2 2 2-2z%27/%3E%3C/svg%3E');
+      /* Custom arrow */
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 10px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      padding: 8px 16px;
+      min-width: 70px;
+    }
+
+    select:focus {
+      border-color: #007bff;
+      /* Primary color */
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+      outline: none;
+    }
+
+    select:hover {
+      border-color: #bbb;
+      /* Light gray for hover */
+    }
+
+    /* Add padding to ensure text and dropdown arrow don't overlap */
+    select.form-select {
+      padding-right: 30px;
     }
 
     .submit-btn {
@@ -236,11 +310,102 @@
       text-align: center;
     }
 
+    #motif-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background-color: #ffffff;
+      /* Clean white background */
+      border-radius: 12px;
+      /* Rounded corners */
+      overflow: hidden;
+      /* Ensure rounded corners are applied */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      /* Modern shadow effect */
+      /* Modern font */
+      font-size: 1rem;
+    }
+
+    #motif-table th,
+    #motif-table td {
+      padding: 12px 16px;
+      /* Add padding for space */
+      text-align: left;
+      /* Align text to the left */
+      border-bottom: 1px solid #e0e0e0;
+      /* Subtle border between rows */
+    }
+
+    #motif-table thead th {
+      background-color: #f9f9f9;
+      /* Light gray header background */
+      font-weight: 600;
+      /* Bold headers */
+      color: #333;
+      /* Slightly darker header text */
+      text-transform: uppercase;
+      /* Optional: uppercase text for headers */
+    }
+
+    #motif-table tbody tr:hover {
+      background-color: #f5f5f5;
+      /* Light gray hover effect */
+
+    }
+
+    #motif-table tbody tr:last-child td {
+      border-bottom: none;
+      /* Remove bottom border for the last row */
+    }
+
+    #motif-table td {
+      border-right: none;
+      /* Remove vertical borders */
+    }
+
+    .table-wrapper {
+      overflow: overlay;
+    }
+
+    .table-container {
+      padding: 1.5rem;
+      border-radius: 12px;
+      background-color: #ffffff;
+      /* Optional: White container background */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      /* Optional: Card-like effect */
+    }
+
+    /* Motif Metadata Table */
     .genomic-result {
+      margin-top: 24px;
       text-align: center;
-      background-color: #343a40;
-      padding: 1rem;
-      border-radius: 5px;
+      background-color: #ffffff;
+      /* Crisp white background */
+      padding: 1.5rem;
+      border-radius: 12px;
+      /* More rounded corners for a modern feel */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      /* Larger shadow for a modern card effect */
+      border: none;
+      /* Clean look, no border */
+      /* Modern, professional font */
+      font-size: 1rem;
+      color: #4a4a4a;
+      /* Soft gray text color */
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      /* Add hover animation */
+    }
+
+    .genomic-result:hover {
+      transform: translateY(-5px);
+      /* Slight lift on hover */
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      /* Stronger shadow on hover */
+    }
+
+    #motif-metadata-table td {
+      text-align: left;
     }
 
     .strand-label {
@@ -251,9 +416,9 @@
     .strand-label .tooltip-content {
       visibility: hidden;
       opacity: 0;
-      background-color: #333333;
+      background-color: #f1f1f1;
       /* Dark background */
-      color: #ffffff;
+      color: #000;
       /* White text */
       text-align: left;
       border-radius: 5px;
@@ -300,13 +465,14 @@
       position: absolute;
       text-align: center;
       padding: 8px;
-      font-family: 'Arial', sans-serif;
       font-size: 16px;
       color: #fff;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: #616060 !important;
+      /* Light background */
       border-radius: 8px;
       pointer-events: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      /* Subtle shadow */
       z-index: 1050;
       opacity: 0;
       transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
@@ -321,7 +487,7 @@
 
     .tooltip-inner {
       padding: 6px;
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: #616060 !important;
       border-radius: 4px;
       color: #fff;
     }
@@ -331,8 +497,32 @@
       width: 90%;
       margin: 0 auto 10px auto;
     }
+
+    /*Buttons styling*/
+
+    .button-secondary {
+      background-color: #f0f0f0;
+      /* Light gray */
+      color: #333;
+      /* Dark text */
+      border: 1px solid #ccc;
+      /* Subtle border */
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .button-secondary:hover {
+      background-color: #e6e6e6;
+      /* Slightly darker gray */
+      color: #000;
+      /* Slightly darker text */
+    }
   </style>
 </head>
+
 <body>
   <!-- Container for the Navbar -->
   <div id="navbar-container"></div>
@@ -341,25 +531,31 @@
   <div class="main-container">
     <!-- Bootstrap Alert for Filter Warnings (Above the Filter Bar) -->
     <div id="filter-warning" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
-      Single filters for motif searches of less than 6 base pairs are discouraged due to performance issues. Please use single motif searches from 6 base pairs and above. The same applies for length filters.
-      <button type="button" class="btn-close" aria-label="Close" onclick="$('#filter-warning').addClass('d-none');"></button>
+      Single filters for motif searches of less than 6 base pairs are discouraged due to performance issues. Please use
+      single motif searches from 6 base pairs and above. The same applies for length filters.
+      <button type="button" class="btn-close" aria-label="Close"
+        onclick="$('#filter-warning').addClass('d-none');"></button>
     </div>
 
     <div class="accession-div">
-      <h2>Motif search</h2>
+      <h2 style="font-size: 1.8rem">Motif search</h2>
       <div class="loader" id="loader"></div>
       <br>
       <br>
       <div class="filter-bar">
         <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Motif Filters</button>
-        <div class="form-check d-flex align-items-center" style="margin-left: 10px; margin-right: 10px">
-          <input class="form-check-input filter-checkbox" type="checkbox" id="limit-results-checkbox" checked=''>
-          <label class="form-check-label ms-3 filter-checkbox-label" for="limit-results-checkbox" style="margin-right: 10x;"> Limit Results</label>
-          <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number" id="result_limit_input" value="1000" min="1">
+        <div class="d-flex align-items-center">
+          <input class="form-check-input mt-0" type="checkbox" id="limit-results-checkbox" checked=''>
+          <label class="form-check-label m-3 filter-checkbox-label" for="limit-results-checkbox"
+            style="margin-right: 10x;"> Limit Results</label>
+          <!-- <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number"
+            id="result_limit_input" value="1000" min="1"> -->
         </div>
-        <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top" data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
+        <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top"
+          data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
         </button>
-        <button type="button" class="btn btn-success" style="margin-left: 20px;" onclick="searchDatabase()">Search database</button>
+        <button type="button" class="btn button-secondary" style="margin-left: 20px;" onclick="searchDatabase()">Search
+          database</button>
       </div>
       <div id="filters-container" class="filters-container">No Filters Applied</div>
     </div>
@@ -414,8 +610,9 @@
       <!-- Pagination Controls (Top) -->
       <div class="top-pagination mb-3"></div>
       <div class="row mt-2 justify-content-md-center">
-        <div class="col-12 ">
-          <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive " style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+        <div class="col-12 table-wrapper">
+          <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive "
+            style="table-layout: auto; width: 100%;" aria-describedby="example_info">
             <thead>
               <tr role="row" id="hairpin-table-header"></tr>
             </thead>
@@ -424,12 +621,11 @@
           </table>
         </div>
       </div>
-      <!-- Pagination Controls (Bottom) -->
-      <div class="row mt-2 justify-content-between">
-        <div class="col-md-6">
-          <!-- Existing pagination can remain here -->
-        </div>
-      </div>
+
+    </div>
+    <!-- Pagination Controls (Bottom) -->
+    <div class="bottom-pagination-wrapper text-center mt-4">
+      <div class="bottom-pagination"></div>
     </div>
     <b>
       <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
@@ -439,7 +635,9 @@
           <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
           <div class="row mt-2 justify-content-md-center">
             <div class="col-12 ">
-              <table id="motif-metadata-table" class="display table table-striped table-hover dataTable table-responsive " style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+              <table id="motif-metadata-table"
+                class="display table table-striped table-hover dataTable table-responsive "
+                style="table-layout: auto; width: 100%;" aria-describedby="example_info">
                 <thead>
                   <tr role="row" id="motif-metadata-table-header"></tr>
                 </thead>
@@ -451,7 +649,7 @@
         </div>
       </div>
       <div id="footer-container"></div>
-  </b>
+    </b>
 </body>
 <script>
   // Constant data
@@ -506,7 +704,7 @@
         searchable: true
       }],
       // Initialize DataTable and handle pagination cloning
-      initComplete: function(settings, json) {
+      initComplete: function (settings, json) {
         clonePagination();
       }
     });
@@ -562,9 +760,10 @@
     var $pagination = $('#motif-table_paginate').clone();
     $('.top-pagination').html($pagination.html());
 
+
     // Bind click events for top pagination
-    $('.top-pagination').find('a').each(function(index, element) {
-      $(element).on('click', function(e) {
+    $('.top-pagination').find('a').each(function (index, element) {
+      $(element).on('click', function (e) {
         e.preventDefault();
         var pageNum = $(this).attr('data-dt-idx');
         motif_table.page(parseInt(pageNum) - 1).draw(false);
@@ -573,7 +772,7 @@
   }
 
   // Handle DataTable draw event to keep pagination in sync
-  $(document).ready(function() {
+  $(document).ready(function () {
     $("#loader").hide();
     $("#motif-metadata").hide();
     $('input[type=checkbox]').prop('checked', false);
@@ -584,7 +783,7 @@
       trigger: 'hover'
     });
     // Hide the reverse strand selector for length-related filters
-    $('#operator').on('change', function() {
+    $('#operator').on('change', function () {
       const selectedOperator = $(this).val();
       const reverseStrandContainer = $('#reverse-strand-container');
       if (selectedOperator.includes('length')) {
@@ -594,7 +793,7 @@
       }
     });
     // Show Example functionality
-    $('#example-filters').on('click', function() {
+    $('#example-filters').on('click', function () {
       // Clear current filters
       filters = {};
       // Randomly choose one of the example sets
@@ -638,13 +837,13 @@
       render_filters();
     });
     // JavaScript to toggle visibility of the number input
-    document.getElementById('limit-results-checkbox').addEventListener('change', function() {
+    document.getElementById('limit-results-checkbox').addEventListener('change', function () {
       const result_limit_input = document.getElementById("result_limit_input");
       result_limit_input.classList.toggle('d-none', !this.checked);
     });
 
     // Initialize DataTable and handle pagination cloning on draw
-    $(document).on('draw.dt', '#motif-table', function() {
+    $(document).on('draw.dt', '#motif-table', function () {
       clonePagination();
     });
   });
@@ -665,14 +864,14 @@
       data: JSON.stringify({
         filenames: Array.from(unique_files)
       }),
-      success: function(data) {
+      success: function (data) {
         console.log(data)
         full_metadata_table_data = data.data
         full_metadata_table_columns = data.columns
         populateMotifMetadataTable()
         $("#loader").hide();
       },
-      error: function(xhr, status, error) {
+      error: function (xhr, status, error) {
         console.error('Error:', error);
         $("#loader").hide();
       },
@@ -708,7 +907,7 @@
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(post_data),
-      success: function(data) {
+      success: function (data) {
         $("#loader").hide();
         resp_obj = data
         console.log(resp_obj)
@@ -719,7 +918,7 @@
         populateTable()
         calculateAndRenderMetadataFromMotifs()
       },
-      error: function(xhr, status, error) {
+      error: function (xhr, status, error) {
         $("#loader").hide();
         console.error('Error:', error);
       }
@@ -864,4 +1063,5 @@
     location.href = `/accession_id_analysis.html?accession_id=${accession_id}`
   }
 </script>
+
 </html>

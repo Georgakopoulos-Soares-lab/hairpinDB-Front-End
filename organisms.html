@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
 
 <head>
     <title>invertiaDB</title>
@@ -235,6 +235,15 @@
             margin-left: 2%;
             margin-right: 2%;
         }
+
+        #organisms-table {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-wrapper {
+            overflow: overlay;
+
+        }
     </style>
 </head>
 
@@ -263,15 +272,13 @@
                     placeholder="Quick Search on Organism Name" aria-label="Search" aria-describedby="search-addon" />
                 <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
             </div>
-            <br>
-
             <!-- Column Visibility and Export Buttons Container -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center">
                 <div id="dataTablesButtonsContainer">
                     <!-- Column Visibility Dropdown -->
                     <div class="dropdown d-inline-block">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="columnVisibilityDropdown" style="display: none;"
-                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="columnVisibilityDropdown"
+                            style="display: none;" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Column Visibility
                         </button>
                         <div id="columnVisibilityContainer" class="dropdown-menu"
@@ -282,9 +289,8 @@
                 </div>
             </div>
 
-
             <div class="row mt-2 justify-content-md-center">
-                <div class="col-12 ">
+                <div class="table-wrapper col-12 ">
                     <table id="organisms-table" class="display table table-striped table-hover dataTable"
                         style="table-layout: auto; width: 100%;" aria-describedby="example_info">
                         <thead>
@@ -307,6 +313,7 @@
                 </div>
             </div>
             <div class="row mt-2 justify-content-between">
+                <div id="paginationControls"></div>
 
             </div>
         </div>
@@ -321,10 +328,13 @@
     let organism_columns;
     let initial_visible_column_indexes;
 
+    let allOrganismData = []; // Store all data here
+    let currentPage = 1;
+    let pageSize = Math.ceil(allOrganismData.length / 10); // Display 1/10 of the data per page
 
 
     function renderColumnVisibilityDropdown(headers) {
-        document.getElementById("columnVisibilityDropdown").style.display="block";
+        document.getElementById("columnVisibilityDropdown").style.display = "block";
 
         const $colVisContainer = $('#columnVisibilityContainer');
         $colVisContainer.empty();
@@ -350,20 +360,92 @@
 
     function processOrganismsTable(data) {
         let new_data = [];
+        console.log("EDWWWW processOrganismsTable", data)
 
         for (let d of data) {
             let button =
                 `<button class='btn btn-outline-primary gotoviz-btn' onclick="goToOrganism('${btoa(d[data_index_by_name["organism_name"]])}')"><em>${d[data_index_by_name["organism_name"]]}</em></button>`;
 
             new_data.push([button, d[9], d[1], formatNumberWithCommas(d[2].toFixed(2)), d[3].toFixed(2), d[4].toFixed(
-                    2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2) + '%',
+                2), d[5].toFixed(2), denistyToMegabasePairs(d[6]), d[7].toFixed(2) + '%',
                 formatNumberWithCommas(d[8].toFixed(2))
             ])
         }
+        console.log("EDWWW new_data", new_data)
         return new_data;
     }
 
+    function renderTableForPage(page) {
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedData = allOrganismData.slice(startIndex, endIndex);
 
+
+        // Process only the paginated data
+        let table_data = processOrganismalData(paginatedData, data_index_by_name);
+        console.log("Processed Data:", table_data); // Log processed data
+        console.log("Columns:", organism_columns); // Log columns
+        $("#loader").hide();
+
+        // Destroy existing table (if any)
+        if (organisms_table) {
+            organisms_table.destroy();
+        }
+
+        // Render the table with the processed data
+        organisms_table = new DataTable('#organisms-table', {
+            data: table_data,
+            columns: organism_columns.map((col, idx) => {
+                return {
+                    title: capitalizeFirstLetterOfEachWord(col),
+                    visible: initial_visible_column_indexes.includes(idx)
+                };
+            }),
+            paging: false, // Disable DataTable's built-in pagination
+            searching: true,
+            columnDefs: [{
+                searchable: true
+            }]
+        });
+    }
+
+    function updatePaginationControls() {
+        const paginationContainer = document.getElementById('paginationControls');
+        paginationContainer.innerHTML = '';
+
+        const totalPages = Math.ceil(allOrganismData.length / pageSize);
+
+        // Previous Button
+        const prevButton = document.createElement('button');
+        prevButton.innerText = 'Previous';
+        prevButton.disabled = currentPage === 1;
+        prevButton.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTableForPage(currentPage);
+                updatePaginationControls();
+            }
+        });
+        paginationContainer.appendChild(prevButton);
+
+        // Page Info
+        const pageInfo = document.createElement('span');
+        pageInfo.innerText = ` Page ${currentPage} of ${totalPages} `;
+        paginationContainer.appendChild(pageInfo);
+
+        // Next Button
+        const nextButton = document.createElement('button');
+        nextButton.innerText = 'Next';
+        nextButton.disabled = currentPage === totalPages;
+        nextButton.addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTableForPage(currentPage);
+                updatePaginationControls();
+            }
+        });
+        paginationContainer.appendChild(nextButton);
+    }
     function fetchDataAndPopulateOrganismsTable() {
 
         $.ajax({
@@ -371,12 +453,13 @@
             method: 'GET',
             success: function (data) {
 
-
                 organism_data = data.data
+                allOrganismData = data.data; // Store all data
+                pageSize = Math.ceil(allOrganismData.length / 1000);
                 organism_columns = data.columns;
 
                 createGetDataIndexByName(organism_columns, "data");
-                initial_visible_column_indexes=["organism_name","assembly_count","avg_inverted_repeat_count","stddev_inverted_repeat_count","min_inverted_repeat_count","max_inverted_repeat_count","avg_length_sequences","stddev_length_sequences","min_length_sequences","max_length_sequences","avg_genome_size"].map(
+                initial_visible_column_indexes = ["organism_name", "assembly_count", "avg_inverted_repeat_count", "stddev_inverted_repeat_count", "min_inverted_repeat_count", "max_inverted_repeat_count", "avg_length_sequences", "stddev_length_sequences", "min_length_sequences", "max_length_sequences", "avg_genome_size"].map(
                     c => data_index_by_name[c]
                 )
                 const columns = organism_columns.map((col, idx) => {
@@ -385,28 +468,32 @@
                         visible: initial_visible_column_indexes.includes(idx)
                     };
                 });
+                // Render the first page
+                renderTableForPage(currentPage);
 
+                // Add pagination controls
+                updatePaginationControls();
+                // renderColumnVisibilityDropdown(organism_columns)
 
+                // let table_data = processOrganismalData(organism_data, data_index_by_name)
+                // $("#loader").hide();
 
-                renderColumnVisibilityDropdown(organism_columns)
-                
-                let table_data = processOrganismalData(organism_data, data_index_by_name)
-                $("#loader").hide();
+                // return []
 
-                organisms_table = new DataTable('#organisms-table', {
-                    data: table_data,
-                    columns,
-                    columns,
-                    paging: true,
-                    pageLength: 100,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, "All"]
-                    ],
-                    columnDefs: [{
-                        searchable: true
-                    }]
-                });
+                // organisms_table = new DataTable('#organisms-table', {
+                //     data: table_data,
+                //     columns,
+                //     columns,
+                //     paging: true,
+                //     pageLength: 100,
+                //     lengthMenu: [
+                //         [10, 25, 50, 100, -1],
+                //         [10, 25, 50, 100, "All"]
+                //     ],
+                //     columnDefs: [{
+                //         searchable: true
+                //     }]
+                // });
 
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -435,14 +522,13 @@
     })
 
 
-    
-
     function clearTable() {
         organisms_table.destroy();
     }
 
 
     function quickSearchDatabase(search_term) {
+
         $("#loader").show();
         const post_data = {
             value: search_term
@@ -453,20 +539,46 @@
             contentType: 'application/json',
             data: JSON.stringify(post_data),
             success: function (data) {
-                $("#loader").hide();
-                clearTable()
-                organisms_table = new DataTable('#organisms-table', {
-                    data: processOrganismsTable(data),
-                    paging: true,
-                    pageLength: 100,
-                    lengthMenu: [
-                        [10, 25, 50, 100, -1],
-                        [10, 25, 50, 100, "All"]
-                    ],
-                    columnDefs: [{
-                        searchable: true
-                    }]
+
+                allOrganismData = data; // Store all data
+                pageSize = Math.ceil(allOrganismData.length / 1000);
+
+                createGetDataIndexByName(organism_columns, "data");
+                initial_visible_column_indexes = ["organism_name", "assembly_count", "avg_inverted_repeat_count", "stddev_inverted_repeat_count", "min_inverted_repeat_count", "max_inverted_repeat_count", "avg_length_sequences", "stddev_length_sequences", "min_length_sequences", "max_length_sequences", "avg_genome_size"].map(
+                    c => data_index_by_name[c]
+                )
+                const columns = organism_columns.map((col, idx) => {
+                    return {
+                        title: capitalizeFirstLetterOfEachWord(col),
+                        visible: initial_visible_column_indexes.includes(idx)
+                    };
                 });
+                // Render the first page
+                renderTableForPage(currentPage);
+
+                // Add pagination controls
+                updatePaginationControls();
+
+                // $("#loader").hide();
+                // clearTable()
+                // organisms_table = new DataTable('#organisms-table', {
+                //     data: processOrganismsTable(data),
+                //     paging: true,
+                //     pageLength: 100,
+                //     lengthMenu: [
+                //         [10, 25, 50, 100, -1],
+                //         [10, 25, 50, 100, "All"]
+                //     ],
+                //     columnDefs: [{
+                //         searchable: true
+                //     }],
+                //     columns: organism_columns.map((col, idx) => {
+                //         return {
+                //             title: capitalizeFirstLetterOfEachWord(col),
+                //             visible: initial_visible_column_indexes.includes(idx)
+                //         };
+                //     }),
+                // });
             },
             error: function (xhr, status, error) {
                 $("#loader").hide();

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
 
 <head>
     <title>invertiaDB</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+    <link rel="icon" type="img/x-icon" href="/img/favicon.ico" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -28,13 +28,13 @@
         }
 
         .about-container h1 {
-            font-weight: 900;
-            color: white;
+            font-weight: 600;
+            color: black;
         }
 
         .about-container h2 {
-            font-weight: 900;
-            color: white;
+            font-weight: 500;
+            color: black;
         }
 
         .about-container img {
@@ -156,7 +156,7 @@
         </div>
         <div class="about-container">
             <h2>
-                Finally if the genome was annotated through an NCBI gff file. We can use two gene related features 
+                Finally if the genome was annotated through an NCBI gff file. We can use two gene related features
                 <br>
                 1. To search Inverted repeats that overlap with a gene based on its locus-tag ( Unique identifier )
                 2. To inspect the top 10 most dense genes in Inverted Repeats
@@ -193,63 +193,72 @@
             <img src="/img/help/organism_multiple_assemblies.png"></img>
         </div>
         <div class="about-container">
-        <h2>
-            When clicking an organism that has multiple assemblies we are presented with an aggregated view of them in
-            terms of
-            inverted repeats. We also have the ability to download and inspect specific assemblies the same as the
-            Invertia Dataset page
-        </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/help/organism_aggregated_analysis.png"></img>
-    </div>
-    <div class="about-container">
-    <h2>
-        InvertiaDB also offers the ability to search for specific DNA motfis in the inverted repeat dataset through the
-        navigation bar option
-        Motif Search. A trivial example use case that showcases this feature is to search for a sequence of interest,
-        e.g. "caatatggaa" on the left arm of all inverted repeats:
-    </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/help/motif_search_1.png"></img>
-    </div>
-    <div class="about-container">
-    <h2>
-        The primary search leads to a secondary search to find the files and the unique organisms in which these motifs
-        were found to perform further analysis:
-    </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/help/motif_search_2.png"></img>
-    </div>
-    <div class="about-container">
-        <h2>
-            Apart from these use cases the motif search can be ran on various more advanced ways such as searching both
-            arms , searching the reverse strand , both strands as well as apply text search functionalities
-            such as sequence contains X , starts with X and length comparisons such as "length equals X" or "length
-            greater than X" in complex ways while also having the ability to limit results. An example would look like:
-        </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/help/motif_search_3.png"></img>
-    </div>
+            <h2>
+                When clicking an organism that has multiple assemblies we are presented with an aggregated view of them
+                in
+                terms of
+                inverted repeats. We also have the ability to download and inspect specific assemblies the same as the
+                Invertia Dataset page
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/organism_aggregated_analysis.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                InvertiaDB also offers the ability to search for specific DNA motfis in the inverted repeat dataset
+                through the
+                navigation bar option
+                Motif Search. A trivial example use case that showcases this feature is to search for a sequence of
+                interest,
+                e.g. "caatatggaa" on the left arm of all inverted repeats:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/motif_search_1.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                The primary search leads to a secondary search to find the files and the unique organisms in which these
+                motifs
+                were found to perform further analysis:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/motif_search_2.png"></img>
+        </div>
+        <div class="about-container">
+            <h2>
+                Apart from these use cases the motif search can be ran on various more advanced ways such as searching
+                both
+                arms , searching the reverse strand , both strands as well as apply text search functionalities
+                such as sequence contains X , starts with X and length comparisons such as "length equals X" or "length
+                greater than X" in complex ways while also having the ability to limit results. An example would look
+                like:
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/motif_search_3.png"></img>
+        </div>
 
-    <div class="about-container">
-        <h2>
-            There is also an about/contact page that explains the basics of Inverted Repeats along with the lab's researchers emails to
-            contact if you have any feedback or questions.
-        </h2>
-    </div>
-    <div class="about-container">
-        <img src="/img/help/about_page.png"></img>
-    </div>
-    <div class="about-container"></div>
+        <div class="about-container">
+            <h2>
+                There is also an about/contact page that explains the basics of Inverted Repeats along with the lab's
+                researchers emails to
+                contact if you have any feedback or questions.
+            </h2>
+        </div>
+        <div class="about-container">
+            <img src="/img/help/about_page.png"></img>
+        </div>
+        <div class="about-container"></div>
         <h2>
             <div class="about-container">
                 <h2>
-                    By navigating to Downloads through the navbar you have the option to download the whole dataset as a whole or divided into
-                    the four domains by clicking the respective button. There are four options in terms of data formats namely csv, json, parquet and bed.
+                    By navigating to Downloads through the navbar you have the option to download the whole dataset as a
+                    whole or divided into
+                    the four domains by clicking the respective button. There are four options in terms of data formats
+                    namely csv, json, parquet and bed.
                 </h2>
             </div>
         </h2>

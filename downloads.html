@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
 
 <head>
     <title>invertiaDB</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"><link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -23,7 +24,11 @@
             align-items: "center";
             padding-left: 5%;
             padding-right: 5%;
-            padding-top: 3%
+            padding-top: 3%;
+        }
+
+        .underline {
+            border-bottom: 1px solid rgb(147, 153, 157);
         }
     </style>
 </head>
@@ -32,80 +37,77 @@
 
     <!-- Container for the Navbar -->
     <div id="navbar-container"></div>
-
-
     <div class="main-container">
         <div class="about-container">
-            <h1>
-                Download Datasets
-            </h1>
-        </div>
-        <br>
-        <br>
-        <br>
-        
-        <div class="about-container">
-            <h2>
-               InvertiaDB Dataset
+            <h2 style="font-size: 1.8rem"> Download Datasets
             </h2>
         </div>
-        <hr>
+        <br>
+        <br>
+
+        <div class="about-container">
+            <h3 class="underline">
+                InvertiaDB Dataset
+            </h3>
+        </div>
+        <!-- <hr> -->
         <div class="about-container">
             <div>
-                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'full')">Download as Parquet ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'full')">Download as Parquet
+                    ⇓</button>
                 <button class="btn btn-primary" onclick="downloadZipFile('csv', 'full' )">Download as CSV ⇓</button>
                 <button class="btn btn-primary" onclick="downloadZipFile('json', 'full')">Download as JSON ⇓</button>
                 <button class="btn btn-primary" onclick="downloadZipFile('bed', 'full')">Download as BED ⇓</button>
             </div>
         </div>
-        <div class="about-container">
-            <h2>
-               InvertiaDB Dataset Split By Domain
-            </h2>
+        <div class="about-container mt-5">
+            <h3 class="underline">
+                InvertiaDB Dataset Split By Domain
+            </h3>
         </div>
-        <hr>
+        <!-- <hr> -->
         <div class="about-container">
             <div>
-                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'per_domain')">Download as Parquet⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('csv', 'per_domain')">Download as CSV ⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('json', 'per_domain')">Download as JSON ⇓</button>
-                <button class="btn btn-primary" onclick="downloadZipFile('bed', 'per_domain')">Download as BED ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('parquet', 'per_domain')">Download as
+                    Parquet⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('csv', 'per_domain')">Download as CSV
+                    ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('json', 'per_domain')">Download as JSON
+                    ⇓</button>
+                <button class="btn btn-primary" onclick="downloadZipFile('bed', 'per_domain')">Download as BED
+                    ⇓</button>
             </div>
         </div>
-
         <br>
         <br>
         <br>
+        <br>
+        <br>
+        <br>
+        <br>
 
-      
-
-<br>
-<br>
-<br>
-<br>
-
-<div id="footer-container"></div>
+        <div id="footer-container"></div>
 </body>
 
 <script src="js/components.js"></script>
 <script>
 
-    const bucket_name = 'accession_files'; 
-    
-    function downloadZipFile(format, collection){
-        
+    const bucket_name = 'accession_files';
+
+    function downloadZipFile(format, collection) {
+
         const file_name = collection == 'full' ? `hairpin_data_${format}.tar.gz` : `data_per_domain_${format}.tar.gz`;
         const url = `https://storage.googleapis.com/${bucket_name}/${file_name}`;
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = file_name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = file_name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
     }
-    
+
 </script>
 
 

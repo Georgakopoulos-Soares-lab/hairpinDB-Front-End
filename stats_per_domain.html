@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-bs-theme="dark">
+<html data-bs-theme="light">
 
 <head>
   <title>invertiaDBs</title>
@@ -62,15 +62,21 @@
     }
 
     .genomic-container {
-      color: #f0f0f0;
       text-align: center;
       width: 100%;
     }
 
     .genomic-title {
-      font-size: 3.5rem;
-      background: linear-gradient(to bottom, #1C2A41, #212529);
-      padding: 1rem
+      font-size: 2rem;
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      color: #1d1f21;
+      padding: 1.5rem 5rem;
+      text-align: center;
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      margin: 2.5rem auto 0rem auto;
+      width: fit-content;
+      max-width: 90%;
     }
 
     .genomic-columns {
@@ -84,9 +90,9 @@
 
     .genomic-result {
       text-align: center;
-      background-color: #343a40;
       padding: 1rem;
       border-radius: 5px;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
     }
 
     .genomic-result h2 {
@@ -155,13 +161,6 @@
       opacity: 75%;
     }
 
-    #genomic-ncbi-genome-browser {
-      color: white;
-    }
-
-    #genomic-ena-browser {
-      color: white;
-    }
 
     .dt-container {
       font-size: large;
@@ -205,6 +204,7 @@
     .organisms-table-wrapper {
       margin-left: 10px;
       margin-right: 10px;
+      padding: 0rem 4rem;
     }
 
     .buttons-csv,
@@ -272,6 +272,33 @@
       margin-left: 2%;
       margin-right: 2%;
     }
+
+    .btn-secondary {
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      color: black;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      color: black;
+    }
+
+    .btn-secondary:focus {
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      color: black;
+    }
+
+    .left-side {
+      padding-left: 8rem;
+
+    }
+
+    .right-side {
+      padding-right: 8rem;
+    }
   </style>
 </head>
 
@@ -287,7 +314,7 @@
       <br>
       <div class="genomic-columns">
         <!-- Left column now holds the scatter plot -->
-        <div class="genomic-column left">
+        <div class="genomic-column left left-side">
           <div class="genomic-result">
             <h2>Domain Inverted Repeat Graphs </h2>
             <hr>
@@ -297,7 +324,7 @@
 
         </div>
         <!-- Right column now holds the IR metadata (originally from left) and Genomes Metadata -->
-        <div class="genomic-column right">
+        <div class="genomic-column right right-side">
           <div class="genomic-result">
             <div class="table-like">
               <h2><label id="genomic-organism-name"></label> Domain Inverted Repeat Metadata</h2>
@@ -328,7 +355,7 @@
       </div>
 
       <!-- Column Visibility and Export Buttons Container -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-3 organisms-table-wrapper">
         <div id="dataTablesButtonsContainer">
           <!-- Column Visibility Dropdown -->
           <div class="dropdown d-inline-block">
@@ -417,8 +444,6 @@
           datasets: [{
             label: 'Avg IR Length vs Avg Genome Size',
             data: scatterData,
-            backgroundColor: 'rgba(75, 192, 192, 0.7)',
-            borderColor: 'rgba(75, 192, 192, 1)',
             pointRadius: 5
           }]
         },
@@ -430,21 +455,21 @@
               title: {
                 display: true,
                 text: 'Average Genome Size (bp)',
-                color: '#fff',
                 font: {
                   family: 'Arial, sans-serif',
-                  size: 12
+                  size: 12,
+                  color: '#000'
                 }
               },
               ticks: {
-                color: '#fff',
                 font: {
                   family: 'Arial, sans-serif',
-                  size: 12
+                  size: 12,
+                  color: '#000'
                 }
               },
               grid: {
-                color: 'rgba(255,255,255,0.1)'
+                color: '#a4aba6'
               }
             },
             y: {
@@ -452,28 +477,28 @@
               title: {
                 display: true,
                 text: 'Average Length of IR Sequences (bp)',
-                color: '#fff',
+                color: '#000',
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12
                 }
               },
               ticks: {
-                color: '#fff',
+                color: '#000',
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12
                 }
               },
               grid: {
-                color: 'rgba(255,255,255,0.1)'
+                color: '#a4aba6'
               }
             }
           },
           plugins: {
             legend: {
               labels: {
-                color: '#fff',
+                color: '#000',
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12
@@ -529,38 +554,38 @@
 
       // Create traces for the box plot
       const traces = [{
-          y: armArr,
-          type: 'box',
-          name: 'Arm',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#3D9970',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
+        y: armArr,
+        type: 'box',
+        name: 'Arm',
+        hoverinfo: 'y+name',
+        marker: {
+          color: '#3D9970',
+          size: 4 // Smaller points for outliers
         },
-        {
-          y: spacerArr,
-          type: 'box',
-          name: 'Spacer',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#FF4136',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
+        boxpoints: 'outliers', // Show outliers
+      },
+      {
+        y: spacerArr,
+        type: 'box',
+        name: 'Spacer',
+        hoverinfo: 'y+name',
+        marker: {
+          color: '#FF4136',
+          size: 4 // Smaller points for outliers
         },
-        {
-          y: sequenceArr,
-          type: 'box',
-          name: 'Sequence',
-          hoverinfo: 'y+name',
-          marker: {
-            color: '#FF851B',
-            size: 4 // Smaller points for outliers
-          },
-          boxpoints: 'outliers', // Show outliers
-        }
+        boxpoints: 'outliers', // Show outliers
+      },
+      {
+        y: sequenceArr,
+        type: 'box',
+        name: 'Sequence',
+        hoverinfo: 'y+name',
+        marker: {
+          color: '#FF851B',
+          size: 4 // Smaller points for outliers
+        },
+        boxpoints: 'outliers', // Show outliers
+      }
       ];
 
       // Layout for the box plot with consistent font styling
@@ -568,7 +593,7 @@
         title: {
           text: 'Data Distribution of Lengths per IR Subcompartment',
           font: {
-            color: '#fff',
+            color: '#000',
             family: 'Arial, sans-serif',
             size: 16
           },
@@ -577,14 +602,14 @@
           title: {
             text: 'Length (bp)',
             font: {
-              color: '#fff',
+              color: '#000',
               family: 'Arial, sans-serif',
               size: 16
             },
           },
           rangemode: 'tozero', // Ensure the y-axis starts at 0
-          gridcolor: 'rgba(255,255,255,0.2)', // Light grid lines for clarity
-          tickcolor: '#fff',
+          gridcolor: '#a4aba6', // Light grid lines for clarity
+          tickcolor: '#000',
           tickfont: {
             color: '#fff',
             family: 'Arial, sans-serif',
@@ -599,10 +624,10 @@
           },
         },
         boxmode: 'group',
-        plot_bgcolor: '#343a40', // Dark theme background
-        paper_bgcolor: '#343a40', // Dark theme background
+        plot_bgcolor: '#fff', // Dark theme background
+        paper_bgcolor: '#fff', // Dark theme background
         font: {
-          color: '#fff', // White text for dark theme
+          color: '#000', // White text for dark theme
           family: 'Arial, sans-serif',
           size: 16,
         },
@@ -718,7 +743,7 @@
           columns: columns,
           dom: 'Bfrtip',
           buttons: ['csv', 'excel'],
-          initComplete: function () {}
+          initComplete: function () { }
         });
 
 

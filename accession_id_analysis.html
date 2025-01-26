@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
+
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <link rel="icon" type="img/x-icon" href="/images/favicon.ico">
+  <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
   <title>Accessions</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
@@ -66,33 +67,46 @@
       color: #f0f0f0;
       text-align: center;
       width: 100%;
+      padding: 1rem 6rem;
     }
 
     .genomic-title {
-      font-size: 3.5rem;
-      background: linear-gradient(to bottom, #1C2A41, #212529);
-      padding: 1rem
+      font-size: 2rem;
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      color: #1d1f21;
+      padding: 1.5rem;
+      text-align: center;
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      margin: 2.5rem auto 0rem auto;
+      width: fit-content;
+      max-width: 90%;
     }
+
+
 
     .genomic-columns {
       display: flex;
-      justify-content: space-between;
+      gap: 4px;
+      justify-content: center;
+      padding: 0rem 8rem;
     }
 
     .genomic-column {
       width: 48%;
-      /* Slightly less than 50% to account for spacing */
     }
 
     .genomic-result {
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      color: #212529;
+      padding: 1.5rem;
       text-align: center;
-      background-color: #343a40;
-      padding: 1rem;
-      border-radius: 5px;
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+      margin: 1rem 2rem;
     }
 
-    .genomic-result h2 {
-      color: #4682B4;
+    .genomic-result h4 {
       margin-top: 0;
     }
 
@@ -159,16 +173,19 @@
       opacity: 75%;
     }
 
-    #genomic-ncbi-genome-browser {
-      color: white;
-    }
 
-    #genomic-ena-browser {
-      color: white;
-    }
+
+
 
     .dt-container {
       font-size: 1.4rem;
+      padding: 0rem 2rem;
+
+    }
+
+    .card {
+      padding: 0rem 2rem;
+      border: none;
     }
 
     .hiddenviz {
@@ -246,7 +263,7 @@
     .three-column-chart-container {
       display: flex;
       justify-content: center;
-      margin: 20px 20px;
+      margin: 20px 80px;
     }
 
     .chart-container {
@@ -264,8 +281,8 @@
     }
 
     .statistics-container {
-      background-color: #343a40;
-      padding: 1rem;
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      padding: 1rem 6rem;
       border-radius: 5px;
     }
 
@@ -326,8 +343,63 @@
       border-radius: 4px;
       color: #fff;
     }
+
+    /* Ensure equal column width */
+    #hairpin-file-table {
+      table-layout: fixed;
+      /* Ensure equal space for columns */
+      width: 100%;
+      /* Occupy full width of the container */
+      border-collapse: collapse;
+      /* Avoid double borders */
+    }
+
+    /* Header styling */
+    #hairpin-file-table th {
+      text-align: left;
+      /* Align header text to the left */
+      background-color: #f8f9fa;
+      /* Light gray header background */
+      padding: 10px;
+      /* Padding for header cells */
+      border-bottom: 2px solid #dee2e6;
+      /* Bottom border for headers */
+      font-size: 14px;
+      /* Font size for header text */
+    }
+
+    /* Cell styling */
+    #hairpin-file-table td {
+      padding: 10px;
+      /* Padding for table cells */
+      text-align: left;
+      /* Align text to the left */
+      white-space: normal;
+      /* Allow wrapping of text */
+      word-wrap: break-word;
+      /* Break words if too long */
+      word-break: break-word;
+      /* Ensure long words break */
+      border-bottom: 1px solid #dee2e6;
+      /* Light border between rows */
+    }
+
+    /* Allow specific columns to wrap text */
+    #hairpin-file-table td.wrap {
+      white-space: normal;
+      /* Enable text wrapping */
+      word-wrap: break-word;
+      /* Break long words */
+    }
+
+    /* Optional: Highlight row on hover */
+    #hairpin-file-table tr:hover {
+      background-color: #f1f3f5;
+      /* Light gray for hover effect */
+    }
   </style>
 </head>
+
 <body>
   <div id="navbar-container"></div>
   <div class="main-container">
@@ -342,7 +414,7 @@
         <div class="genomic-column left">
           <div class="genomic-result">
             <div class="table-like">
-              <h2><label id="genomic-organism-name"></label></h2>
+              <h4><label id="genomic-organism-name"></label></h4>
               <hr>
               <p><strong>Taxonomy ID:</strong> <label id="genomic-taxid"></label></p>
               <p><strong>Chromosome Count:</strong> <label id="genomic-scaffold-count"></label></p>
@@ -352,12 +424,15 @@
         </div>
         <div class="genomic-column right">
           <div class="genomic-result">
-            <h2>Additional Metadata</h2>
+            <h4>Additional Metadata</h4>
             <hr>
             <p><strong>Genome Size:</strong> <label id="genomic-genome-size"></label></p>
             <p><strong>GC Content:</strong> <label id="genomic-gc-content"></label></p>
-            <hr>
-            <h2>Cross References</h2>
+          </div>
+        </div>
+        <div class="genomic-column right">
+          <div class="genomic-result">
+            <h4>Cross References</h4>
             <hr>
             <p><strong>ENA Browser:</strong> <a id="genomic-ena-browser"></a></p>
             <p><strong>NCBI Genome Browser</strong> <a id="genomic-ncbi-genome-browser"></a></p>
@@ -389,7 +464,9 @@
           <div id="viz-middle"></div>
           <div id="viz-right"></div>
         </div>
-        <p><strong>This visualization is used to quickly highlight the ratio between the arm and spacer lengths based on (Avg Arm Length / Avg Spacer Length). The arms are displayed with cyan and yellow and the spacer with green color. </strong> <label id=""></label></p>
+        <p><strong>This visualization is used to quickly highlight the ratio between the arm and spacer lengths based on
+            (Avg Arm Length / Avg Spacer Length). The arms are displayed with cyan and yellow and the spacer with green
+            color. </strong> <label id=""></label></p>
       </div>
     </div>
     <br>
@@ -434,13 +511,16 @@
     </div>
     <br>
     <!-- Table container with integrated filters -->
-    <div id="hairpin-file-table-wrapper" class="dt-container dt-bootstrap5 accession-table-wrapper" style="margin-right: 20px; margin-left: 20px;">
+    <div id="hairpin-file-table-wrapper" class="dt-container dt-bootstrap5 accession-table-wrapper"
+      style="margin-right: 20px; margin-left: 20px;">
       <div class="row mt-2 jus<tify-content-md-center">
         <div class="col-12">
           <!-- Integrated Filter Section with Download Button -->
           <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-              <button class="btn btn-secondary" type="button" id="filterDropdown" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel"> Advanced Filters ▼ </button>
+              <button class="btn btn-secondary" type="button" id="filterDropdown" data-bs-toggle="collapse"
+                data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel"> Advanced Filters ▼
+              </button>
               <!-- Download CSV Button -->
               <div class="dropdown">
                 <button class="btn btn-primary" type="button" id="download-csv-btn">
@@ -506,7 +586,8 @@
                   <!-- Buttons -->
                   <div class="d-flex justify-content-end mt-3">
                     <button type="button" class="btn btn-primary me-2" id="apply-filters">Apply Filters</button>
-                    <button type="button" class="btn btn-light me-2" id="example-filters" data-bs-placement="top" data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
+                    <button type="button" class="btn btn-light me-2" id="example-filters" data-bs-placement="top"
+                      data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
                       <div class="tooltip">
                       </div>
                     </button>
@@ -517,7 +598,8 @@
             </div>
           </div>
           <!-- Table -->
-          <table id="hairpin-file-table" class="display table table-striped table-hover dataTable" style="table-layout: auto; width: 100%;">
+          <table id="hairpin-file-table" class="display table table-striped table-hover dataTable"
+            style="table-layout: fixed; width: 100%; border-collapse: collapse;">
             <thead>
               <tr role="row" id="hairpin-file-table-header"></tr>
             </thead>
@@ -527,29 +609,33 @@
         </div>
       </div>
     </div>
-    <div class="statistics-container">
+    <div class="statistics-container mt-3">
       <div class="statistic gene-table-wrapper">
         <h2>Search Inverted Repeats by Locus Tag</h2>
-        <h2 class="alert alert-warning" role="alert" style="display: none;" id='no-genes-warning'>Warning: No Gene annotations available</h2>
-        <div> Gene Start: <label id="gene-start"></label>
-        </div>
-        <div> Gene End: <label id="gene-end"></label>
-        </div>
-        <hr>
-        <div class="gene-str-search">
-          <div class="input-group">
-            <input type="search" class="form-control rounded" id="search-input" placeholder="Search By Gene ID:" aria-label="Search" aria-describedby="search-addon" />
-            <button type="button" class="btn btn-outline-primary" id="search-button">search</button>
+        <h2 class="alert alert-warning" role="alert" style="display: none;" id='no-genes-warning'>Warning: No Gene
+          annotations available</h2>
+        <div id="show_no_genes_placeholder">
+          <div> Gene Start: <label id="gene-start"></label>
           </div>
-        </div>
-        <table id="gene-tandem-table">
-        </table>
-        <br>
-        <br>
-        <div class="density-wrapper">
-          <h2>Top 10 most dense genes in Inverted Repeats</h2>
-          <table id="density-gene-table">
+          <div> Gene End: <label id="gene-end"></label>
+          </div>
+          <hr>
+          <div class="gene-str-search">
+            <div class="input-group">
+              <input type="search" class="form-control rounded" id="search-input" placeholder="Search By Gene ID:"
+                aria-label="Search" aria-describedby="search-addon" />
+              <button type="button" class="btn btn-outline-primary" id="search-button">search</button>
+            </div>
+          </div>
+          <table id="gene-tandem-table">
           </table>
+          <br>
+          <br>
+          <div class="density-wrapper">
+            <h2>Top 10 most dense genes in Inverted Repeats</h2>
+            <table id="density-gene-table">
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -607,7 +693,6 @@
             title: {
               display: true,
               text: 'Length',
-              color: 'white',
               font: {
                 size: 14
               }
@@ -618,7 +703,6 @@
             title: {
               display: true,
               text: 'Count',
-              color: 'white',
               font: {
                 size: 14
               }
@@ -629,11 +713,14 @@
           legend: {
             display: false,
             labels: {
-              color: 'white',
               font: {
-                size: 18
+                size: 18,
               }
-            }
+            },
+            font: {
+              size: 14,
+              color: '#FF5733',
+            },
           }
         }
       }
@@ -644,8 +731,7 @@
     $.ajax({
       url: `${backend_url}/hairpin/statistics/length/${filename}`,
       method: 'GET',
-      success: function(resp_obj) {
-        console.log(resp_obj)
+      success: function (resp_obj) {
         let arm_data = sortDataByFirstIndex(resp_obj.arms);
         let spacer_data = sortDataByFirstIndex(resp_obj.spacers);
         let sequence_data = sortDataByFirstIndex(resp_obj.sequences);
@@ -660,7 +746,7 @@
         createChart(document.getElementById('spacer-length-chart').getContext('2d'), labels_spacers, values_spacers, 'rgba(144, 238, 144, 1)', '');
         createChart(document.getElementById('sequence-length-chart').getContext('2d'), labels_sequences, values_sequences, 'rgba(75, 192, 192, 1)', '');
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
@@ -687,7 +773,6 @@
           legend: {
             position: 'top',
             labels: {
-              color: '#FFFFFF', // White color for labels
               font: {
                 size: 16 // Increase font size
               },
@@ -695,7 +780,7 @@
           },
           tooltip: {
             callbacks: {
-              label: function(tooltipItem) {
+              label: function (tooltipItem) {
                 return tooltipItem.label + ': ' + tooltipItem.raw + '%';
               }
             }
@@ -709,7 +794,7 @@
     $.ajax({
       url: `${backend_url}/hairpin/statistics/composition/${filename}`,
       method: 'GET',
-      success: function(resp_obj) {
+      success: function (resp_obj) {
         let arm_data = resp_obj.arms[0];
         let spacer_data = resp_obj.spacers[0];
         let sequence_data = resp_obj.sequences[0];
@@ -724,7 +809,7 @@
         createCompositionDonutChart(ctx_spacer, spacer_data, colors, labels);
         createCompositionDonutChart(ctx_sequence, sequence_data, colors, labels);
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
@@ -734,12 +819,15 @@
     $.ajax({
       url: `${backend_url}/hairpin/genes/most_dense/${filename}`,
       method: 'GET',
-      success: function(data) {
+      success: function (data) {
         let most_dense_data = data.data
         let most_dense_columns = data.columns
         if (most_dense_data.length == 0) {
           const warning = document.getElementById("no-genes-warning");
+          const show_no_genes_placeholder = document.getElementById("show_no_genes_placeholder");
           warning.style.display = "block";
+          show_no_genes_placeholder.style.display = "none";
+
         }
         let columns_option = []
         for (let header of most_dense_columns) {
@@ -761,7 +849,7 @@
           data: most_dense_data,
         });
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
@@ -804,7 +892,7 @@
 
   function populateAccessionMetadata() {
     let organims_name = accession_row_data[7];
-    let taxid = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${accession_row_data[5]}'>` + accession_row_data[5] + "</a>";
+    let taxid = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${accession_row_data[5]}'>` + accession_row_data[5] + "</a>";
     let scaffold_count = accession_row_data[29];
     let domain = accession_row_data[39];
     let genome_size = formatNumberWithCommas(accession_row_data[25]);
@@ -850,7 +938,7 @@
       }]
     });
     // **Updated Custom Filter Function**
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
       // Only apply this filtering to the hairpin_file_table
       if (settings.nTable.id !== 'hairpin-file-table') {
         return true;
@@ -909,24 +997,24 @@
     });
 
     // Code to prevent sorting when click on searchbox
-    $('.search-boxes').on('click', function(event) {
+    $('.search-boxes').on('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
       return false;
     });
   }
   // Event listener for 'Apply Filters' button
-  $('#apply-filters').on('click', function() {
+  $('#apply-filters').on('click', function () {
     hairpin_file_table.draw();
   });
   // Event listener for 'Reset Filters' button
-  $('#reset-filters').on('click', function() {
+  $('#reset-filters').on('click', function () {
     // Clear all filter inputs
     $('#filter-form').find('input').val('');
     hairpin_file_table.draw();
   });
   // Event listener for 'Show Example' button
-  $('#example-filters').on('click', function() {
+  $('#example-filters').on('click', function () {
     // Ensure table_data is available
     if (!table_data || table_data.length === 0) {
       console.error('table_data is not available.');
@@ -944,7 +1032,7 @@
       }
     }
     // For each filterable field, find min and max among sampled entries
-    var chromosomeValues = sampledEntries.map(function(row) {
+    var chromosomeValues = sampledEntries.map(function (row) {
       return row[0]; // Assuming Chromosome is at index 0
     });
     var uniqueChromosomes = [...new Set(chromosomeValues)];
@@ -953,23 +1041,23 @@
       $('#chromosome-filter').val(uniqueChromosomes[Math.floor(Math.random() * uniqueChromosomes.length)]);
     }
 
-    var startPositions = sampledEntries.map(function(row) {
+    var startPositions = sampledEntries.map(function (row) {
       return parseFloat(row[1]) || 0;
     });
-    var endPositions = sampledEntries.map(function(row) {
+    var endPositions = sampledEntries.map(function (row) {
       return parseFloat(row[2]) || 0;
     });
-    var armLengths = sampledEntries.map(function(row) {
+    var armLengths = sampledEntries.map(function (row) {
       return parseFloat(row[6]) || 0;
     });
-    var spacerLengths = sampledEntries.map(function(row) {
+    var spacerLengths = sampledEntries.map(function (row) {
       return parseFloat(row[7]) || 0;
     });
-    var sequenceLengths = sampledEntries.map(function(row) {
+    var sequenceLengths = sampledEntries.map(function (row) {
       return parseFloat(row[8]) || 0;
     });
     // For GC Content, calculate for each sampled entry
-    var gcContents = sampledEntries.map(function(row) {
+    var gcContents = sampledEntries.map(function (row) {
       var armA = parseFloat(row[9]) || 0;
       var armG = parseFloat(row[10]) || 0;
       var armC = parseFloat(row[11]) || 0;
@@ -1019,13 +1107,13 @@
     hairpin_file_table.draw();
   });
 
-  $('#hairpin-file-table thead').on('keyup', 'input', function() {
+  $('#hairpin-file-table thead').on('keyup', 'input', function () {
     var columnIndex = $(this).closest('th').index();
     hairpin_file_table.column(columnIndex).search(this.value).draw();
   });
 
   // Attach event listener to a specific parent element (e.g., #chromosomes-container)
-  $('#chromosomes-container').on('change', '.showviz', function() {
+  $('#chromosomes-container').on('change', '.showviz', function () {
     const id = this.id.replace('showviz-', '');
     const viz_element = $('#viz-' + id);
     if ($(this).is(':checked')) {
@@ -1036,7 +1124,7 @@
   });
 
   // Attach event listener to a specific parent element (e.g., #chromosomes-container)
-  $('#change-histogram-mode').on('change', function() {
+  $('#change-histogram-mode').on('change', function () {
     d3.select("svg").remove();
     if ($(this).is(':checked')) {
       renderHistogramCount();
@@ -1045,7 +1133,7 @@
     }
   });
 
-  $('#search-button').on('click', function() {
+  $('#search-button').on('click', function () {
     const search_term = $('#search-input').val();
     $.ajax({
       url: `${backend_url}/hairpin/genes/search`,
@@ -1055,8 +1143,8 @@
         locus_tag: search_term,
         filename: filename
       }),
-      success: function(data) {
-        
+      success: function (data) {
+
         let gene_data = data.gene_metadata;
         let gene_start = gene_data[0][3];
         let gene_end = gene_data[0][4];
@@ -1085,62 +1173,62 @@
           ],
         });
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
   });
 
   function convertToCSV(data, columns) {
-      const header = columns.map(col => col.title.replace(/<[^>]+>/g, '').trim()).join(',');
-      const rows = data.map(row => {
-        return row.map(cell => {
-          // Escape double quotes by replacing them with two double quotes
-          const cellData = typeof cell === 'string' ? cell.replace(/"/g, '""') : cell;
-          return `"${cellData}"`;
-        }).join(',');
-      });
-      return [header, ...rows].join('\n');
-    }
-
-    // Function to trigger download of a string as a file
-    function downloadCSV(csvContent, filename) {
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      if (link.download !== undefined) { // Feature detection
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    }
-
-    // Event listener for the Download CSV button
-    $('#download-csv-btn').on('click', function() {
-      // Get the DataTable instance
-      const table = hairpin_file_table;
-
-      // Get the filtered data
-      const filteredData = table.rows({ search: 'applied' }).data().toArray();
-
-      // Get the column definitions
-      const columns = table.settings().init().columns;
-
-      // Convert data to CSV
-      const csv = convertToCSV(filteredData, columns);
-
-      // Define a filename with the current date
-      const date = new Date().toISOString().slice(0,10);
-      const filename = `inverted_repeats_${date}.csv`;
-
-      // Trigger the download
-      downloadCSV(csv, filename);
+    const header = columns.map(col => col.title.replace(/<[^>]+>/g, '').trim()).join(',');
+    const rows = data.map(row => {
+      return row.map(cell => {
+        // Escape double quotes by replacing them with two double quotes
+        const cellData = typeof cell === 'string' ? cell.replace(/"/g, '""') : cell;
+        return `"${cellData}"`;
+      }).join(',');
     });
+    return [header, ...rows].join('\n');
+  }
 
-  $(document).ready(function() {
+  // Function to trigger download of a string as a file
+  function downloadCSV(csvContent, filename) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    if (link.download !== undefined) { // Feature detection
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+
+  // Event listener for the Download CSV button
+  $('#download-csv-btn').on('click', function () {
+    // Get the DataTable instance
+    const table = hairpin_file_table;
+
+    // Get the filtered data
+    const filteredData = table.rows({ search: 'applied' }).data().toArray();
+
+    // Get the column definitions
+    const columns = table.settings().init().columns;
+
+    // Convert data to CSV
+    const csv = convertToCSV(filteredData, columns);
+
+    // Define a filename with the current date
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `inverted_repeats_${date}.csv`;
+
+    // Trigger the download
+    downloadCSV(csv, filename);
+  });
+
+  $(document).ready(function () {
     // Render accession id
     $("#accession_id").html(accession_id)
     $('#example-filters').tooltip({
@@ -1152,7 +1240,7 @@
     $.ajax({
       url: `${backend_url}/hairpin/${filename}`,
       method: 'GET',
-      success: function(res) {
+      success: function (res) {
         table_data = res.data;
         table_columns = res.headers;
         $("#loader").hide();
@@ -1163,10 +1251,11 @@
         renderComposition();
         renderMostDenseGenes();
       },
-      error: function(jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
       }
     });
   });
 </script>
+
 </html>
