@@ -204,7 +204,29 @@
     .organisms-table-wrapper {
       margin-left: 10px;
       margin-right: 10px;
-      padding: 0rem 4rem;
+      padding: 0rem 5rem;
+      overflow-x: overlay !important;
+    }
+
+    table.dataTable td.dt-type-numeric,
+    table.dataTable td.dt-type-date {
+      text-align: center !important;
+    }
+
+    th.dt-type-numeric {
+      text-align: center !important;
+    }
+
+    table.dataTable td {
+      vertical-align: middle;
+      /* Ensure content is vertically aligned */
+      text-align: center;
+      /* Center text content */
+    }
+
+    table.dataTable th {
+      text-align: center !important;
+      /* Center header content */
     }
 
     .buttons-csv,
@@ -299,6 +321,10 @@
     .right-side {
       padding-right: 8rem;
     }
+
+    #organisms_table {
+      overflow: hidden;
+    }
   </style>
 </head>
 
@@ -355,7 +381,7 @@
       </div>
 
       <!-- Column Visibility and Export Buttons Container -->
-      <div class="d-flex justify-content-between align-items-center mb-3 organisms-table-wrapper">
+      <div class="d-flex justify-content-between align-items-center mb-3 organisms-table-wrapperv2">
         <div id="dataTablesButtonsContainer">
           <!-- Column Visibility Dropdown -->
           <div class="dropdown d-inline-block">
@@ -417,7 +443,6 @@
     let scatterChart;
 
     function createScatterPlot(data) {
-
       const extractOrganismFromButton = (buttonStr) => {
         const regex = /<em>(.*?)<\/em>/;
         const match = buttonStr.match(regex);
@@ -454,7 +479,7 @@
               position: 'bottom',
               title: {
                 display: true,
-                text: 'Average Genome Size (bp)',
+                text: 'Average Genome Size (Mbp)',
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12,
@@ -611,23 +636,23 @@
           gridcolor: '#a4aba6', // Light grid lines for clarity
           tickcolor: '#000',
           tickfont: {
-            color: '#fff',
+            color: '#000',
             family: 'Arial, sans-serif',
             size: 16
           },
         },
         xaxis: {
           tickfont: {
-            color: '#fff',
+            color: '#000',
             family: 'Arial, sans-serif',
             size: 16
           },
         },
         boxmode: 'group',
-        plot_bgcolor: '#fff', // Dark theme background
-        paper_bgcolor: '#fff', // Dark theme background
+        plot_bgcolor: '#fff', // White theme background
+        paper_bgcolor: '#fff', // White theme background
         font: {
-          color: '#000', // White text for dark theme
+          color: '#000',
           family: 'Arial, sans-serif',
           size: 16,
         },
@@ -643,7 +668,6 @@
 
 
     function populateDomainMetada() {
-      console.log(domain_data);
       let data = domain_data.data[0];
       // Count
       $("#genomic-invert-count").html(data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2));
@@ -669,7 +693,6 @@
 
 
     function renderColumnVisibilityDropdown(headers) {
-      console.log(headers)
       const $colVisContainer = $('#columnVisibilityContainer');
       $colVisContainer.empty();
 
@@ -745,9 +768,6 @@
           buttons: ['csv', 'excel'],
           initComplete: function () { }
         });
-
-
-
 
         // Create scatter plot using the data
         createScatterPlot(table_data);

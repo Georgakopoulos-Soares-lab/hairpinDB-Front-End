@@ -836,6 +836,29 @@
       // Render and apply the filters
       render_filters();
     });
+
+    // Define default example filters
+    const defaultFilters = {
+      'left_arm equals caatatggaa': {
+        filter_name: 'left_arm',
+        operator: 'equals',
+        value: 'caatatggaa',
+        reverse_strand: 'no'
+      },
+      'spacer contains atg': {
+        filter_name: 'spacer',
+        operator: 'contains',
+        value: 'atg',
+        reverse_strand: 'only_reverse'
+      }
+    };
+
+    // Apply default filters
+    filters = defaultFilters;
+    render_filters(); // Render these filters in the UI
+
+    // Fetch and display default example data
+    searchDatabase();
     // JavaScript to toggle visibility of the number input
     document.getElementById('limit-results-checkbox').addEventListener('change', function () {
       const result_limit_input = document.getElementById("result_limit_input");

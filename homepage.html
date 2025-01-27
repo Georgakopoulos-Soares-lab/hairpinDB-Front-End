@@ -215,11 +215,6 @@
     <div class="statistic">
       <h2 style="font-size: 1.2rem">Inverted Repeat Length Diagrams</h2>
       <div class="three-column-chart-container">
-        <h2 style="margin-left: 8%; font-size: 1.2rem">Arm</h2>
-        <h2 style="font-size: 1.2rem">Spacer</h2>
-        <h2 style="margin-right: 8%; font-size: 1.2rem">Sequence</h2>
-      </div>
-      <div class="three-column-chart-container">
         <div class="chart-container">
           <canvas width="600" height="280" id="arm-length-chart"></canvas>
         </div>
@@ -411,7 +406,7 @@
     const data = global_lengths_resp;
     const colors = ['#90ee90', '#FFCE56', '#03c3c3'];
 
-    function createChart(ctx, dataset, label, color) {
+    function createChart(ctx, dataset, label, color, charTitle) {
       const chartData = {
         datasets: [{
           label: label,
@@ -516,6 +511,19 @@
             },
             legend: {
               display: false
+            },
+            title: {
+              display: true,
+              text: charTitle,
+              font: {
+                size: 18
+              },
+              color: '#333',
+              padding: {
+                top: 10,
+                bottom: 10
+              },
+              align: 'center'
             }
           }
         }
@@ -527,9 +535,9 @@
       }
       return new Chart(ctx, config);
     }
-    createChart(document.getElementById('arm-length-chart').getContext('2d'), data.arms, 'Arms', colors[0]);
-    createChart(document.getElementById('spacer-length-chart').getContext('2d'), data.spacers, 'Spacers', colors[1]);
-    createChart(document.getElementById('sequence-length-chart').getContext('2d'), data.sequences, 'Sequences', colors[2]);
+    createChart(document.getElementById('arm-length-chart').getContext('2d'), data.arms, 'Arms', colors[0], 'Arm');
+    createChart(document.getElementById('spacer-length-chart').getContext('2d'), data.spacers, 'Spacers', colors[1], 'Spacer');
+    createChart(document.getElementById('sequence-length-chart').getContext('2d'), data.sequences, 'Sequences', colors[2], 'Sequence');
   }
 
   function formatPowerOfTen(value, index, ticks) {
@@ -577,7 +585,8 @@
   let donutChart = null; // Store the chart globally so we can check if it exists
   function renderTopOrganismsDensityDonutChart() {
     const data = top_dense_organisms;
-    const labels = data.data.map((item) => item[0] + ` ( ${item[1]} )`);
+    const labels = data.data.map((item) => item[0] + ` (${item[1]})`);
+    console.log("edw", labels)
     const values = data.data.map((item) => denistyToMegabasePairs(item[2]));
     const ctx = document.getElementById('donutChart').getContext('2d');
     const colors = ['#555D63', // Cool Gray

@@ -386,15 +386,42 @@
     /*Table CSS*/
     table.dataTable td.dt-type-numeric,
     table.dataTable td.dt-type-date {
-      text-align: start !important;
+      text-align: center !important;
     }
 
     th.dt-type-numeric {
-      text-align: start !important;
+      text-align: center !important;
+    }
+
+    .table-wrapper {
+      overflow: overlay;
+    }
+
+    td .form-check-input {
+      margin: 0 auto;
+      display: block;
+    }
+
+    table.dataTable td {
+      vertical-align: middle;
+      /* Ensure content is vertically aligned */
+      text-align: center;
+      /* Center text content */
+    }
+
+    table.dataTable th {
+      text-align: center;
+      /* Center header content */
     }
 
     td.sorting_1 {
       display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    table.dataTable th {
+      text-align: center !important;
     }
   </style>
 </head>
@@ -516,7 +543,6 @@
       summary_columns_dict[index] = header;
       index += 1;
     }
-    console.log(summary_columns_dict);
     renderProjectColumnsButton()
   }
   // Function declarations
@@ -537,7 +563,6 @@
       success: function (resp_obj) {
         // Store the assembly accessions in a Set for quick lookup
         assembliesWithAnnotations = new Set(resp_obj.data.map(item => item[0]));
-        console.log('Assemblies with Annotations:', assembliesWithAnnotations);
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error fetching assemblies with annotations:', textStatus, errorThrown);
@@ -601,7 +626,6 @@
     if (isWithAnnotationsChecked && filenamesIndex !== -1) {
       dataToRender = full_table_data.filter(row => assembliesWithAnnotations.has(row[filenamesIndex]));
     }
-    console.log('Filtered Data Length:', dataToRender.length);
     // Clear previous table instance if exists
     if ($.fn.dataTable.isDataTable('#summary-table')) {
       $('#summary-table').DataTable().destroy();
@@ -615,7 +639,9 @@
       if (header == "tandem_count") header = "Number of Tandem Repeats";
       if (header == "inverted_repeat_density") header = "Inverted Repeats Density (/ Mb)";
       header = header.split('_').join(' ');
-      header = capitalizeFirstLetter(header);
+      header = header.split(' ') // Split the string into an array of words
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and lowercase the rest
+        .join(' '); // Join the words back into a single string
       columns_option.push({
         "title": header
       });
@@ -648,7 +674,6 @@
       method: 'GET',
       success: function (resp_obj) {
         $("#loader").hide();
-        console.log(resp_obj)
         full_table_data = resp_obj.data
         full_table_headers = resp_obj.headers
         filter_name_list = []

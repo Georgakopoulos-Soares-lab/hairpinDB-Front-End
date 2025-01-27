@@ -13,7 +13,11 @@ let ncbi_domain_references = {
 
 }
 function capitalizeFirstLetter(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  console.log("edwwww str", string)
+  return string
+    .split(' ') // Split the string into an array of words
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and lowercase the rest
+    .join(' '); // Join the words back into a single string
 }
 
 function getCurrentTimestamp() {
@@ -56,7 +60,6 @@ function formatNumberWithCommas(number) {
 
 function processOrganismalData(data, idx) {
   let processed = [];
-  console.log(data)
   // Step 1: Initial processing (round floats, leave integers and strings untouched)
   for (const d of data) {
     let row = [...d];
@@ -106,7 +109,6 @@ function processOrganismalData(data, idx) {
       }
     }
   }
-  console.log("EDWWWW processOrganismalData", data)
   return processed;
 }
 
