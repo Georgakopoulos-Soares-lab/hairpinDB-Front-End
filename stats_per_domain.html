@@ -325,6 +325,17 @@
     #organisms_table {
       overflow: hidden;
     }
+
+    .distribution {
+      padding: 0px 50px;
+      background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+
+      h2 {
+        color: #4682B4;
+        margin-top: 0;
+      }
+    }
   </style>
 </head>
 
@@ -379,10 +390,19 @@
           </div>
         </div>
       </div>
+      <div class="mt-5 distribution">
+        <h2><label id="genomic-organism-name"></label> Data Distribution of Length per IR Subcompartment</h2>
+        <div class="d-flex mt-2 distribution">
+          <div id="boxPlotArm" style="width: 100%; height: 400px;"></div>
+          <div id="boxPlotSpacer" style="width: 100%; height: 400px;"></div>
+          <div id="boxPlotSequence" style="width: 100%; height: 400px;"></div>
+        </div>
+      </div>
 
-      <!-- Column Visibility and Export Buttons Container -->
-      <div class="d-flex justify-content-between align-items-center mb-3 organisms-table-wrapperv2">
-        <div id="dataTablesButtonsContainer">
+
+      <div class="row mt-2 justify-content-md-center organisms-table-wrapper">
+        <!-- Column Visibility and Export Buttons Container -->
+        <div id="dataTablesButtonsContainer" class="mb-5">
           <!-- Column Visibility Dropdown -->
           <div class="dropdown d-inline-block">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="columnVisibilityDropdown"
@@ -394,21 +414,29 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="row mt-2 justify-content-md-center organisms-table-wrapper">
         <div class="col-12">
-          <table id="organisms-table" class="display table table-striped table-hover dataTable"
+          <!-- <table id="organisms-table" class="display table table-striped table-hover dataTable"
             style="table-layout: auto;" aria-describedby="example_info">
             <thead>
               <tr></tr>
             </thead>
             <tbody></tbody>
+          </table> -->
+
+          <table id="organisms-table" class="display table table-striped table-hover dataTable"
+            style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+            <thead>
+              <tr role="row" id="tandem-table-header"></tr>
+            </thead>
+            <tbody id="tandem-table-body">
+            </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
+
   <div id="footer-container"></div>
 
   <script>
@@ -450,7 +478,7 @@
           return match[1]; // Return the content inside <em> tags
         }
         return null; // Return null if no match is found
-      }
+      };
 
       const ctx = document.getElementById('scatterChart').getContext('2d');
       const scatterData = data.map(row => {
@@ -468,18 +496,22 @@
         data: {
           datasets: [{
             label: 'Avg IR Length vs Avg Genome Size',
-            data: scatterData,
+            data: scatterData.map(point => ({
+              x: point.x * 1e6,  // Μετατροπή από Mbp σε bp
+              y: point.y,
+              organism: point.organism // Κρατάμε το όνομα του οργανισμού
+            })),
             pointRadius: 5
           }]
         },
         options: {
           scales: {
             x: {
-              type: 'linear',
+              type: 'logarithmic', // Μετατρέπουμε τον X-άξονα σε λογαριθμική κλίμακα
               position: 'bottom',
               title: {
                 display: true,
-                text: 'Average Genome Size (Mbp)',
+                text: 'Average Genome Size (bp)', // Ενημερώνουμε την ετικέτα
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12,
@@ -487,10 +519,13 @@
                 }
               },
               ticks: {
+                color: '#000',
                 font: {
                   family: 'Arial, sans-serif',
-                  size: 12,
-                  color: '#000'
+                  size: 12
+                },
+                callback: function (value, index, values) {
+                  return Number(value).toLocaleString(); // Μορφοποίηση των τιμών
                 }
               },
               grid: {
@@ -498,7 +533,7 @@
               }
             },
             y: {
-              type: 'linear',
+              type: 'logarithmic', // Παραμένει log scale για καλύτερη απεικόνιση
               title: {
                 display: true,
                 text: 'Average Length of IR Sequences (bp)',
@@ -513,6 +548,9 @@
                 font: {
                   family: 'Arial, sans-serif',
                   size: 12
+                },
+                callback: function (value, index, values) {
+                  return Number(value).toLocaleString();
                 }
               },
               grid: {
@@ -534,37 +572,36 @@
               callbacks: {
                 label: function (context) {
                   const point = context.raw;
-                  const organism = point.organism; // Access the organism name
-                  const x = point.x.toLocaleString(); // Format X value
-                  const y = point.y.toLocaleString(); // Format Y value
-                  return `${organism}: (Avg) Genome Size = ${x}, IR Length = ${y}`;
+                  const organism = point.organism;
+                  const x = (point.x).toLocaleString(); // Genome Size σε bp
+                  const y = point.y.toLocaleString(); // IR Length σε bp
+                  return `${organism}: Genome Size = ${x} bp, IR Length = ${y} bp`;
                 }
               }
             },
             zoom: {
               pan: {
                 enabled: true,
-                mode: 'xy', // Allow panning in both X and Y directions
+                mode: 'xy',
               },
               zoom: {
                 drag: {
-                  enabled: true, // Enable drag-to-zoom functionality
+                  enabled: true,
                 },
-                mode: 'xy', // Allow zooming in both X and Y directions
+                mode: 'xy',
                 wheel: {
-                  enabled: true, // Enable mouse wheel zoom
+                  enabled: true,
                 },
                 pinch: {
-                  enabled: true, // Enable pinch-to-zoom on touch devices
+                  enabled: true,
                 }
               }
             }
           }
         }
       });
+
     }
-
-
     function createBoxPlot(data) {
       const armArr = [];
       const spacerArr = [];
@@ -577,92 +614,74 @@
         sequenceArr.push(d[data_index_by_name["avg_length_sequences"]]);
       }
 
-      // Create traces for the box plot
-      const traces = [{
-        y: armArr,
-        type: 'box',
-        name: 'Arm',
-        hoverinfo: 'y+name',
-        marker: {
-          color: '#3D9970',
-          size: 4 // Smaller points for outliers
-        },
-        boxpoints: 'outliers', // Show outliers
-      },
-      {
-        y: spacerArr,
-        type: 'box',
-        name: 'Spacer',
-        hoverinfo: 'y+name',
-        marker: {
-          color: '#FF4136',
-          size: 4 // Smaller points for outliers
-        },
-        boxpoints: 'outliers', // Show outliers
-      },
-      {
-        y: sequenceArr,
-        type: 'box',
-        name: 'Sequence',
-        hoverinfo: 'y+name',
-        marker: {
-          color: '#FF851B',
-          size: 4 // Smaller points for outliers
-        },
-        boxpoints: 'outliers', // Show outliers
-      }
-      ];
-
-      // Layout for the box plot with consistent font styling
-      const layout = {
-        title: {
-          text: 'Data Distribution of Lengths per IR Subcompartment',
-          font: {
-            color: '#000',
-            family: 'Arial, sans-serif',
-            size: 16
+      // Helper function to render a single box plot
+      const renderBoxPlot = (yData, titleText, containerId, color) => {
+        const trace = {
+          y: yData,
+          type: 'box',
+          name: titleText,
+          hoverinfo: 'y+name',
+          marker: {
+            color: color,
+            size: 4 // Smaller points for outliers
           },
-        },
-        yaxis: {
+          boxpoints: 'outliers', // Show outliers
+        };
+
+        const layout = {
           title: {
-            text: 'Length (bp)',
             font: {
               color: '#000',
               family: 'Arial, sans-serif',
               size: 16
             },
           },
-          rangemode: 'tozero', // Ensure the y-axis starts at 0
-          gridcolor: '#a4aba6', // Light grid lines for clarity
-          tickcolor: '#000',
-          tickfont: {
+          yaxis: {
+            title: {
+              text: 'Length (bp)',
+              font: {
+                color: '#000',
+                family: 'Arial, sans-serif',
+                size: 16
+              },
+            },
+            rangemode: 'tozero', // Ensure the y-axis starts at 0
+            gridcolor: '#a4aba6', // Light grid lines for clarity
+            tickcolor: '#000',
+            tickfont: {
+              color: '#000',
+              family: 'Arial, sans-serif',
+              size: 16
+            },
+          },
+          xaxis: {
+            tickfont: {
+              color: '#000',
+              family: 'Arial, sans-serif',
+              size: 16
+            },
+          },
+          plot_bgcolor: '#fff', // White theme background
+          paper_bgcolor: '#fff', // White theme background
+          font: {
             color: '#000',
             family: 'Arial, sans-serif',
-            size: 16
+            size: 16,
           },
-        },
-        xaxis: {
-          tickfont: {
-            color: '#000',
-            family: 'Arial, sans-serif',
-            size: 16
-          },
-        },
-        boxmode: 'group',
-        plot_bgcolor: '#fff', // White theme background
-        paper_bgcolor: '#fff', // White theme background
-        font: {
-          color: '#000',
-          family: 'Arial, sans-serif',
-          size: 16,
-        },
+        };
+
+        // Render the plot
+        Plotly.newPlot(containerId, [trace], layout, {
+          responsive: true
+        });
       };
 
-      // Render the box plot
-      Plotly.newPlot('boxPlot', traces, layout, {
-        responsive: true
-      });
+      // Render each box plot in a separate container
+      renderBoxPlot(armArr, 'Arm', 'boxPlotArm', '#3D9970');
+      renderBoxPlot(spacerArr, 'Spacer', 'boxPlotSpacer', '#FF4136');
+      renderBoxPlot(sequenceArr, 'Sequence', 'boxPlotSequence', '#FF851B');
     }
+
 
 
 
@@ -722,7 +741,6 @@
         domain_data = data;
         createGetDataIndexByName(domain_data.columns, "metadata")
         populateDomainMetada();
-        $("#loader").hide();
       },
       error: function (xhr, status, error) {
         console.log(error);
@@ -770,8 +788,11 @@
         });
 
         // Create scatter plot using the data
+
         createScatterPlot(table_data);
         createBoxPlot(table_data);
+        $("#loader").hide();
+
       },
       error: function (xhr, status, error) {
         console.error('Error:', error);

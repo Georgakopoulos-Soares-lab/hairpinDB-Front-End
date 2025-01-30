@@ -415,13 +415,20 @@
     }
 
     td.sorting_1 {
-      display: flex;
       justify-content: center;
       align-items: center;
     }
 
     table.dataTable th {
       text-align: center !important;
+    }
+
+    .cell-content {
+      display: flex;
+      align-items: center;
+      /* Aligns items vertically */
+      gap: 10px;
+      /* Space between button and checkbox */
     }
   </style>
 </head>
@@ -510,7 +517,7 @@
         <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
       </div>
       <div class="row mt-5 justify-content-md-center">
-        <div class="col-12 ">
+        <div class="col-12" style="overflow-x: auto;">
           <table id="summary-table" class="display table table-striped table-hover dataTable"
             style="table-layout: auto; width: 100%;" aria-describedby="example_info">
             <thead>
@@ -578,7 +585,12 @@
         const header_name = summary_columns_dict[index.toString()]
         if (selected_headers.includes(header_name)) {
           // Header specific rendering
-          if (header_name == "assembly_accession") cell = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${cell}')">${cell}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${cell}">`;
+          if (header_name == "assembly_accession") {
+            cell = `<div class="cell-content">
+                <button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${cell}')">${cell}</button>
+                <input class="form-check-input selected-rows" type="checkbox" value="" id="${cell}">
+            </div>`;
+          }
           if (header_name == "taxid") cell = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${cell}'>` + cell + "</a>";
           if (header_name == "organism_name") cell = `<em>${cell}</em>`
           if (header_name == "inverted_repeat_density") cell = `${denistyToMegabasePairs(cell)}`
@@ -699,6 +711,7 @@
     $('#summary-table').empty();
   }
   $(document).ready(function () {
+
     $('#example-filters').tooltip({
       title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability and the search is initiated. Click the button to explore the feature.',
       template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',

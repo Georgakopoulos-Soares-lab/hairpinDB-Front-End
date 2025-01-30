@@ -13,7 +13,6 @@ let ncbi_domain_references = {
 
 }
 function capitalizeFirstLetter(string) {
-  console.log("edwwww str", string)
   return string
     .split(' ') // Split the string into an array of words
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter and lowercase the rest
@@ -137,7 +136,7 @@ function capitalizeFirstLetterOfEachWord(str) {
 
 
 function goToOrganism(organisms_name) {
-  for (let row of organism_data) {
+  for (let row of organism_data_all) {
 
     if (row[0] == atob(organisms_name)) {
       localStorage.setItem('organism_row_data', JSON.stringify({

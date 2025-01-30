@@ -679,6 +679,8 @@
     full_table_data = full_table_data.map(row => row.filter((_, index) => !indices_to_remove.includes(index)));
     full_table_headers = full_table_headers.filter((header, index) => !indices_to_remove.includes(index));
   }
+  let selectedEntries = 10; // Default
+
 
   function populateTable() {
     filterTableData(['armLength', 'spacerLength', 'sequenceLength'])

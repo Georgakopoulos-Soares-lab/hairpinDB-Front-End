@@ -1,226 +1,222 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light
+<html lang="en" data-bs-theme="light">
 
 <head>
-<meta http-equiv=" Content-Type" content="text/html; charset=utf-8">
-<link rel="icon" type="img/x-icon" href="/images/favicon.ico">
-<title>Organism Analysis</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
-<script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" type="img/x-icon" href="/img/favicon.ico">
+    <title>Organism Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/@spreadtheweb/multi-range-slider@1.0.2/dist/range-slider.main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
-<script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-<script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
-<script src="js/functions.js"></script>
-
-
-<style>
-    .accession-header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <script src="js/functions.js"></script>
 
 
-    .accession-div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-
-    }
-
-
-    .loader {
-        border: 16px solid #f3f3f3;
-        /* Light grey */
-        border-top: 16px solid #4682B4;
-        /* Blue */
-        border-radius: 50%;
-        width: 120px;
-        height: 120px;
-        animation: spin 2s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
+    <style>
+        .accession-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        100% {
-            transform: rotate(360deg);
-        }
-    }
 
-    .genomic-container {
-        color: #f0f0f0;
-        text-align: center;
-        width: 100%;
-    }
-
-    .genomic-title {
-        font-size: 2rem;
-        background: linear-gradient(to bottom, #ffffff, #f8f9fa);
-        color: #1d1f21;
-        padding: 1.5rem;
-        text-align: center;
-        border-radius: 0.75rem;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-        margin: 2.5rem auto 0rem auto;
-        width: fit-content;
-        max-width: 90%;
-    }
-
-
-    .genomic-columns {
-        display: flex;
-        gap: 24px;
-        justify-content: center;
-    }
-
-    .genomic-column {
-        width: 48%;
-    }
-
-    .genomic-result {
-        background: linear-gradient(to bottom, #ffffff, #f8f9fa);
-        color: #212529;
-        padding: 1.5rem;
-        text-align: center;
-        border-radius: 0.75rem;
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-        margin: 1rem 2rem;
-    }
-
-    .genomic-result h4 {
-        color: #4682B4;
-        margin-top: 0;
-    }
-
-    .genomic-result p {
-        margin: 0.5rem 0;
-    }
-
-    .statistics-container {
-        background-color: #343a40;
-        padding: 1rem;
-        border-radius: 5px;
-        display: flex;
-        justify-content: space-evenly;
-    }
-
-
-    /* Responsive design for smaller screens */
-    @media (max-width: 768px) {
-        .genomic-columns {
+        .accession-div {
+            display: flex;
             flex-direction: column;
+            align-items: center;
+
+        }
+
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            /* Light grey */
+            border-top: 16px solid #4682B4;
+            /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .genomic-container {
+            text-align: center;
+            width: 100%;
+        }
+
+
+        .genomic-title {
+            font-size: 2rem;
+            background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+            color: #1d1f21;
+            padding: 1.5rem 5rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+            margin: 2.5rem auto 0rem auto;
+            width: fit-content;
+            max-width: 90%;
+        }
+
+        .genomic-columns {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 84px;
+            padding-right: 84px;
         }
 
         .genomic-column {
-            width: 100%;
-            margin-bottom: 1rem;
+            width: 48%;
+            /* Slightly less than 50% to account for spacing */
         }
-    }
 
-    .bar {
-        fill: steelblue;
-    }
-
-    .bar:hover {
-        fill: brown;
-    }
-
-    .tooltip {
-        position: absolute;
-        text-align: center;
-        padding: 6px;
-        font: 12px sans-serif;
-        background: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        pointer-events: none;
-    }
+        .genomic-result {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 5px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
 
 
-    .aggregated-analysis-container {
-        display: flex;
-        justify-content: space-between;
-        max-width: 85%;
-        margin: 0 auto;
-    }
+        .genomic-result h2 {
+            color: #4682B4;
+            margin-top: 0;
+        }
 
-    .column {
-        width: 48%;
-        padding: 5%;
-    }
+        .genomic-result p {
+            margin: 0.5rem 0;
+        }
+
+        .statistics-container {
+            background-color: #343a40;
+            padding: 1rem;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-evenly;
+        }
 
 
-    .main-container {
-        font-family: monospace;
-        font-size: 1.2rem;
-    }
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .genomic-columns {
+                flex-direction: column;
+            }
 
-    .hairpin-file-table td {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 300px;
-        /* Adjust the width as needed */
-    }
+            .genomic-column {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
 
-    .tooltip {
-        position: absolute;
-        text-align: center;
-        padding: 6px;
-        font: 12px sans-serif;
-        background: white;
-        border-radius: 8px;
-    }
+        .bar {
+            fill: steelblue;
+        }
 
-    .axis-label {
-        font-size: 6px;
-    }
+        .bar:hover {
+            fill: brown;
+        }
 
-    #organism-hairpin-table {
-        text-align: center;
-        font-size: 1rem;
-    }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            pointer-events: none;
+        }
 
-    #organism-hairpin-table td {
-        text-align: center;
-    }
 
-    .assemblies-wrapper {
-        margin-left: 80px;
-        margin-right: 80px;
-        /* display: flex; */
-    }
+        .aggregated-analysis-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 85%;
+            margin: 0 auto;
+        }
 
-    .btns-wrapper {
-        margin-left: 80px;
-        margin-right: 80px;
-        display: flex;
-    }
+        .column {
+            width: 48%;
+            padding: 5%;
+        }
 
-    .dropdown-item:hover {
-        cursor: pointer;
-    }
+        table.dataTable thead th,
+        table.dataTable thead td,
+        table.dataTable tfoot th,
+        table.dataTable tfoot td {
+            text-align: center !important;
+        }
 
-    /* Responsive container for the chart */
-    #boxPlot {
-        width: 100%;
-        /* Full width of the parent container */
-        max-width: 1100px;
-        /* Optional: limit the maximum width */
-        height: 500px;
-        /* Height of the chart */
-        margin: 0 auto;
-        /* Center the chart */
-    }
-</style>
+        .main-container {
+            font-family: monospace;
+            font-size: 1.2rem;
+        }
+
+        .hairpin-file-table td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+            /* Adjust the width as needed */
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 6px;
+            font: 12px sans-serif;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .axis-label {
+            font-size: 6px;
+        }
+
+        #organism-hairpin-table {
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        #organism-hairpin-table td {
+            text-align: center;
+        }
+
+        .assemblies-wrapper {
+            margin-left: 80px;
+            margin-right: 80px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btns-wrapper {
+            margin-left: 80px;
+            margin-right: 80px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dropdown-item:hover {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
@@ -240,18 +236,8 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h4><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h4>
+                            <h2><label id="genomic-hairpin-metadataa"></label>IR Metadata per Organism</h2>
                             <hr>
-                            <!-- <p><strong>Average IR Count</strong> <label id="genomic-hairpin-count"></label></p>
-                            <p><strong>Average IR Arm</strong> <label id="genomic-avg-arm-length"></label></p>
-                            <p><strong>Average IR Spacer</strong> <label id="genomic-avg-spacer-length"></label>
-                            </p>
-                            <p><strong>Average IR Sequence</strong> <label
-                                    id="genomic-avg-sequence-length"></label></p>
-                            <p><strong>Average IR Density </strong> <label id="genomic-hairpin-density"></label>
-                            </p> -->
-
-
                             <p><strong>Average Count of IR</strong> <label id="genomic-invert-count"></label> (std.
                                 deviation: <label id="genomic-invert-count-dev"></label>)</p>
 
@@ -273,7 +259,7 @@
                 <div class="genomic-column left">
                     <div class="genomic-result">
                         <div class="table-like">
-                            <h4><label id="t2t-organism-name"></label>Aggregated analysis</h4>
+                            <h2><label id="t2t-organism-name"></label>Aggregated analysis</h2>
                             <hr>
                             <p><strong>Assemblies: </strong><label id="genomic-assemblies"></label></p>
 
@@ -307,8 +293,11 @@
         </div> -->
 
 
-        <div class="boxPlot-wrapper">
-            <div id="boxPlot"></div>
+        <div id="boxPlot"></div>
+        <div class="d-flex mt-2 distribution">
+            <div id="boxPlotArm" style="width: 100%; height: 400px;"></div>
+            <div id="boxPlotSpacer" style="width: 100%; height: 400px;"></div>
+            <div id="boxPlotSequence" style="width: 100%; height: 400px;"></div>
         </div>
         <br>
         <br>
@@ -378,7 +367,7 @@
         let new_data = []
         for (const d of data) {
             let button = `<button class='btn btn-outline-primary gotoviz-btn' onclick="storeAccessionRow('${d[0]}')">${d[0]}</button> &nbsp &nbsp <input class="form-check-input selected-rows" type="checkbox" value="" id="${d[38]}">`
-            let taxid_link = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
+            let taxid_link = `<a  href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${d[5]}'>` + d[5] + "</a>";
             let organisms_name = `<em>${d[7]}</em>`;
             let scaffolds = d[29];
             let hairpin = d[40];
@@ -405,27 +394,19 @@
     function renderMetadata() {
 
         let metadata = single_metadata
-        // console.log(metadata);
         // T2T organism Metadata
-        let taxid_link = `<a style='color: white;' href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${metadata[5]}'>` + metadata[5] + "</a>";
+        let taxid_link = `<a href='https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?mode=Info&id=${metadata[5]}'>` + metadata[5] + "</a>";
         $("#genomic-assemblies").html(`${organism_row_data[metadata_index_by_name["assembly_count"]]}`);
 
         $("#genomic-taxid").html(taxid_link);
         $("#genomic-domain").html(`${metadata[39]}`);
         $("#genomic-gc-percent").html(`${organism_row_data[metadata_index_by_name["avg_gc_percent"]].toFixed(2)} %`);
 
-        // hairpin Metadata
-        // $("#genomic-hairpin-count").html(`${organism_row_data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2)}`);
-        // $("#genomic-avg-arm-length").html(`${organism_row_data[metadata_index_by_name["avg_length_arms"]].toFixed(2)}`);
-        // $("#genomic-avg-spacer-length").html(`${organism_row_data[metadata_index_by_name["avg_length_spacers"]].toFixed(2)}`);
-        // $("#genomic-avg-sequence-length").html(`${organism_row_data[metadata_index_by_name["avg_length_sequences"]].toFixed(2)}`);
-
-
         // Count
         $("#genomic-invert-count").html(organism_row_data[metadata_index_by_name["avg_inverted_repeat_count"]].toFixed(2));
         $("#genomic-invert-count-dev").html(organism_row_data[metadata_index_by_name["stddev_inverted_repeat_count"]].toFixed(2));
 
-        // Arm Length
+        //  Arm Length
         $("#genomic-invert-arm-length").html(organism_row_data[metadata_index_by_name["avg_length_arms"]].toFixed(2));
         $("#genomic-invert-arm-length-dev").html(organism_row_data[metadata_index_by_name["stddev_length_arms"]].toFixed(2));
 
@@ -505,25 +486,6 @@
         });
     });
 
-    // function renderFilesTable() {
-
-    //     for (const row of all_metadata) {
-    //         filenames.push(row[38])
-    //     }
-    //     $.ajax({
-    //         url: `${backend_url}/hairpin/statistics/multiple_files/length`,
-    //         method: 'POST',
-    //         contentType: 'application/json',
-    //         data: JSON.stringify({
-    //             filenames: filenames,
-    //         }),
-    //         success: function (data) {
-    //             console.log(data)
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) { console.error('Error:', textStatus, errorThrown); }
-    //     });
-
-    // }
     function createBoxPlot(data) {
         const armArr = [];
         const spacerArr = [];
@@ -536,101 +498,49 @@
             sequenceArr.push(d[data_index_by_name["sequenceLength"]]);
         }
 
-        // Create traces for the box plot
-        const traces = [{
-            y: armArr,
-            type: 'box',
-            name: 'Arm',
-            hoverinfo: 'y+name',
-            marker: {
-                color: '#3D9970',
-                size: 4 // Smaller points for outliers
-            },
-            boxpoints: 'outliers', // Show outliers
-        },
-        {
-            y: spacerArr,
-            type: 'box',
-            name: 'Spacer',
-            hoverinfo: 'y+name',
-            marker: {
-                color: '#FF4136',
-                size: 4 // Smaller points for outliers
-            },
-            boxpoints: 'outliers', // Show outliers
-        },
-        {
-            y: sequenceArr,
-            type: 'box',
-            name: 'Sequence',
-            hoverinfo: 'y+name',
-            marker: {
-                color: '#FF851B',
-                size: 4 // Smaller points for outliers
-            },
-            boxpoints: 'outliers', // Show outliers
-        }
-        ];
+        // Create individual plots
+        createSingleBoxPlot('boxPlotArm', armArr, 'Arm Length Distribution', '#3D9970');
+        createSingleBoxPlot('boxPlotSpacer', spacerArr, 'Spacer Length Distribution', '#FF4136');
+        createSingleBoxPlot('boxPlotSequence', sequenceArr, 'Sequence Length Distribution', '#FF851B');
+    }
 
-        // Layout for the box plot with consistent font styling in light mode
+    // Function to create a single box plot with black text and white background
+    function createSingleBoxPlot(divId, dataArray, titleText, color) {
+        const trace = [{
+            y: dataArray,
+            type: 'box',
+            name: titleText,
+            hoverinfo: 'y+name',
+            marker: {
+                color: color,
+                size: 4 // Smaller points for outliers
+            },
+            boxpoints: 'outliers', // Show outliers
+        }];
+
         const layout = {
             title: {
-                text: 'Data Distribution of Lengths per IR Subcompartment',
-                font: {
-                    color: '#212529', // Dark text for light mode
-                    family: 'Arial, sans-serif',
-                    size: 16,
-                },
+                text: titleText,
+                font: { color: '#000', family: 'Arial, sans-serif', size: 16 } // Black text
             },
-            width: 1000,
-            autosize: true, // Automatically size based on the container
             yaxis: {
-                title: {
-                    text: 'Length (bp)',
-                    font: {
-                        color: '#212529', // Dark text for axis title
-                        family: 'Arial, sans-serif',
-                        size: 16,
-                    },
-                },
-                rangemode: 'tozero', // Ensure the y-axis starts at 0
-                gridcolor: 'rgba(0,0,0,0.1)', // Light gray grid lines for clarity
-                tickcolor: '#212529', // Dark tick marks
-                tickfont: {
-                    color: '#212529', // Dark tick labels
-                    family: 'Arial, sans-serif',
-                    size: 16,
-                },
+                title: { text: 'Length (bp)', font: { color: '#000', family: 'Arial, sans-serif', size: 16 } }, // Black text
+                rangemode: 'tozero',
+                gridcolor: '#ddd', // Light gray grid for visibility
+                tickcolor: '#000', // Black tick marks
+                tickfont: { color: '#000', family: 'Arial, sans-serif', size: 16 }, // Black text
             },
             xaxis: {
-                tickfont: {
-                    color: '#212529', // Dark tick labels
-                    family: 'Arial, sans-serif',
-                    size: 16,
-                },
+                tickfont: { color: '#000', family: 'Arial, sans-serif', size: 16 } // Black text
             },
-            boxmode: 'group',
-            plot_bgcolor: '#ffffff', // Light background for plot area
-            paper_bgcolor: '#f8f9fa', // Very light gray for outer background
-            font: {
-                color: '#212529', // Dark text for light mode
-                family: 'Arial, sans-serif',
-                size: 16,
-            },
-            margin: {
-                l: 60, // Left margin for y-axis labels
-                r: 30, // Right margin for padding
-                t: 40, // Top margin for title
-                b: 60, // Bottom margin for x-axis labels
-            },
+            plot_bgcolor: '#fff', // White background
+            paper_bgcolor: '#fff', // White surrounding background
+            font: { color: '#000', family: 'Arial, sans-serif', size: 16 }, // Black text for all elements
         };
 
         // Render the box plot
-        Plotly.newPlot('boxPlot', traces, layout, {
-            responsive: true
-        });
+        Plotly.newPlot(divId, trace, layout, { responsive: true });
     }
-
 
     function fetchDataForGraphs() {
 

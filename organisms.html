@@ -48,6 +48,27 @@
             display: none;
         }
 
+        table.dataTable thead th,
+        table.dataTable thead td,
+        table.dataTable tfoot th,
+        table.dataTable tfoot td {
+            text-align: center !important;
+        }
+
+        table.dataTable td.dt-type-numeric,
+        table.dataTable td.dt-type-date {
+            text-align: center !important;
+        }
+
+        th.dt-type-numeric {
+            text-align: center !important;
+        }
+
+        .sorting_1 {
+            display: flex;
+            justify-content: center;
+        }
+
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -117,11 +138,46 @@
     </div>
 
     <script>
+        let selectedEntries = 25;
         let currentPage = 1;
-        const pageSize = 10;
+        const pageSize = selectedEntries;
         let organism_data;
+        let organism_data_all;
+
         let organism_columns;
         let organisms_table;
+
+        function filterResponse(response) {
+            // Define the required columns
+            const requiredColumns = [
+                "organism_name",
+                "assembly_count",
+                "avg_inverted_repeat_count",
+                "stddev_inverted_repeat_count",
+                "min_inverted_repeat_count",
+                "max_inverted_repeat_count",
+                "avg_length_sequences",
+                "stddev_length_sequences",
+                "min_length_sequences",
+                "max_length_sequences",
+                "avg_genome_size"
+            ];
+
+            // Extract headers and data from response
+            const headers = response.columns;
+            const data = response.data;
+
+            // Find the index of each required column in the original headers
+            const selectedIndexes = requiredColumns.map(col => headers.indexOf(col)).filter(index => index !== -1);
+
+            // Filter headers to keep only required columns
+            const filteredHeaders = selectedIndexes.map(index => headers[index]);
+
+            // Filter data to keep only required columns
+            const filteredData = data.map(row => selectedIndexes.map(index => row[index]));
+
+            return [filteredHeaders, filteredData];
+        }
 
         function fetchDataAndPopulateOrganismsTable() {
             const offset = (currentPage - 1) * pageSize;
@@ -131,14 +187,21 @@
                 url: `${backend_url}/hairpin/statistics/organisms?n=${pageSize}&offset=${offset}`,
                 method: 'GET',
                 success: function (data) {
-                    organism_data = data.data;
+                    console.log("EDWWW", data)
+                    organism_data_all = data.data;
                     organism_columns = data.columns;
+                    organism_columns_all = data.column_names_all;
+                    // Get the filtered response
+                    const filteredResponse = filterResponse(data);
+                    console.log(filteredResponse);
                     const totalRecords = data.total;
                     const totalPages = Math.ceil(totalRecords / pageSize);
 
                     createGetDataIndexByName(organism_columns, "data");
 
                     // Render table with the fetched data
+                    organism_data = filteredResponse[1]
+                    organism_columns = filteredResponse[0]
                     renderTable(organism_data, organism_columns);
 
                     // Update pagination controls
@@ -156,15 +219,22 @@
             if (organisms_table) {
                 organisms_table.destroy();
             }
-
             organisms_table = new DataTable('#organisms-table', {
-                data: processOrganismalData(data, data_index_by_name),
+                data: processOrganismalData(organism_data, data_index_by_name),
                 columns: columns.map((col) => ({
                     title: capitalizeFirstLetterOfEachWord(col),
                     visible: true
                 })),
-                paging: false,
                 searching: true,
+                paging: false,
+                pageLength: 25,
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+            });
+            organisms_table.on('length.dt', function (e, settings, len) {
+                selectedEntries = len;
             });
         }
 
@@ -236,11 +306,27 @@
                     const search_term = $('#search-input').val();
                     quickSearchDatabase(search_term);
                 }
+
+
             });
 
             $('#search-button').on('click', function () {
                 const search_term = $('#search-input').val();
-                quickSearchDatabase(search_term);
+                if (search_term === undefined || search_term === '') {
+                    fetchDataAndPopulateOrganismsTable();
+
+                }
+                else {
+                    quickSearchDatabase(search_term);
+
+                }
+            });
+            $('#search-input').on('click', function () {
+                const search_term = $('#search-input').val();
+                if (search_term === '') {
+                    fetchDataAndPopulateOrganismsTable();
+
+                }
             });
 
             fetchDataAndPopulateOrganismsTable();
