@@ -430,7 +430,8 @@
       left: 50%;
       transform: translateX(-50%);
       width: 300px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 0px 10px #007bff;
+
       transition: opacity 0.3s;
     }
 
@@ -443,7 +444,7 @@
       margin-left: -5px;
       border-width: 5px;
       border-style: solid;
-      border-color: #333333 transparent transparent transparent;
+      border-color: #007bff transparent transparent transparent;
       /* Match the dark background */
     }
 
@@ -467,11 +468,12 @@
       padding: 8px;
       font-size: 16px;
       color: #fff;
-      background-color: #616060 !important;
+      background-color: #007bff !important;
       /* Light background */
       border-radius: 8px;
       pointer-events: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px #007bff;
+
       /* Subtle shadow */
       z-index: 1050;
       opacity: 0;
@@ -480,16 +482,20 @@
     }
 
     .tooltip-help.show {
-      opacity: 0.8;
+      opacity: 1;
       transform: scale(1);
       /* Full size when shown */
     }
 
     .tooltip-inner {
-      padding: 6px;
-      background-color: #616060 !important;
-      border-radius: 4px;
-      color: #fff;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
     /* New Styles for Alert */
@@ -519,6 +525,10 @@
       /* Slightly darker gray */
       color: #000;
       /* Slightly darker text */
+    }
+
+    #example-filters {
+      opacity: 1000;
     }
   </style>
 </head>
@@ -932,6 +942,7 @@
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(post_data),
+      timeout: 5000, // ⏳ Timeout after 10 seconds (10000 ms)
       success: function (data) {
         $("#loader").hide();
         resp_obj = data
@@ -945,10 +956,17 @@
       },
       error: function (xhr, status, error) {
         $("#loader").hide();
+        // Show the Bootstrap warning alert
+        $('#filter-warning').removeClass('d-none');
+        // Automatically hide the alert after a few seconds (optional)
+        setTimeout(() => {
+          $('#filter-warning').addClass('d-none');
+        }, 10000); // 10 seconds
         console.error('Error:', error);
       }
     });
   }
+
   let filter_name_list;
   const modal = document.getElementById("modal");
   const add_filter_button = document.getElementById("add-filter-btn");
@@ -980,6 +998,7 @@
 
     // Initialize flag for warning
     let showWarning = false;
+    console.log("EDWWWWWWWW")
 
     // Check if the filter is a motif filter
     if (motifFilters.includes(filter_name)) {

@@ -67,6 +67,7 @@
         .sorting_1 {
             display: flex;
             justify-content: center;
+            text-align: center !important;
         }
 
         @keyframes spin {
@@ -92,6 +93,46 @@
         .table-wrapper {
             overflow: overlay;
         }
+
+        #column-selection {
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-secondary {
+            background-color: #f0f0f0;
+            /* Light gray */
+            color: #333;
+            /* Dark text */
+            border: 1px solid #ccc;
+            /* Subtle border */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            padding: 10px;
+            overflow: auto;
+            max-height: 300px;
+            /* You can adjust this */
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown label {
+            display: block;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 
@@ -116,7 +157,10 @@
                     placeholder="Quick Search on Organism Name" aria-label="Search" aria-describedby="search-addon" />
                 <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
             </div>
-
+            <div class="dropdown my-4">
+                <button class="dropdown-btn btn button-secondary" id="column-selection">Column Visibility ↓</button>
+                <div class="dropdown-content" id="dropdown-content"></div>
+            </div>
             <div class="row mt-2 justify-content-md-center">
                 <div class="table-wrapper col-12 ">
                     <table id="organisms-table" class="display table table-striped table-hover dataTable"
@@ -140,73 +184,103 @@
     <script>
         let selectedEntries = 25;
         let currentPage = 1;
-        const pageSize = selectedEntries;
         let organism_data;
-        let organism_data_all;
-
         let organism_columns;
         let organisms_table;
 
-        function filterResponse(response) {
-            // Define the required columns
-            const requiredColumns = [
-                "organism_name",
-                "domain",
-                "assembly_count",
-                "avg_inverted_repeat_count",
-                "stddev_inverted_repeat_count",
-                "min_inverted_repeat_count",
-                "max_inverted_repeat_count",
-                "avg_length_sequences",
-                "stddev_length_sequences",
-                "min_length_sequences",
-                "max_length_sequences",
-                "avg_genome_size"
-            ];
+        const requiredColumns = [
+            "organism_name",
+            "domain",
+            "assembly_count",
+            "avg_inverted_repeat_count",
+            "stddev_inverted_repeat_count",
+            "min_inverted_repeat_count",
+            "max_inverted_repeat_count",
+            "avg_length_sequences",
+            "stddev_length_sequences",
+            "min_length_sequences",
+            "max_length_sequences",
+            "avg_genome_size"
+        ];
 
-            // Extract headers and data from response
+        $(document).ready(function () {
+            fetchDataAndPopulateOrganismsTable();
+
+            // Handle dropdown toggling
+            $('#column-selection').on('click', function (event) {
+                event.stopPropagation();
+                $('#dropdown-content').toggle(); // Toggle dropdown visibility
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            $('#dropdown-content').on('click', function (event) {
+                event.stopPropagation();
+            });
+
+            // Close dropdown when clicking outside
+            $(document).on('click', function () {
+                $('#dropdown-content').hide();
+            });
+
+            // Listen for column visibility toggle without refreshing dropdown
+            $('#dropdown-content').on('change', 'input[type="checkbox"]', function () {
+                const columnIdx = $(this).data('column-index');
+                const column = organisms_table.column(columnIdx);
+                column.visible(!column.visible()); // Toggle column visibility
+            });
+        });
+
+        function populateColumnDropdown(columnMetaData) {
+            const dropdownContent = $('#dropdown-content');
+            dropdownContent.empty(); // Avoid re-rendering issues
+
+            columnMetaData.forEach((col, index) => {
+                const isChecked = organisms_table.column(index).visible();
+                const checkbox = `<label>
+                                <input type="checkbox" data-column-index="${index}" ${isChecked ? 'checked' : ''}> 
+                                ${capitalizeFirstLetterOfEachWord(col.name)}
+                              </label><br>`;
+                dropdownContent.append(checkbox);
+            });
+        }
+
+        function filterResponse(response) {
             const headers = response.columns;
             const data = response.data;
 
-            // Find the index of each required column in the original headers
-            const selectedIndexes = requiredColumns.map(col => headers.indexOf(col)).filter(index => index !== -1);
+            const selectedIndexes = headers.map((col, index) => ({
+                name: col,
+                index: index,
+                visible: requiredColumns.includes(col) // Default selection
+            }));
 
-            // Filter headers to keep only required columns
-            const filteredHeaders = selectedIndexes.map(index => headers[index]);
+            const filteredHeaders = selectedIndexes.map(item => item.name);
+            const filteredData = data.map(row => selectedIndexes.map(item => row[item.index]));
 
-            // Filter data to keep only required columns
-            const filteredData = data.map(row => selectedIndexes.map(index => row[index]));
-
-            return [filteredHeaders, filteredData];
+            return [filteredHeaders, filteredData, selectedIndexes];
         }
 
         function fetchDataAndPopulateOrganismsTable() {
-            const offset = (currentPage - 1) * pageSize;
+            const offset = (currentPage - 1) * selectedEntries;
             $("#loader").show();
 
             $.ajax({
-                url: `${backend_url}/hairpin/statistics/organisms?n=${pageSize}&offset=${offset}`,
+                url: `${backend_url}/hairpin/statistics/organisms?n=${selectedEntries}&offset=${offset}`,
                 method: 'GET',
                 success: function (data) {
-                    console.log("EDWWW", data)
-                    organism_data_all = data.data;
+                    organism_data = data.data;
                     organism_columns = data.columns;
-                    organism_columns_all = data.column_names_all;
-                    // Get the filtered response
-                    const filteredResponse = filterResponse(data);
-                    console.log(filteredResponse);
-                    const totalRecords = data.total;
-                    const totalPages = Math.ceil(totalRecords / pageSize);
+                    organism_data_all = data.data;
 
+                    const filteredResponse = filterResponse(data);
+                    organism_columns = filteredResponse[0];
+                    organism_data = filteredResponse[1];
+                    const columnMetaData = filteredResponse[2];
                     createGetDataIndexByName(organism_columns, "data");
 
-                    // Render table with the fetched data
-                    organism_data = filteredResponse[1]
-                    organism_columns = filteredResponse[0]
-                    renderTable(organism_data, organism_columns);
+                    renderTable(organism_data, columnMetaData);
+                    updatePaginationControls(Math.ceil(data.total / selectedEntries));
 
-                    // Update pagination controls
-                    updatePaginationControls(totalPages);
                     $("#loader").hide();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
@@ -216,28 +290,44 @@
             });
         }
 
-        function renderTable(data, columns) {
+        function renderTable(data, columnMetaData) {
             if (organisms_table) {
                 organisms_table.destroy();
             }
+
             organisms_table = new DataTable('#organisms-table', {
+                // data: data.map(row => row.map((value) => {
+                //     // Ensure only numeric values are rounded
+                //     if (!isNaN(value) && value.toString().includes('.')) {
+                //         return parseFloat(value).toFixed(2); // Limit to 2 decimal places
+                //     }
+                //     return value;
+                // })),
                 data: processOrganismalData(organism_data, data_index_by_name),
-                columns: columns.map((col) => ({
-                    title: capitalizeFirstLetterOfEachWord(col),
-                    visible: true
+
+                columns: columnMetaData.map(col => ({
+                    title: capitalizeFirstLetterOfEachWord(col.name),
+                    visible: col.visible // Keep required columns visible
                 })),
                 searching: true,
-                paging: false,
-                pageLength: 25,
+                paging: true,
+                pageLength: selectedEntries, // Use selected value
                 lengthMenu: [
-                    [10, 25, 50, 100],
+                    [10, 25, 50, 100], // Options for users
                     [10, 25, 50, 100]
                 ],
             });
+
+            // Populate column dropdown when table is re-rendered
+            populateColumnDropdown(columnMetaData);
+
+            // 🔥 Listen for changes in number of rows per page
             organisms_table.on('length.dt', function (e, settings, len) {
-                selectedEntries = len;
+                selectedEntries = len; // Update global variable
+                fetchDataAndPopulateOrganismsTable(); // Reload table with new row count
             });
         }
+
 
         function updatePaginationControls(totalPages) {
             const paginationContainer = document.getElementById('paginationControls');
@@ -272,68 +362,10 @@
             });
             paginationContainer.appendChild(nextButton);
         }
-
-        function quickSearchDatabase(search_term) {
-            $("#loader").show();
-            if (!search_term || search_term === '') {
-                fetchDataAndPopulateOrganismsTable();
-                return
-
-            }
-            const post_data = { value: search_term };
-
-            $.ajax({
-                url: `${backend_url}/hairpin/organisms/quick_search`,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(post_data),
-                success: function (data) {
-                    organism_data = data;
-                    currentPage = 1;
-                    renderTable(organism_data, organism_columns);
-                    updatePaginationControls(1); // Only one page for quick search
-                    $("#loader").hide();
-                },
-                error: function (xhr, status, error) {
-                    $("#loader").hide();
-                    console.error('Error:', error);
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            $('#search-input').on('keydown', function (event) {
-                if (event.key === 'Enter') {
-                    const search_term = $('#search-input').val();
-                    quickSearchDatabase(search_term);
-                }
-
-
-            });
-
-            $('#search-button').on('click', function () {
-                const search_term = $('#search-input').val();
-                if (search_term === undefined || search_term === '') {
-                    fetchDataAndPopulateOrganismsTable();
-
-                }
-                else {
-                    quickSearchDatabase(search_term);
-
-                }
-            });
-            $('#search-input').on('click', function () {
-                const search_term = $('#search-input').val();
-                if (search_term === '') {
-                    fetchDataAndPopulateOrganismsTable();
-
-                }
-            });
-
-            fetchDataAndPopulateOrganismsTable();
-        });
-
     </script>
+
+
+
 </body>
 
 </html>

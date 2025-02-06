@@ -270,29 +270,33 @@
       font-family: 'Arial', sans-serif;
       font-size: 16px;
       color: #fff;
-      background-color: #616060 !important;
+      background-color: #007bff !important;
       /* Light background */
       border-radius: 8px;
       pointer-events: none;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px 007bff;
       /* Subtle shadow */
       z-index: 1050;
-      opacity: 0;
+      opacity: 1000;
       transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
       transform: scale(0.90);
     }
 
     .tooltip-help.show {
-      opacity: 0.8;
+      opacity: 10;
       transform: scale(1);
       /* Full size when shown */
     }
 
     .tooltip-inner {
-      padding: 6px;
-      background-color: #616060 !important;
-      border-radius: 4px;
-      color: #fff;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
     }
 
     .button-secondary {
@@ -715,7 +719,7 @@
     $('#example-filters').tooltip({
       title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability and the search is initiated. Click the button to explore the feature.',
       template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
-      trigger: 'hover'
+      trigger: 'click'
     });
     $('#search-input').on('keydown', function (event) {
       if (event.key === 'Enter') {

@@ -176,6 +176,17 @@
             /* Adjust the width as needed */
         }
 
+        /*Table CSS*/
+        table.dataTable td.dt-type-numeric,
+        table.dataTable td.dt-type-date {
+            text-align: center !important;
+        }
+
+        th.dt-type-numeric {
+            text-align: center !important;
+        }
+
+
         .tooltip {
             position: absolute;
             text-align: center;
@@ -514,7 +525,8 @@
                 color: color,
                 size: 4 // Smaller points for outliers
             },
-            boxpoints: 'outliers', // Show outliers
+            boxpoints: 'outliers', // Show outliers,
+            title: ''
         }];
 
         const layout = {
