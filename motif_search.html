@@ -942,7 +942,7 @@
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(post_data),
-      timeout: 5000, // ⏳ Timeout after 10 seconds (10000 ms)
+      timeout: 10000, // ⏳ Timeout after 10 seconds (10000 ms)
       success: function (data) {
         $("#loader").hide();
         resp_obj = data
@@ -998,7 +998,6 @@
 
     // Initialize flag for warning
     let showWarning = false;
-    console.log("EDWWWWWWWW")
 
     // Check if the filter is a motif filter
     if (motifFilters.includes(filter_name)) {

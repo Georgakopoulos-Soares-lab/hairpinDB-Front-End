@@ -108,7 +108,6 @@ function processOrganismalData(data, idx) {
       }
     }
   }
-  console.log("edwwwww", processed)
   return processed;
 }
 

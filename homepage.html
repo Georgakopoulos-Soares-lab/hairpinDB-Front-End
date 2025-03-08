@@ -586,7 +586,6 @@
   function renderTopOrganismsDensityDonutChart() {
     const data = top_dense_organisms;
     const labels = data.data.map((item) => item[0] + ` (${item[1]})`);
-    console.log("edw", labels)
     const values = data.data.map((item) => denistyToMegabasePairs(item[2]));
     const ctx = document.getElementById('donutChart').getContext('2d');
     const colors = ['#555D63', // Cool Gray

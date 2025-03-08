@@ -173,10 +173,6 @@
       opacity: 75%;
     }
 
-
-
-
-
     .dt-container {
       font-size: 1.4rem;
       padding: 0rem 2rem;
@@ -288,6 +284,13 @@
 
     #gene-tandem-table_wrapper {
       font-size: 15px;
+      width: 100%;
+    }
+
+    #gene-tandem-table {
+      font-size: 15px;
+      width: 100%;
+      overflow: scroll;
     }
 
     .gene-table-wrapper {
@@ -400,6 +403,29 @@
     #hairpin-file-table tr:hover {
       background-color: #f1f3f5;
       /* Light gray for hover effect */
+    }
+
+    /* Increase row spacing */
+    #gene-tandem-table tbody tr {
+      height: 50px;
+      /* Adjust row height */
+    }
+
+    /* Add padding for better spacing */
+    #gene-tandem-table td,
+    #gene-tandem-table th {
+      padding: 12px 15px !important;
+      /* Increase padding inside cells */
+      vertical-align: middle !important;
+      /* Center align vertically */
+    }
+
+    /* Optional: Add hover effect for better readability */
+    #gene-tandem-table tbody tr:hover {
+      background-color: #f8f9fa !important;
+      /* Light gray background on hover */
+
+
     }
   </style>
 </head>
@@ -618,35 +644,100 @@
         <h2>Search Inverted Repeats by Locus Tag</h2>
         <h2 class="alert alert-warning" role="alert" style="display: none;" id='no-genes-warning'>Warning: No Gene
           annotations available</h2>
-        <div id="show_no_genes_placeholder">
+        <!-- <div id="show_no_genes_placeholder">
           <div> Gene Start: <label id="gene-start"></label>
           </div>
           <div> Gene End: <label id="gene-end"></label>
           </div>
           <hr>
-          <div class="gene-str-search">
-            <div class="input-group">
+          <!-- <div class="gene-str-search py-4 d-flex justify-content-center align-items-center">
+            <div class=" input-group w-50">
               <input type="search" class="form-control rounded" id="search-input" placeholder="Search By Gene ID:"
                 aria-label="Search" aria-describedby="search-addon" />
               <button type="button" class="btn btn-outline-primary" id="search-button">search</button>
-            </div>
-          </div>
-          <table id="gene-tandem-table">
-          </table>
-          <br>
-          <br>
-          <div class="density-wrapper">
-            <h2>Top 10 most dense genes in Inverted Repeats</h2>
-            <table id="density-gene-table">
-            </table>
-          </div>
-        </div>
+            </div> -->
       </div>
     </div>
-    <div id="footer-container"></div>
+    <div style="width: 100%; overflow-x: auto;">
+      <table id="gene-tandem-table" class="display table table-striped table-hover dataTable"></table>
+    </div>
+    <br>
+    <br>
+    <div class="density-wrapper">
+      <h2>Top 10 most dense genes in Inverted Repeats</h2>
+      <table id="density-gene-table">
+      </table>
+    </div>
+  </div>
+  </div>
+  </div>
+  <div id="footer-container"></div>
 </body>
 <script src="js/components.js"></script>
 <script>
+  let gene_tandem_table = new DataTable('#gene-tandem-table', {
+    data: [],
+    paging: true,
+    pageLength: 10,
+    scrollX: true,
+    scrollCollapse: true,
+    autoWidth: false,
+    lengthMenu: [
+      [10, 25, 50, 100, -1],
+      [10, 25, 50, 100, "All"]
+    ],
+    dom: '<"top"lfB>rt<"bottom"ip>', // Adds export buttons
+    buttons: [
+      'copy', 'csv', 'excel', 'pdf', 'print'
+    ],
+    columnDefs: [
+      { className: "text-center", targets: "_all" }, // Center align all columns
+    ],
+    columns: [
+      { data: "seqID", title: "Seq ID" },
+      { data: "start", title: "Start" },
+      { data: "end", title: "End" },
+      { data: "sequenceOfArm", title: "Sequence of Arm" },
+      { data: "sequenceOfSpacer", title: "Sequence of Spacer" },
+      { data: "sequence", title: "Sequence" },
+      { data: "armLength", title: "Arm Length" },
+      { data: "gene_id", title: "Gene ID" },
+      { data: "gene_biotype", title: "Gene Biotype" },
+      { data: "strand", title: "Strand" },
+      { data: "distance", title: "Distance" },
+      { data: "distance_from_TSS", title: "Distance from TSS" },
+      { data: "distance_from_TES", title: "Distance from TES" },
+      { data: "source_file", title: "Source File" }
+    ]
+  });
+
+
+  // Construct header
+  const urlParams = new URLSearchParams(window.location.search);
+  const accession_id = urlParams.get('accession_id');
+  $.ajax({
+    url: `${backend_url}/hairpin/closest_gene_records?source_file=${encodeURIComponent(accession_id)}`,
+    method: "GET",
+    dataType: "json",
+    timeout: 5000, // Timeout set to 5 seconds (5000ms)
+    success: function (data) {
+      // Clear existing data (if any)
+      console.log("Edwww", data)
+
+      // Add new data to the table
+      gene_tandem_table.rows.add(data).draw();
+    },
+    error: function (jqXHR, textStatus, errorThrown) {
+      if (textStatus === "timeout") {
+        console.error("Request timed out");
+      } else {
+        console.error("Error fetching data:", errorThrown);
+      }
+    }
+  });
+
+
+
   function adjustHairpinVisualizationSizesRatio(ratio) {
     const container = document.getElementById('hairpin-ratio-visualization');
     const left = document.getElementById('viz-left');
@@ -824,7 +915,6 @@
       url: `${backend_url}/hairpin/genes/most_dense/${filename}`,
       method: 'GET',
       success: function (data) {
-        console.log("EDWWWWWWWWWWWWWWW", data.data)
         let most_dense_data = data.data
         let most_dense_columns = data.columns
         if (most_dense_data.length == 0) {
@@ -859,9 +949,7 @@
       }
     });
   }
-  // Construct header
-  const urlParams = new URLSearchParams(window.location.search);
-  const accession_id = urlParams.get('accession_id');
+
   let merged_sequences;
   let table_data;
   let table_columns;
@@ -885,15 +973,7 @@
       "c": 0
     }
   }
-  let gene_tandem_table = new DataTable('#gene-tandem-table', {
-    data: [],
-    paging: true,
-    pageLength: 25,
-    lengthMenu: [
-      [10, 25, 50, 100, -1],
-      [10, 25, 50, 100, "All"]
-    ],
-  });;
+
 
   function populateAccessionMetadata() {
     let organims_name = accession_row_data[7];
@@ -1138,51 +1218,83 @@
     }
   });
 
-  $('#search-button').on('click', function () {
-    const search_term = $('#search-input').val();
-    $.ajax({
-      url: `${backend_url}/hairpin/genes/search`,
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        locus_tag: search_term,
-        filename: filename
-      }),
-      success: function (data) {
+  // $('#search-button').on('click', function () {
+  //   const search_term = $('#search-input').val();
+  //   $.ajax({
+  //     url: `${backend_url}/hairpin/genes/search`,
+  //     method: 'POST',
+  //     contentType: 'application/json',
+  //     data: JSON.stringify({
+  //       locus_tag: search_term,
+  //       filename: filename
+  //     }),
+  //     success: function (data) {
 
-        let gene_data = data.gene_metadata;
-        let gene_start = gene_data[0][3];
-        let gene_end = gene_data[0][4];
+  //       let gene_data = data.gene_metadata;
+  //       let gene_start = gene_data[0][3];
+  //       let gene_end = gene_data[0][4];
+  //       $("#gene-start").html(gene_start);
+  //       $("#gene-end").html(gene_end);
+  //       ir_gene_data = data.inverted_repeats
+
+  //       let gene_columns = data.columns
+  //       let columns_option = []
+  //       for (let header of gene_columns) {
+  //         columns_option.push({
+  //           "title": header
+  //         })
+  //       }
+  //     },
+  //     error: function (jqXHR, textStatus, errorThrown) {
+  //       console.error('Error:', textStatus, errorThrown);
+  //     }
+  //   });
+  // });
+  $('#search-button').on('click', function () {
+    const search_term = $('#search-input').val(); // Get search input value
+
+    $.ajax({
+      url: `${backend_url}/hairpin/closest_gene_records`,
+      method: 'GET',
+      data: {
+        source_file: accession_id, // Filename filtering
+        gene_id: search_term // Search term (gene_id)
+      },
+      success: function (data) {
+        console.log('Search results:', data); // Debugging
+
+        if (data.length === 0) {
+          alert("No matching records found.");
+          return;
+        }
+
+        let gene_data = data; // Assuming data is an array of records
+        let gene_start = gene_data[0].Start; // Adjust column name if different
+        let gene_end = gene_data[0].End;
+
         $("#gene-start").html(gene_start);
         $("#gene-end").html(gene_end);
-        ir_gene_data = data.inverted_repeats
-        console.log(ir_gene_data)
 
-        let gene_columns = data.columns
-        let columns_option = []
+        let gene_columns = Object.keys(gene_data[0]); // Get column names dynamically
+        let columns_option = [];
+
         for (let header of gene_columns) {
-          columns_option.push({
-            "title": header
-          })
+          columns_option.push({ "title": header });
         }
-        gene_tandem_table.destroy();
-        $('#gene-tandem-table').empty();
-        gene_tandem_table = new DataTable('#gene-tandem-table', {
-          columns: columns_option,
-          data: ir_gene_data,
-          paging: true,
-          pageLength: 25,
-          lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, "All"]
-          ],
-        });
+
+        // Clear & populate DataTable
+        let table = $('#gene-tandem-table').DataTable();
+        table.clear();
+        table.rows.add(gene_data);
+        table.draw();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         console.error('Error:', textStatus, errorThrown);
+        alert("An error occurred while searching.");
       }
     });
   });
+
 
   function convertToCSV(data, columns) {
     const header = columns.map(col => col.title.replace(/<[^>]+>/g, '').trim()).join(',');

@@ -581,9 +581,9 @@
     });
   }
 
-  function filterAndProcessColumns() {
+  function filterAndProcessColumns(dataToRender) {
     selected_table_data = []
-    full_table_data.forEach(function (table_row) {
+    dataToRender.forEach(function (table_row) {
       filtered_row = []
       table_row.forEach(function (cell, index) {
         const header_name = summary_columns_dict[index.toString()]
@@ -642,10 +642,10 @@
     if (isWithAnnotationsChecked && filenamesIndex !== -1) {
       dataToRender = full_table_data.filter(row => assembliesWithAnnotations.has(row[filenamesIndex]));
     }
+
     // Clear previous table instance if exists
     if ($.fn.dataTable.isDataTable('#summary-table')) {
-      $('#summary-table').DataTable().destroy();
-      $('#summary-table').empty(); // Clear previous table HTML
+      $('#summary-table').DataTable().clear().draw();  // Clears data without destroying table structure
     }
     // Customize headers in the DataTables format
     sortSelectedHeaders();
@@ -663,8 +663,16 @@
       });
     }
     // Process columns based on selected headers
-    selected_table_data = dataToRender.map(row => row.filter((_, index) => selected_headers.includes(full_table_headers[index])));
-    filterAndProcessColumns()
+    selected_table_data = dataToRender.map(row =>
+      row.filter((_, index) =>
+        selected_headers.map(h => h.toLowerCase()).includes(full_table_headers[index].toLowerCase())
+      )
+    );
+
+    filterAndProcessColumns(dataToRender)
+    console.log("dataToRender", dataToRender.length)
+    console.log("full_table_data", full_table_data.length)
+    console.log("selected_table_data", selected_table_data.length)
     // Initialize table with filtered data
     summary_table = new DataTable('#summary-table', {
       columns: columns_option,
