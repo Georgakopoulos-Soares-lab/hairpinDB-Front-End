@@ -719,10 +719,8 @@
     url: `${backend_url}/hairpin/closest_gene_records?source_file=${encodeURIComponent(accession_id)}`,
     method: "GET",
     dataType: "json",
-    timeout: 5000, // Timeout set to 5 seconds (5000ms)
+    timeout: 15000, // Timeout set to 5 seconds (5000ms)
     success: function (data) {
-      // Clear existing data (if any)
-      console.log("Edwww", data)
 
       // Add new data to the table
       gene_tandem_table.rows.add(data).draw();
