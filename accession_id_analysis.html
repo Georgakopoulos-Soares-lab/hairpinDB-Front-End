@@ -675,10 +675,13 @@
 </body>
 <script src="js/components.js"></script>
 <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  let accession_id = urlParams.get("accession_id");
+
   let gene_tandem_table = new DataTable('#gene-tandem-table', {
-    data: [],
+    serverSide: true,  // Enables server-side processing
     paging: true,
-    pageLength: 10,
+    pageLength: 10,     // Default page size
     scrollX: true,
     scrollCollapse: true,
     autoWidth: false,
@@ -686,12 +689,12 @@
       [10, 25, 50, 100, -1],
       [10, 25, 50, 100, "All"]
     ],
-    dom: '<"top"lfB>rt<"bottom"ip>', // Adds export buttons
+    dom: '<"top"lfB>rt<"bottom"ip>',
     buttons: [
       'copy', 'csv', 'excel', 'pdf', 'print'
     ],
     columnDefs: [
-      { className: "text-center", targets: "_all" }, // Center align all columns
+      { className: "text-center", targets: "_all" },
     ],
     columns: [
       { data: "seqID", title: "Seq ID" },
@@ -708,31 +711,120 @@
       { data: "distance_from_TSS", title: "Distance from TSS" },
       { data: "distance_from_TES", title: "Distance from TES" },
       { data: "source_file", title: "Source File" }
-    ]
-  });
+    ],
+    ajax: function (data, callback, settings) {
+      let limit = data.length || 10;  // Number of records per page (default 10)
+      let offset = data.start || 0;   // Starting index for pagination
 
-
-  // Construct header
-  const urlParams = new URLSearchParams(window.location.search);
-  const accession_id = urlParams.get('accession_id');
-  $.ajax({
-    url: `${backend_url}/hairpin/closest_gene_records?source_file=${encodeURIComponent(accession_id)}`,
-    method: "GET",
-    dataType: "json",
-    timeout: 15000, // Timeout set to 5 seconds (5000ms)
-    success: function (data) {
-
-      // Add new data to the table
-      gene_tandem_table.rows.add(data).draw();
-    },
-    error: function (jqXHR, textStatus, errorThrown) {
-      if (textStatus === "timeout") {
-        console.error("Request timed out");
-      } else {
-        console.error("Error fetching data:", errorThrown);
-      }
+      $.ajax({
+        url: accession_id === 'GCF_009914755.1' ? `${backend_url}/hairpin/closest_gene_records_human` : `${backend_url}/hairpin/closest_gene_records`,
+        method: "GET",
+        dataType: "json",
+        timeout: 15000,
+        data: {
+          source_file: accession_id,
+          limit: limit,
+          offset: offset
+        },
+        success: function (response) {
+          callback({
+            draw: data.draw, // Required for DataTables to function
+            recordsTotal: response.total_count, // Total records before filtering
+            recordsFiltered: response.total_count, // Total after filtering (same here)
+            data: response.records // The actual data for this page
+          });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          console.error("Error fetching data:", errorThrown);
+        }
+      });
     }
   });
+
+
+
+
+  // let gene_tandem_table = new DataTable('#gene-tandem-table', {
+  //   data: [],
+  //   paging: true,
+  //   pageLength: 10,
+  //   scrollX: true,
+  //   scrollCollapse: true,
+  //   autoWidth: false,
+  //   lengthMenu: [
+  //     [10, 25, 50, 100, -1],
+  //     [10, 25, 50, 100, "All"]
+  //   ],
+  //   dom: '<"top"lfB>rt<"bottom"ip>', // Adds export buttons
+  //   buttons: [
+  //     'copy', 'csv', 'excel', 'pdf', 'print'
+  //   ],
+  //   columnDefs: [
+  //     { className: "text-center", targets: "_all" }, // Center align all columns
+  //   ],
+  //   columns: [
+  //     { data: "seqID", title: "Seq ID" },
+  //     { data: "start", title: "Start" },
+  //     { data: "end", title: "End" },
+  //     { data: "sequenceOfArm", title: "Sequence of Arm" },
+  //     { data: "sequenceOfSpacer", title: "Sequence of Spacer" },
+  //     { data: "sequence", title: "Sequence" },
+  //     { data: "armLength", title: "Arm Length" },
+  //     { data: "gene_id", title: "Gene ID" },
+  //     { data: "gene_biotype", title: "Gene Biotype" },
+  //     { data: "strand", title: "Strand" },
+  //     { data: "distance", title: "Distance" },
+  //     { data: "distance_from_TSS", title: "Distance from TSS" },
+  //     { data: "distance_from_TES", title: "Distance from TES" },
+  //     { data: "source_file", title: "Source File" }
+  //   ]
+  // });
+
+
+  // // Construct header
+  // const urlParams = new URLSearchParams(window.location.search);
+  // let currentPage = 0;
+  // const pageSize = 50; // Define how many records per page
+
+  // function fetchGeneRecords() {
+  //   const accession_id = urlParams.get("accession_id");
+
+  //   $.ajax({
+  //     url: `${backend_url}/hairpin/closest_gene_records?source_file=${encodeURIComponent(accession_id)}&limit=${pageSize}&offset=${currentPage * pageSize}`,
+  //     method: "GET",
+  //     dataType: "json",
+  //     timeout: 15000,
+  //     success: function (data) {
+  //       gene_tandem_table.clear().rows.add(data).draw();
+
+  //       // Update pagination UI (if needed)
+  //       updatePagination(data.total_count);
+  //     },
+  //     error: function (jqXHR, textStatus, errorThrown) {
+  //       if (textStatus === "timeout") {
+  //         console.error("Request timed out");
+  //       } else {
+  //         console.error("Error fetching data:", errorThrown);
+  //       }
+  //     }
+  //   });
+  // }
+
+  // // Example pagination function
+  // function nextPage() {
+  //   currentPage++;
+  //   fetchGeneRecords();
+  // }
+
+  // function prevPage() {
+  //   if (currentPage > 0) {
+  //     currentPage--;
+  //     fetchGeneRecords();
+  //   }
+  // }
+
+  // // Call this function to load the first page
+  // fetchGeneRecords();
 
 
 
