@@ -554,13 +554,6 @@
       <br>
       <div class="filter-bar">
         <button id="add-filter-btn" class="add-filter-btn btn btn-primary">Motif Filters</button>
-        <div class="d-flex align-items-center">
-          <input class="form-check-input mt-0" type="checkbox" id="limit-results-checkbox" checked=''>
-          <label class="form-check-label m-3 filter-checkbox-label" for="limit-results-checkbox"
-            style="margin-right: 10x;"> Limit Results</label>
-          <input class="form-control form-control-sm ms-2 d-none filter-checkbox-limit" type="number"
-            id="result_limit_input" value="1000" min="1">
-        </div>
         <button type="button" class="btn btn-light ms-2" id="example-filters" data-bs-placement="top"
           data-bs-toggle="tooltip"> Show Example <i class="fas fa-question-circle"></i>
         </button>
@@ -575,7 +568,6 @@
         <h2>Add Motif Filter</h2>
         <form id="filter-form">
           <br>
-          <!-- HTML: Add this to the existing filter modal -->
           <label for="filter-name">Filter Name:</label>
           <select id="filter-name" name="form_filter_name" class="form-select" required>
             <!-- Options will be populated by JavaScript -->
@@ -588,6 +580,7 @@
             <option value="contains">contains</option>
             <option value="starts with">starts with</option>
             <option value="ends with">ends with</option>
+            <option value="length equals">length equals</option>
             <option value="length greater than">length greater than</option>
             <option value="length less than">length less than</option>
             <option value="length greater or equal">length greater or equal</option>
@@ -617,8 +610,9 @@
     <br>
     <!-- Table container -->
     <div id="example_wrapper" class="dt-container dt-bootstrap5" style="margin-right: 80px; margin-left: 80px;">
-      <!-- Pagination Controls (Top) -->
-      <div class="top-pagination mb-3"></div>
+      <!-- We will display a dynamic "Showing X to Y of Z entries" line here -->
+      <div id="entries-info" class="mb-2"></div>
+
       <div class="row mt-2 justify-content-md-center">
         <div class="col-12 table-wrapper">
           <table id="motif-table" class="display table table-striped table-hover dataTable table-responsive "
@@ -631,471 +625,588 @@
           </table>
         </div>
       </div>
-
-    </div>
-    <!-- Pagination Controls (Bottom) -->
-    <div class="bottom-pagination-wrapper text-center mt-4">
-      <div class="bottom-pagination"></div>
+      <!-- Pagination Controls (Bottom) -->
+      <div class="bottom-pagination text-center mt-4"></div>
     </div>
     <b>
-      <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
-        <div class="genomic-result">
-          <h2>Motif Metadata Analysis</h2>
-          <hr>
-          <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
-          <div class="row mt-2 justify-content-md-center">
-            <div class="col-12 ">
-              <table id="motif-metadata-table"
-                class="display table table-striped table-hover dataTable table-responsive "
-                style="table-layout: auto; width: 100%;" aria-describedby="example_info">
-                <thead>
-                  <tr role="row" id="motif-metadata-table-header"></tr>
-                </thead>
-                <tbody id="motif-metadata-table-body">
-                </tbody>
-              </table>
-            </div>
+    <div class="genomic-container" id="motif-metadata" style="margin-right: 80px; margin-left: 80px;">
+      <div class="genomic-result">
+        <h2>Motif Metadata Analysis</h2>
+        <hr>
+        <p><strong>Found in </strong> <label id="genomic-unique-files"></label> unique genome assemblies</p>
+        <div class="row mt-2 justify-content-md-center">
+          <div class="col-12 ">
+            <table id="motif-metadata-table"
+              class="display table table-striped table-hover dataTable table-responsive "
+              style="table-layout: auto; width: 100%;" aria-describedby="example_info">
+              <thead>
+                <tr role="row" id="motif-metadata-table-header"></tr>
+              </thead>
+              <tbody id="motif-metadata-table-body">
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-      <div id="footer-container"></div>
-    </b>
+    </div>
+
+    <div id="footer-container"></div>
 </body>
+
 <script>
-  // Constant data
-  let filters = {}
-  // Res Table 
-  let full_table_data;
-  let full_table_headers;
-  let motif_table;
-  let summary_columns_dict = {};
-  // Metadata Table 
-  let full_metadata_table_data;
-  let full_metadata_table_columns;
-  let motif_metadata_table;
+  
+// -----------------------------------------
+// Declare variables in a higher (global) scope
+// -----------------------------------------
+let filters = {};
+let full_table_data = [];
+let full_table_headers = [];
+let motif_table = null;   // We'll store the DataTable instance here
+let totalRecords = 0;
 
-  function initializeMotifPage() {
-    filter_name_list = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
-    filter_name_list.forEach(filter => {
-      const option = document.createElement("option");
-      option.value = filter;
-      option.textContent = filter;
-      filter_name_select.appendChild(option);
-    });
+let currentOffset = 0;
+let currentPageSize = 10; // default page size
+
+// -----------------------------------------
+// Page initialization
+// -----------------------------------------
+function initializeMotifPage() {
+  // Populate the <select> with possible filter names
+  const filter_name_list = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
+  filter_name_list.forEach(filter => {
+    const option = document.createElement("option");
+    option.value = filter;
+    option.textContent = filter;
+    document.getElementById('filter-name').appendChild(option);
+  });
+}
+
+// -----------------------------------------
+// Function to filter out certain columns
+// -----------------------------------------
+function filterTableData(columnsToRemove) {
+  const indicesToRemove = full_table_headers
+    .map((header, index) => columnsToRemove.includes(header) ? index : -1)
+    .filter(index => index !== -1);
+
+  // Remove those columns from our table data
+  full_table_data = full_table_data.map(row => 
+    row.filter((_, index) => !indicesToRemove.includes(index))
+  );
+  full_table_headers = full_table_headers.filter(
+    (header, index) => !indicesToRemove.includes(index)
+  );
+}
+
+// -----------------------------------------
+// Create (or recreate) the DataTable
+// -----------------------------------------
+function populateTable() {
+  // First, remove any old DataTable instance
+  if ($.fn.DataTable.isDataTable('#motif-table')) {
+    motif_table.destroy();
+  }
+  
+  // Clear out old HTML
+  $('#motif-table').empty();
+
+  // Optionally remove these columns from display
+  filterTableData(['armLength', 'spacerLength', 'sequenceLength']);
+
+  // Build column definitions for DataTables
+  let columns_option = [];
+  for (let header of full_table_headers) {
+    let display_header = header.replace(/_/g, ' ');
+    display_header = capitalizeFirstLetter(display_header);
+    columns_option.push({ title: display_header });
   }
 
-  function filterTableData(items_to_filter) {
-    const indices_to_remove = full_table_headers.map((header, index) => items_to_filter.includes(header) ? index : -1).filter(index => index !== -1); // Filter out -1, which means no match
-    full_table_data = full_table_data.map(row => row.filter((_, index) => !indices_to_remove.includes(index)));
-    full_table_headers = full_table_headers.filter((header, index) => !indices_to_remove.includes(index));
-  }
-  let selectedEntries = 10; // Default
+  // Calculate start and end positions for info display
+  const start = currentOffset + 1;
+  const end = Math.min(currentOffset + full_table_data.length, totalRecords);
+  
+  // Now instantiate a fresh DataTable
+  motif_table = $('#motif-table').DataTable({
+    data: full_table_data,
+    columns: columns_option,
+    paging: false, // We'll handle pagination manually
+    searching: false,
+    ordering: false,
+    info: false, // We'll handle info display manually
+    
+    // We're just using DataTables for the basic table display
+    dom: 't'
+  });
+  
+  // Add the custom info and pagination below the table
+  updateCustomPagination();
+}
 
-
-  function populateTable() {
-    filterTableData(['armLength', 'spacerLength', 'sequenceLength'])
-    let columns_option = []
-    for (let header of full_table_headers) {
-      header = header.split('_').join(' ');
-      header = capitalizeFirstLetter(header)
-      columns_option.push({
-        "title": header
-      })
-    }
-    // Initialize table properties, headers and data
-    motif_table = new DataTable('#motif-table', {
-      columns: columns_option,
-      data: full_table_data,
-      paging: true,
-      pageLength: 100,
-      lengthMenu: [
-        [10, 25, 50, 100, -1],
-        [10, 25, 50, 100, "All"]
-      ],
-      columnDefs: [{
-        searchable: true
-      }],
-      // Initialize DataTable and handle pagination cloning
-      initComplete: function (settings, json) {
-        clonePagination();
+// Function to update pagination and info display
+function updateCustomPagination() {
+  const wrapper = $('#example_wrapper');
+  
+  // Remove any existing custom pagination
+  wrapper.find('.custom-pagination-container').remove();
+  
+  // Create our custom pagination container
+  const paginationContainer = $('<div class="custom-pagination-container row mt-3"></div>');
+  
+  // Info section (left side)
+  const start = currentOffset + 1;
+  const end = Math.min(currentOffset + full_table_data.length, totalRecords);
+  const infoDiv = $(`<div class="col-sm-6 pagination-info">Showing ${start} to ${end} of ${totalRecords} entries</div>`);
+  
+  // Pagination controls (right side)
+  const paginationDiv = $('<div class="col-sm-6 text-end"></div>');
+  
+  // Only show pagination if we have enough records
+  if (totalRecords > currentPageSize) {
+    const numPages = Math.ceil(totalRecords / currentPageSize);
+    const currentPage = Math.floor(currentOffset / currentPageSize);
+    
+    // Create pagination container
+    const paginationUl = $('<ul class="pagination pagination-sm justify-content-end mb-0"></ul>');
+    
+    // Previous button
+    const prevButton = $(`<li class="page-item ${currentPage === 0 ? 'disabled' : ''}">
+      <a class="page-link" href="#" aria-label="Previous">
+        <span aria-hidden="true">Previous</span>
+      </a>
+    </li>`);
+    
+    prevButton.on('click', function(e) {
+      e.preventDefault();
+      if (currentPage > 0) {
+        currentOffset = (currentPage - 1) * currentPageSize;
+        searchDatabase(false);
       }
     });
-  }
-
-  function clearTable() {
-    if (motif_table) motif_table.destroy();
-    $('#motif-table').empty();
-    $('.top-pagination').empty();
-  }
-
-  function populateMotifMetadataTable() {
-    let selected_columns = ['assembly_accession', 'organism_name', 'domain']
-    let columns_option = [];
-    let filtered_data = [];
-    // Filter the headers (columns) based on selected_columns
-    for (let header of full_metadata_table_columns) {
-      if (selected_columns.includes(header)) {
-        let display_header = header.split('_').join(' ');
-        display_header = capitalizeFirstLetter(display_header);
-        columns_option.push({
-          "title": display_header
-        });
-      }
-    }
-    // Filter the data rows to keep only the columns in selected_columns
-    filtered_data = full_metadata_table_data.map(row => {
-      return selected_columns.map(col => row[full_metadata_table_columns.indexOf(col)]);
-    });
-    // Initialize table with filtered columns and data
-    motif_metadata_table = new DataTable('#motif-metadata-table', {
-      columns: columns_option,
-      data: filtered_data,
-      paging: true,
-      pageLength: 25,
-      lengthMenu: [
-        [10, 25, 50, 100, -1],
-        [10, 25, 50, 100, "All"]
-      ],
-      columnDefs: [{
-        searchable: true
-      }]
-    });
-  }
-
-  function clearMetadataTable() {
-    if (motif_metadata_table) motif_metadata_table.destroy();
-    $('#motif-metadata-table').empty();
-  }
-
-  // Cloning Pagination Controls
-  function clonePagination() {
-    var $pagination = $('#motif-table_paginate').clone();
-    $('.top-pagination').html($pagination.html());
-
-
-    // Bind click events for top pagination
-    $('.top-pagination').find('a').each(function (index, element) {
-      $(element).on('click', function (e) {
+    paginationUl.append(prevButton);
+    
+    // Page numbers - we'll show up to 5 pages with current page in the middle when possible
+    const startPage = Math.max(0, Math.min(currentPage - 2, numPages - 5));
+    const endPage = Math.min(numPages, startPage + 5);
+    
+    for (let i = startPage; i < endPage; i++) {
+      const pageBtn = $(`<li class="page-item ${i === currentPage ? 'active' : ''}">
+        <a class="page-link" href="#">${i + 1}</a>
+      </li>`);
+      
+      pageBtn.on('click', function(e) {
         e.preventDefault();
-        var pageNum = $(this).attr('data-dt-idx');
-        motif_table.page(parseInt(pageNum) - 1).draw(false);
+        if (i !== currentPage) {
+          currentOffset = i * currentPageSize;
+          searchDatabase(false);
+        }
       });
+      paginationUl.append(pageBtn);
+    }
+    
+    // Next button
+    const nextButton = $(`<li class="page-item ${currentPage >= numPages - 1 ? 'disabled' : ''}">
+      <a class="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">Next</span>
+      </a>
+    </li>`);
+    
+    nextButton.on('click', function(e) {
+      e.preventDefault();
+      if (currentPage < numPages - 1) {
+        currentOffset = (currentPage + 1) * currentPageSize;
+        searchDatabase(false);
+      }
     });
+    paginationUl.append(nextButton);
+    
+    // Add pagination to container
+    paginationDiv.append(paginationUl);
   }
+  
+  // Append both sections to the container
+  paginationContainer.append(infoDiv);
+  paginationContainer.append(paginationDiv);
+  
+  // Add the container to the page
+  wrapper.append(paginationContainer);
+  
+  // Add styles to ensure proper alignment
+  $('<style>').text(`
+    .custom-pagination-container {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    .pagination-info {
+      display: flex;
+      align-items: center;
+    }
+  `).appendTo('head');
+}
 
-  // Handle DataTable draw event to keep pagination in sync
-  $(document).ready(function () {
-    $("#loader").hide();
-    $("#motif-metadata").hide();
-    $('input[type=checkbox]').prop('checked', false);
-    initializeMotifPage()
-    $('#example-filters').tooltip({
-      title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability. Click the button to explore the feature.',
-      template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
-      trigger: 'hover'
-    });
-    // Hide the reverse strand selector for length-related filters
-    $('#operator').on('change', function () {
-      const selectedOperator = $(this).val();
-      const reverseStrandContainer = $('#reverse-strand-container');
-      if (selectedOperator.includes('length')) {
-        reverseStrandContainer.hide();
-      } else {
-        reverseStrandContainer.show();
-      }
-    });
-    // Show Example functionality
-    $('#example-filters').on('click', function () {
-      // Clear current filters
-      filters = {};
-      // Randomly choose one of the example sets
-      const randomExample = Math.random() > 0.5 ? 'example1' : 'example2';
-      if (randomExample === 'example1') {
-        // Example 1 filters
-        filters['left_arm equals caatatggaa'] = {
-          filter_name: 'left_arm',
-          operator: 'equals',
-          value: 'caatatggaa',
-          reverse_strand: 'no'
-        };
-        filters['spacer contains atg'] = {
-          filter_name: 'spacer',
-          operator: 'contains',
-          value: 'atg',
-          reverse_strand: 'only_reverse'
-        };
-      } else {
-        // Example 2 filters
-        filters['left_arm equals tttatatata'] = {
-          filter_name: 'left_arm',
-          operator: 'equals',
-          value: 'tttatatata',
-          reverse_strand: 'no'
-        };
-        filters['spacer length greater than 0'] = {
-          filter_name: 'spacer',
-          operator: 'length greater than',
-          value: '0',
-          reverse_strand: 'no'
-        };
-        filters['spacer contains aa'] = {
-          filter_name: 'spacer',
-          operator: 'contains',
-          value: 'aa',
-          reverse_strand: 'both'
-        };
-      }
-      // Render and apply the filters
-      render_filters();
-    });
+// -----------------------------------------
+// Clear out existing table data
+// -----------------------------------------
+function clearTable() {
+  if ($.fn.DataTable.isDataTable('#motif-table')) {
+    motif_table.destroy();
+  }
+  $('#motif-table').empty(); 
+  full_table_data = [];
+  full_table_headers = [];
+}
 
-    // Define default example filters
-    const defaultFilters = {
-      'left_arm equals caatatggaa': {
+// -----------------------------------------
+// Search the database (server-side pagination)
+// -----------------------------------------
+function searchDatabase(resetPagination = true) {
+  if (resetPagination) {
+    currentOffset = 0;
+  }
+  $("#loader").show();
+
+  // Build query params for offset & length
+  const queryParams = `?start=${currentOffset}&length=${currentPageSize}`;
+
+  $.ajax({
+    url: `${backend_url}/hairpin/motif_search${queryParams}`,
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(filters),
+    timeout: 70000,
+    success: function(data) {
+  $("#loader").hide();
+  // 1) Clear out old table
+  clearTable();
+
+  // 2) Update global data
+  full_table_headers = data.columns;
+  full_table_data = data.data;
+  totalRecords = data.recordsTotal; // from server
+
+  // 3) Build a new table
+  populateTable();
+
+  // ------------------------
+  // CALL THE METADATA ROUTE
+  // ------------------------
+  $.ajax({
+    url: `${backend_url}/hairpin/motif_metadata${queryParams}`,
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(filters),
+    success: function(metaData) {
+      // metaData.columns => ["assembly_accession","organism_name","domain"]
+      // metaData.data => array of rows
+      // metaData.recordsTotal => how many unique assemblies
+      $('#genomic-unique-files').text(metaData.recordsTotal);
+
+      // Clear existing metadata table content
+      $('#motif-metadata-table').DataTable().clear().destroy();
+      $('#motif-metadata-table').empty();
+
+      // Build new columns
+      let metaCols = metaData.columns.map(col => ({
+        title: col.replace(/_/g, ' ').toUpperCase()
+      }));
+
+      // Initialize a DataTable for the metadata with pagination and a custom page-length menu
+      $('#motif-metadata-table').DataTable({
+        data: metaData.data,
+        columns: metaCols,
+        paging: true,
+        lengthChange: true,
+        pageLength: 10, // default page size
+        lengthMenu: [[10, 25, 50, 100, 1000], [10, 25, 50, 100, 1000]],
+        searching: false,
+        ordering: false,
+        info: true, // displays "Showing x to y of z entries"
+        dom: 'lrtip'
+      });
+    },
+    error: function(xhr, status, error) {
+      console.error('Metadata Error:', error);
+    }
+  });
+},
+    error: function(xhr, status, error) {
+      $("#loader").hide();
+      $('#filter-warning').removeClass('d-none');
+      setTimeout(() => {
+        $('#filter-warning').addClass('d-none');
+      }, 10000);
+      console.error('Error:', error);
+    }
+  });
+}
+
+// -----------------------------------------
+// Document ready
+// -----------------------------------------
+$(document).ready(function() {
+  $("#loader").hide();
+  initializeMotifPage();
+
+  // Initialize the tooltip on the "Show Example" button
+  $('#example-filters').tooltip({
+    title: 'By clicking Show Example, two predefined filter sets are selected randomly with equal probability. Click the button to explore the feature.',
+    template: '<div class="tooltip tooltip-help" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>',
+    trigger: 'hover'
+  });
+
+  // Hide the reverse strand selector for length-related filters
+  $('#operator').on('change', function() {
+    const selectedOperator = $(this).val();
+    if (selectedOperator.includes('length')) {
+      $('#reverse-strand-container').hide();
+    } else {
+      $('#reverse-strand-container').show();
+    }
+  });
+
+  // Show Example functionality
+  $('#example-filters').on('click', function() {
+    // Clear current filters
+    filters = {};
+    // Randomly choose one of the example sets
+    const randomExample = Math.random() > 0.5 ? 'example1' : 'example2';
+    if (randomExample === 'example1') {
+      // Example 1 filters
+      filters['left_arm equals caatatggaa'] = {
         filter_name: 'left_arm',
         operator: 'equals',
         value: 'caatatggaa',
         reverse_strand: 'no'
-      },
-      'spacer contains atg': {
+      };
+      filters['spacer contains atg'] = {
         filter_name: 'spacer',
         operator: 'contains',
         value: 'atg',
         reverse_strand: 'only_reverse'
-      }
-    };
-
-    // Apply default filters
-    filters = defaultFilters;
-    render_filters(); // Render these filters in the UI
-
-    // Fetch and display default example data
-    searchDatabase();
-    // JavaScript to toggle visibility of the number input
-    document.getElementById('limit-results-checkbox').addEventListener('change', function () {
-      const result_limit_input = document.getElementById("result_limit_input");
-      result_limit_input.classList.toggle('d-none', !this.checked);
-    });
-
-    // Initialize DataTable and handle pagination cloning on draw
-    $(document).on('draw.dt', '#motif-table', function () {
-      clonePagination();
-    });
-  });
-
-  function calculateAndRenderMetadataFromMotifs() {
-    let unique_files = new Set();
-    for (const data of full_table_data) {
-      unique_files.add(data[0])
-    }
-    const unique_file_count = unique_files.size
-    $("#genomic-unique-files").html(unique_file_count)
-    $("#loader").show();
-    // API CALL
-    $.ajax({
-      url: `${backend_url}/hairpin/metadata/multiple_files/`,
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        filenames: Array.from(unique_files)
-      }),
-      success: function (data) {
-        console.log(data)
-        full_metadata_table_data = data.data
-        full_metadata_table_columns = data.columns
-        populateMotifMetadataTable()
-        $("#loader").hide();
-      },
-      error: function (xhr, status, error) {
-        console.error('Error:', error);
-        $("#loader").hide();
-      },
-    });
-    // Show metadata section
-    $("#motif-metadata").show();
-  }
-
-  function handleCheckboxChange(event) {
-    clearTable()
-    const {
-      value,
-      checked
-    } = event.target;
-    if (checked) {
-      selected_headers.push(value);
+      };
     } else {
-      const index = selected_headers.indexOf(value);
-      if (index > -1) {
-        selected_headers.splice(index, 1);
-      }
+      // Example 2 filters
+      filters['left_arm equals tttatatata'] = {
+        filter_name: 'left_arm',
+        operator: 'equals',
+        value: 'tttatatata',
+        reverse_strand: 'no'
+      };
+      filters['spacer length greater than 0'] = {
+        filter_name: 'spacer',
+        operator: 'length greater than',
+        value: '0',
+        reverse_strand: 'no'
+      };
+      filters['spacer contains aa'] = {
+        filter_name: 'spacer',
+        operator: 'contains',
+        value: 'aa',
+        reverse_strand: 'both'
+      };
     }
-    populateTable()
-  }
-
-  function searchDatabase() {
-    $("#loader").show();
-    const post_data = filters
-    const limit_results_true = document.getElementById("limit-results-checkbox").checked;
-    const limit_results_param = limit_results_true ? `?n=${document.getElementById("result_limit_input").value}` : ``;
-    $.ajax({
-      url: `${backend_url}/hairpin/motif_search${limit_results_param}`,
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(post_data),
-      timeout: 70000, // ⏳ Timeout after 10 seconds (10000 ms)
-      success: function (data) {
-        $("#loader").hide();
-        resp_obj = data
-        console.log(resp_obj)
-        clearTable()
-        clearMetadataTable()
-        full_table_headers = resp_obj.columns
-        full_table_data = resp_obj.data
-        populateTable()
-        calculateAndRenderMetadataFromMotifs()
-      },
-      error: function (xhr, status, error) {
-        $("#loader").hide();
-        // Show the Bootstrap warning alert
-        $('#filter-warning').removeClass('d-none');
-        // Automatically hide the alert after a few seconds (optional)
-        setTimeout(() => {
-          $('#filter-warning').addClass('d-none');
-        }, 10000); // 10 seconds
-        console.error('Error:', error);
-      }
-    });
-  }
-
-  let filter_name_list;
-  const modal = document.getElementById("modal");
-  const add_filter_button = document.getElementById("add-filter-btn");
-  const close_button = document.querySelector(".close-button");
-  const filter_form = document.getElementById("filter-form");
-  const filter_name_select = document.getElementById("filter-name");
-  add_filter_button.addEventListener("click", () => {
-    modal.style.display = "block";
-    // Hide the warning when the modal opens
-    $('#filter-warning').addClass('d-none');
-  });
-  close_button.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-  window.addEventListener("click", (event) => {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  });
-  filter_form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const filter_name = event.target.form_filter_name.value;
-    const operator = event.target.form_filter_operator.value;
-    const value = event.target.form_filter_value.value;
-    const reverse_strand = event.target.form_filter_reverse_strand.value; // Get reverse strand value
-
-    // Define motif-related filter names
-    const motifFilters = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
-
-    // Initialize flag for warning
-    let showWarning = false;
-
-    // Check if the filter is a motif filter
-    if (motifFilters.includes(filter_name)) {
-      if (operator.includes('length')) {
-        const numericValue = parseInt(value, 10);
-        if (isNaN(numericValue) || numericValue < 6) {
-          showWarning = true;
-        }
-      } else {
-        if (value.length < 6) {
-          showWarning = true;
-        }
-      }
-    }
-
-    if (showWarning) {
-      // Show the Bootstrap warning alert
-      $('#filter-warning').removeClass('d-none');
-      // Automatically hide the alert after a few seconds (optional)
-      setTimeout(() => {
-        $('#filter-warning').addClass('d-none');
-      }, 10000); // 10 seconds
-    } else {
-      // Hide the warning alert if it's visible
-      $('#filter-warning').addClass('d-none');
-    }
-
-    if (filter_name && operator && value) {
-      const filter_key = `${filter_name} ${operator} ${value}`;
-      if (!filters[filter_key]) {
-        const reverse_strand_value = reverse_strand
-        filters[filter_key] = {
-          filter_name,
-          operator,
-          value,
-          reverse_strand: reverse_strand_value
-        };
-        render_filters();
-        modal.style.display = "none";
-        filter_form.reset();
-      } else {
-        alert("Filter already exists!");
-      }
-    } else {
-      alert("All fields are required!");
-    }
-  });
-  // Render Filters Function
-  function render_filters() {
-    const filters_container = document.getElementById('filters-container');
-    filters_container.innerHTML = '';
-    for (let filter_key in filters) {
-      const filter = filters[filter_key];
-      const filter_element = document.createElement('div');
-      filter_element.className = 'filter';
-      // Small label based on reverse_strand value with tooltip
-      let strand_label = '';
-      if (filter.reverse_strand === 'no') {
-        strand_label = `
-            <span class="strand-label forward">( Forward ⭢ )
-                <div class="tooltip-content">
-                    <strong>Example:</strong><br>
-                    In the sequence <code>AAATTGGCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the forward strand in the left to right direction.
-                </div>
-            </span>`;
-      } else if (filter.reverse_strand === 'only_reverse') {
-        strand_label = `
-            <span class="strand-label reverse">( Reverse ⭠ )
-                <div class="tooltip-content">
-                    <strong>Example:</strong><br>
-                    In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the reverse strand involves finding its reverse complement in the left to right direction.
-                </div>
-            </span>`;
-      } else if (filter.reverse_strand === 'both') {
-        strand_label = `
-            <span class="strand-label both">( Both ⮂ )
-                <div class="tooltip-content">
-                    <strong>Example:</strong><br>
-                    Searching for the motif <code>${filter.value}</code> highlights both the motif and its reverse complement.
-                </div>
-            </span>`;
-      }
-      filter_element.innerHTML = `
-            <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
-            ${strand_label}
-            <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
-        `;
-      filters_container.appendChild(filter_element);
-    }
-  }
-
-  // Remove Filter
-  function remove_filter(filter_key) {
-    delete filters[filter_key];
     render_filters();
+    searchDatabase();
+  });
+
+  // Define default example filters
+  const defaultFilters = {
+    'left_arm equals caatatggaa': {
+      filter_name: 'left_arm',
+      operator: 'equals',
+      value: 'caatatggaa',
+      reverse_strand: 'no'
+    },
+    'spacer contains atg': {
+      filter_name: 'spacer',
+      operator: 'contains',
+      value: 'atg',
+      reverse_strand: 'only_reverse'
+    }
+  };
+
+  // Load default filters
+  filters = defaultFilters;
+  render_filters();
+
+  // Event handler for page size changes
+  $(document).on('change', '#page-size-select', function() {
+    currentPageSize = parseInt($(this).val(), 10);
+    currentOffset = 0; // Reset to first page
+    searchDatabase();
+  });
+
+  // -------------------------------------------------------
+  // ADD A PERMANENT PAGE-SIZE SELECTOR (10, 25, 50, 100, 1000)
+  // -------------------------------------------------------
+  const sizeOptions = [10, 25, 50, 100, 1000];
+  const selectHtml = `
+    <div class="page-size-container d-inline-block ms-2" style="margin-top: 15px;">
+      <label for="page-size-select">Show</label>
+      <select id="page-size-select" class="form-select form-select-sm d-inline-block mx-1" style="width: auto;">
+        ${sizeOptions.map(size => `<option value="${size}" ${size === currentPageSize ? 'selected' : ''}>${size}</option>`).join('')}
+      </select>
+      <span>entries</span>
+    </div>
+  `;
+  $('#example_wrapper').append(selectHtml);
+  // -------------------------------------------------------
+
+  // Do an initial search to populate the table
+  searchDatabase();
+});
+
+// -----------------------------------------
+// Modal Setup
+// -----------------------------------------
+const modal = document.getElementById("modal");
+const add_filter_button = document.getElementById("add-filter-btn");
+const close_button = document.querySelector(".close-button");
+const filter_form = document.getElementById("filter-form");
+const filter_name_select = document.getElementById("filter-name");
+
+add_filter_button.addEventListener("click", () => {
+  modal.style.display = "block";
+  $('#filter-warning').addClass('d-none');
+});
+
+close_button.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+window.addEventListener("click", (event) => {
+  if (event.target == modal) {
+    modal.style.display = "none";
   }
+});
+
+filter_form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const filter_name = event.target.form_filter_name.value;
+  const operator = event.target.form_filter_operator.value;
+  const value = event.target.form_filter_value.value;
+  const reverse_strand = event.target.form_filter_reverse_strand.value;
+
+  const motifFilters = ['arms', 'spacer', 'left_arm', 'right_arm', 'sequence'];
+  let showWarning = false;
+
+  // If user is adding a motif filter, check if it's either length or shorter than 6bp
+  // if (motifFilters.includes(filter_name)) {
+  //   if (operator.includes('length')) {
+  //     const numericValue = parseInt(value, 10);
+  //     if (isNaN(numericValue) || numericValue < 6) {
+  //       showWarning = true;
+  //     }
+  //   } else {
+  //     if (value.length < 6) {
+  //       showWarning = true;
+  //     }
+  //   }
+  // }
+
+  if (showWarning) {
+    $('#filter-warning').removeClass('d-none');
+    setTimeout(() => {
+      $('#filter-warning').addClass('d-none');
+    }, 10000);
+  } else {
+    $('#filter-warning').addClass('d-none');
+  }
+
+  if (filter_name && operator && value) {
+    const filter_key = `${filter_name} ${operator} ${value}`;
+    if (!filters[filter_key]) {
+      filters[filter_key] = {
+        filter_name,
+        operator,
+        value,
+        reverse_strand
+      };
+      render_filters();
+      modal.style.display = "none";
+      filter_form.reset();
+      searchDatabase();
+    } else {
+      alert("Filter already exists!");
+    }
+  } else {
+    alert("All fields are required!");
+  }
+});
+
+// -----------------------------------------
+// Render the "active filters" in the UI
+// -----------------------------------------
+function render_filters() {
+  const filters_container = document.getElementById('filters-container');
+  filters_container.innerHTML = '';
+
+  if (Object.keys(filters).length === 0) {
+    filters_container.innerHTML = 'No Filters Applied';
+    return;
+  }
+
+  for (let filter_key in filters) {
+    const filter = filters[filter_key];
+    const filter_element = document.createElement('div');
+    filter_element.className = 'filter';
+
+    let strand_label = '';
+    if (filter.reverse_strand === 'no') {
+      strand_label = `
+        <span class="strand-label forward">( Forward ⭢ )
+            <div class="tooltip-content">
+                <strong>Example:</strong><br>
+                In the sequence <code>AAATTGGCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the forward strand in the left-to-right direction.
+            </div>
+        </span>`;
+    } else if (filter.reverse_strand === 'only_reverse') {
+      strand_label = `
+        <span class="strand-label reverse">( Reverse ⭠ )
+            <div class="tooltip-content">
+                <strong>Example:</strong><br>
+                In the sequence <code>AAATTGGCCCCAAT</code>, searching for the motif <code>${filter.value}</code> on the reverse strand involves finding its reverse complement in the left-to-right direction.
+            </div>
+        </span>`;
+    } else if (filter.reverse_strand === 'both') {
+      strand_label = `
+        <span class="strand-label both">( Both ⮂ )
+            <div class="tooltip-content">
+                <strong>Example:</strong><br>
+                Searching for the motif <code>${filter.value}</code> on both the forward motif and its reverse complement.
+            </div>
+        </span>`;
+    }
+
+    filter_element.innerHTML = `
+      <span>${filter.filter_name} ${filter.operator} ${filter.value}</span>
+      ${strand_label}
+      <button class="remove-filter-btn" onclick="remove_filter('${filter_key}')">x</button>
+    `;
+    filters_container.appendChild(filter_element);
+  }
+}
+
+// -----------------------------------------
+// Remove a filter from the list
+// -----------------------------------------
+function remove_filter(filter_key) {
+  delete filters[filter_key];
+  render_filters();
+  // searchDatabase();
+}
+
+// -----------------------------------------
+// Utility for capitalizing a string
+// -----------------------------------------
+function capitalizeFirstLetter(str) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 
 </script>
+
+
+
 
 </html>

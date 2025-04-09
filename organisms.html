@@ -12,6 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
     <script crossorigin='anonymous' src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+
+    <!-- Your custom JS files -->
     <script src="js/functions.js"></script>
     <script src="js/components.js"></script>
 
@@ -40,8 +42,7 @@
             width: 120px;
             height: 120px;
             animation: spin 2s linear infinite;
-            display: none;
-            /* Hide loader by default */
+            display: none; /* Hide loader by default */
         }
 
         .dt-empty {
@@ -71,13 +72,8 @@
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         #dataTablesButtonsContainer {
@@ -99,12 +95,9 @@
         }
 
         .button-secondary {
-            background-color: #f0f0f0;
-            /* Light gray */
-            color: #333;
-            /* Dark text */
-            border: 1px solid #ccc;
-            /* Subtle border */
+            background-color: #f0f0f0; /* Light gray */
+            color: #333; /* Dark text */
+            border: 1px solid #ccc; /* Subtle border */
             padding: 10px 20px;
             border-radius: 5px;
             font-size: 14px;
@@ -121,8 +114,7 @@
             z-index: 1;
             padding: 10px;
             overflow: auto;
-            max-height: 300px;
-            /* You can adjust this */
+            max-height: 300px; /* You can adjust this */
         }
 
         .dropdown:hover .dropdown-content {
@@ -143,8 +135,7 @@
     <div class="main-container">
         <div class="accession-div">
             <div class="loader" id="loader"></div>
-            <br>
-            <br>
+            <br><br>
         </div>
 
         <br>
@@ -152,24 +143,27 @@
             style="margin-right: 80px; margin-left: 80px; margin-bottom: 36px;">
             <br>
 
+            <!-- Quick Search UI -->
             <div class="input-group">
                 <input type="search" class="form-control rounded" id="search-input"
                     placeholder="Quick Search on Organism Name" aria-label="Search" aria-describedby="search-addon" />
                 <button type="button" class="btn btn-outline-primary" id="search-button">Search</button>
             </div>
+
+            <!-- Column Visibility Dropdown -->
             <div class="dropdown my-4">
                 <button class="dropdown-btn btn button-secondary" id="column-selection">Column Visibility ↓</button>
                 <div class="dropdown-content" id="dropdown-content"></div>
             </div>
+
             <div class="row mt-2 justify-content-md-center">
-                <div class="table-wrapper col-12 ">
+                <div class="table-wrapper col-12">
                     <table id="organisms-table" class="display table table-striped table-hover dataTable"
                         style="table-layout: auto; width: 100%;" aria-describedby="example_info">
                         <thead>
                             <tr role="row" id="tandem-table-header"></tr>
                         </thead>
-                        <tbody id="tandem-table-body">
-                        </tbody>
+                        <tbody id="tandem-table-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -182,12 +176,20 @@
     </div>
 
     <script>
-        let selectedEntries = 25;
-        let currentPage = 1;
+        // -------------
+        // GLOBAL STATE
+        // -------------
+        let selectedEntries = 25;      // number of records per page
+        let currentPage = 1;           // current page index
+        let searchValue = "";          // search term (if any)
+
         let organism_data;
+        let organism_data_all;
         let organism_columns;
         let organisms_table;
+        let data_index_by_name = {};
 
+        // Required columns that are visible by default
         const requiredColumns = [
             "organism_name",
             "domain",
@@ -203,132 +205,197 @@
             "avg_genome_size"
         ];
 
+        // -------------
+        // ON DOM READY
+        // -------------
         $(document).ready(function () {
+            // Initial load (no search)
             fetchDataAndPopulateOrganismsTable();
 
-            // Handle dropdown toggling
-            $('#column-selection').on('click', function (event) {
-                event.stopPropagation();
-                $('#dropdown-content').toggle(); // Toggle dropdown visibility
+            // Search button
+            $("#search-button").on("click", function () {
+                searchValue = $("#search-input").val().trim();
+                currentPage = 1; // reset to first page
+                fetchDataAndPopulateOrganismsTable();
             });
 
-            // Prevent dropdown from closing when clicking inside
+            // Enter key in search box
+            $("#search-input").on("keypress", function (e) {
+                if (e.which == 13) {
+                    $("#search-button").click();
+                }
+            });
+
+            // Show/hide column dropdown
+            $('#column-selection').on('click', function (event) {
+                event.stopPropagation();
+                $('#dropdown-content').toggle();
+            });
             $('#dropdown-content').on('click', function (event) {
                 event.stopPropagation();
             });
-
-            // Close dropdown when clicking outside
             $(document).on('click', function () {
                 $('#dropdown-content').hide();
             });
 
-            // Listen for column visibility toggle without refreshing dropdown
+            // Toggle column visibility from dropdown
             $('#dropdown-content').on('change', 'input[type="checkbox"]', function () {
                 const columnIdx = $(this).data('column-index');
                 const column = organisms_table.column(columnIdx);
-                column.visible(!column.visible()); // Toggle column visibility
+                column.visible(!column.visible());
             });
         });
 
-        function populateColumnDropdown(columnMetaData) {
-            const dropdownContent = $('#dropdown-content');
-            dropdownContent.empty(); // Avoid re-rendering issues
-
-            columnMetaData.forEach((col, index) => {
-                const isChecked = organisms_table.column(index).visible();
-                const checkbox = `<label>
-                                <input type="checkbox" data-column-index="${index}" ${isChecked ? 'checked' : ''}> 
-                                ${capitalizeFirstLetterOfEachWord(col.name)}
-                              </label><br>`;
-                dropdownContent.append(checkbox);
-            });
-        }
-
-        function filterResponse(response) {
-            const headers = response.columns;
-            const data = response.data;
-
-            const selectedIndexes = headers.map((col, index) => ({
-                name: col,
-                index: index,
-                visible: requiredColumns.includes(col) // Default selection
-            }));
-
-            const filteredHeaders = selectedIndexes.map(item => item.name);
-            const filteredData = data.map(row => selectedIndexes.map(item => row[item.index]));
-
-            return [filteredHeaders, filteredData, selectedIndexes];
-        }
-
+        // -------------------------
+        // FUNCTION: fetch + render
+        // -------------------------
         function fetchDataAndPopulateOrganismsTable() {
             const offset = (currentPage - 1) * selectedEntries;
             $("#loader").show();
 
-            $.ajax({
-                url: `${backend_url}/hairpin/statistics/organisms?n=${selectedEntries}&offset=${offset}`,
-                method: 'GET',
-                success: function (data) {
-                    organism_data = data.data;
-                    organism_columns = data.columns;
-                    organism_data_all = data.data;
-
-                    const filteredResponse = filterResponse(data);
-                    organism_columns = filteredResponse[0];
-                    organism_data = filteredResponse[1];
-                    const columnMetaData = filteredResponse[2];
-                    createGetDataIndexByName(organism_columns, "data");
-
-                    renderTable(organism_data, columnMetaData);
-                    updatePaginationControls(Math.ceil(data.total / selectedEntries));
-
-                    $("#loader").hide();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error('Error:', textStatus, errorThrown);
-                    $("#loader").hide();
-                }
-            });
+            // If we have a search term, go to the quick search route
+            if (searchValue) {
+                $.ajax({
+                    url: `${backend_url}/hairpin/organisms/quick_search`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        value: searchValue,
+                        n: selectedEntries,
+                        offset: offset
+                    }),
+                    success: function (data) {
+                        handleAjaxData(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Quick Search Error:', textStatus, errorThrown);
+                        $("#loader").hide();
+                    }
+                });
+            } else {
+                // Otherwise, the normal route
+                $.ajax({
+                    url: `${backend_url}/hairpin/statistics/organisms?n=${selectedEntries}&offset=${offset}`,
+                    method: 'GET',
+                    success: function (data) {
+                        organism_data_all=data.data;
+                        handleAjaxData(data);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.error('Error:', textStatus, errorThrown);
+                        $("#loader").hide();
+                    }
+                });
+            }
         }
 
-        function renderTable(data, columnMetaData) {
+        // ---------------------------
+        // FUNCTION: handleAjaxData
+        // ---------------------------
+        function handleAjaxData(data) {
+            const [filteredHeaders, filteredData, columnMetaData] = filterResponse({
+                columns: data.columns,
+                data: data.data
+            });
+
+            organism_columns = filteredHeaders;
+            organism_data = filteredData;
+
+            // Rebuild the column->index map
+            createGetDataIndexByName(organism_columns);
+
+            // Now apply all transformations, including your button
+            const finalRows = processOrganismalData(organism_data, data_index_by_name);
+
+            // Render DataTable
+            renderTable(finalRows, columnMetaData);
+
+            // Pagination info
+            updatePaginationControls(Math.ceil(data.total / selectedEntries));
+
+            $("#loader").hide();
+        }
+
+        // ---------------------------
+        // FUNCTION: filterResponse
+        // Keep only required columns visible by default
+        // ---------------------------
+        function filterResponse(response) {
+            const headers = response.columns;
+            const data = response.data;
+
+            // Mark columns visible if in requiredColumns
+            const selectedIndexes = headers.map((col, index) => ({
+                name: col,
+                index: index,
+                visible: requiredColumns.includes(col)
+            }));
+
+            const filteredHeaders = selectedIndexes.map(item => item.name);
+            const filteredData = data.map(row => {
+                return selectedIndexes.map(item => row[item.index]);
+            });
+
+            return [filteredHeaders, filteredData, selectedIndexes];
+        }
+
+        // -----------------------------------
+        // FUNCTION: renderTable (DataTables)
+        // -----------------------------------
+        function renderTable(finalRows, columnMetaData) {
             if (organisms_table) {
                 organisms_table.destroy();
             }
 
             organisms_table = new DataTable('#organisms-table', {
-                // data: data.map(row => row.map((value) => {
-                //     // Ensure only numeric values are rounded
-                //     if (!isNaN(value) && value.toString().includes('.')) {
-                //         return parseFloat(value).toFixed(2); // Limit to 2 decimal places
-                //     }
-                //     return value;
-                // })),
-                data: processOrganismalData(organism_data, data_index_by_name),
-
+                data: finalRows,
                 columns: columnMetaData.map(col => ({
                     title: capitalizeFirstLetterOfEachWord(col.name),
-                    visible: col.visible // Keep required columns visible
+                    visible: col.visible
                 })),
-                searching: true,
-                paging: true,
-                pageLength: selectedEntries, // Use selected value
+                searching: false,
+                paging: false,
+                pageLength: selectedEntries,
                 lengthMenu: [
-                    [10, 25, 50, 100], // Options for users
+                    [10, 25, 50, 100],
                     [10, 25, 50, 100]
-                ],
+                ]
             });
 
-            // Populate column dropdown when table is re-rendered
             populateColumnDropdown(columnMetaData);
 
-            // 🔥 Listen for changes in number of rows per page
+            // If user changes page length from DataTables dropdown
             organisms_table.on('length.dt', function (e, settings, len) {
-                selectedEntries = len; // Update global variable
-                fetchDataAndPopulateOrganismsTable(); // Reload table with new row count
+                selectedEntries = len;
+                currentPage = 1;
+                fetchDataAndPopulateOrganismsTable();
             });
         }
 
+        // -----------------------------------------
+        // FUNCTION: populateColumnDropdown
+        // Builds the checkboxes for each column
+        // -----------------------------------------
+        function populateColumnDropdown(columnMetaData) {
+            const dropdownContent = $('#dropdown-content');
+            dropdownContent.empty();
 
+            columnMetaData.forEach((col, index) => {
+                const isChecked = organisms_table.column(index).visible();
+                const checkbox = `
+                  <label>
+                      <input type="checkbox" data-column-index="${index}" 
+                             ${isChecked ? 'checked' : ''}>
+                      ${capitalizeFirstLetterOfEachWord(col.name)}
+                  </label><br>
+                `;
+                dropdownContent.append(checkbox);
+            });
+        }
+
+        // -----------------------------------------
+        // FUNCTION: updatePaginationControls
+        // -----------------------------------------
         function updatePaginationControls(totalPages) {
             const paginationContainer = document.getElementById('paginationControls');
             paginationContainer.innerHTML = '';
@@ -336,7 +403,7 @@
             const prevButton = document.createElement('button');
             prevButton.innerText = 'Previous';
             prevButton.disabled = currentPage === 1;
-            prevButton.className = 'btn btn-secondary';
+            prevButton.className = 'btn btn-primary';
             prevButton.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage--;
@@ -353,7 +420,7 @@
             const nextButton = document.createElement('button');
             nextButton.innerText = 'Next';
             nextButton.disabled = currentPage === totalPages;
-            nextButton.className = 'btn btn-secondary';
+            nextButton.className = 'btn btn-primary';
             nextButton.addEventListener('click', () => {
                 if (currentPage < totalPages) {
                     currentPage++;
@@ -362,10 +429,63 @@
             });
             paginationContainer.appendChild(nextButton);
         }
+
+        // ------------------------------------------------
+        // FUNCTION: createGetDataIndexByName
+        // Builds a map { columnName -> 0-based index }
+        // ------------------------------------------------
+        function createGetDataIndexByName(columns) {
+            data_index_by_name = {};
+            for (let i = 0; i < columns.length; i++) {
+                data_index_by_name[columns[i]] = i;
+            }
+        }
+
+        // ------------------------------------------------
+        // FUNCTION: processOrganismalData
+        // Restores your button logic & numeric rounding
+        // ------------------------------------------------
+        function processOrganismalData(data, idx) {
+            let processed = [];
+            for (const d of data) {
+                let row = [...d];
+
+                for (let i = 0; i < row.length; i++) {
+                    const value = row[i];
+
+                    // Check if numeric
+                    if (!isNaN(value) && value !== null && value !== '') {
+                        if (Number.isInteger(parseFloat(value))) {
+                            // leave integers as-is
+                            row[i] = value;
+                        } else {
+                            // if it's in certain columns, use denistyToMegabasePairs
+                            // (function must exist in your code)
+                            if ([30, 31, 32, 33, 34, 35, 36].includes(i)) {
+                                row[i] = denistyToMegabasePairs(value);
+                            } else {
+                                row[i] = parseFloat(value).toFixed(2);
+                            }
+                        }
+                    }
+
+                    // If this is the 'organism_name' column, create the button
+                    if (i === idx["organism_name"]) {
+                        let buttonHtml = `
+                          <button class='btn btn-outline-primary gotoviz-btn'
+                                  onclick="goToOrganism('${btoa(value)}')">
+                            <em>${value}</em>
+                          </button>`;
+                        row[i] = buttonHtml;
+                    }
+                }
+                processed.push(row);
+            }
+            return processed;
+        }
+
+
+      
     </script>
-
-
-
 </body>
-
 </html>
